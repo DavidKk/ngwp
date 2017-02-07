@@ -32,23 +32,22 @@ import {
 }                            from './config';
 
 /**
- * 入口
+ * Entries definitions
  */
 const entries = {
   'babel-polyfill': 'babel-polyfill',
 };
 
 /**
- * 插件
+ * Plugins definitions
  */
 const plugins = [
   /**
-   * 定义环境变量
-   * 在JS中可以查找到相应的变量
+   * set environment variables
+   * you can find out global variables in javascript
    *
-   * Value 是相对于 js 代码的编译
-   * 因此如果要定义 __VALUE__ = 'string'
-   * 必须写成 {__VALUE__ : '"string"'}
+   * if you want to set __VALUE_ equal 'string' (__VALUE__ = 'string')
+   * yout muse define { __VALUE__ : '\"string\"' }
    */
   new webpack.DefinePlugin({
     __DEVELOP__           : !!process.env.DEVELOP,
@@ -62,13 +61,13 @@ const plugins = [
   }),
 
   /**
-   * 查找相等或近似的模块
+   * Find out equals module
    */
   new webpack.optimize.DedupePlugin(),
 
   /**
-   * 提取公共模块
-   * 抽取公共模块减少代码重复
+   * Extract common modules
+   * to reduce code duplication
    */
   new webpack.optimize.CommonsChunkPlugin({
     name    : 'vendor',
@@ -79,16 +78,15 @@ const plugins = [
   }),
 
   /**
-   * 外置样式文件
-   * 内嵌样式能外置, 优化加载
+   * Extract style file
+   * Inline styles can be externally optimized for loading
    */
   new ExtractTextPlugin('styles/[name].[contenthash].css', {
     allChunks: true,
   }),
 
   /**
-   * 复制文件
-   * 部分没立即引用到的文件
+   * Copy files
    */
   new CopyWebpackPlugin([
     {
@@ -99,8 +97,8 @@ const plugins = [
   ]),
 
   /**
-   * 清除生成的目录路径
-   * 每次生成都是新的环境
+   * Clean generate folders
+   * run it first to reset the project.
    */
   new CleanWebpackPlugin([
     TMP_DIR,
@@ -119,7 +117,7 @@ const plugins = [
 const CallAfter = widthDone(plugins);
 
 /**
- * 自动编译的任务
+ * Generate some compile tasks
  */
 generateEnteries(plugins, entries);
 generateFavicons(plugins);
@@ -127,15 +125,15 @@ generateSprites(plugins);
 generateSVGSprites(plugins);
 
 /**
- * 部分浏览器会自动请求 favicon.ico 文件
- * IOS 在微信浏览器中需要修改 title 也是
- * 通过 iframe 请求 favicon.ico 文件
+ * some browser will request '/favicon.ico' file
+ * wechat browser in ios reset title will also request '/favicon.ico'
+ * (use iframe to request favicon.ico file)
  */
 let faviconFile = path.join(DISTRICT_PATH, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
 
 /**
- * Webpack 配置
+ * Webpack Setting
  */
 export default {
   entry   : entries,
@@ -182,8 +180,8 @@ export default {
         exclude : [/node_modules/],
       },
       /**
-       * 少于 10K 图片用 base64
-       * url-loader 依赖 file-loader
+       * Use base64 when picture size less than 10k
+       * url-loader dependent on url-loader
        */
       {
         test    : /\.(jpe?g|png|gif)$/i,
@@ -240,9 +238,9 @@ export default {
 };
 
 /**
- * 自动生成入口
- * 根据文件夹自动生成相应入口
- * 入口JS必须用 index.js 命名
+ * Auto generate entries
+ * Generate entries dependent on folder (src/entry/{folder})
+ * And entry js file must be named 'index.js'
  */
 export function generateEnteries (plugins, entries) {
   if (!_.isArray(plugins)) {
@@ -270,14 +268,14 @@ export function generateEnteries (plugins, entries) {
           entries[name] = bootstrapFile;
 
           /**
-           * 重命名入口HTML
+           * reanme entry html
            */
           let options = {
             filename: path.join(DISTRICT_PATH, `${name}.html`),
           };
 
           /**
-           * 如果有模板则使用模板
+           * use template when then template file exists
            */
           let tmplFile = path.join(ENTRY_PATH, `${name}/index.jade`);
           if (fs.existsSync(tmplFile)) {
@@ -287,7 +285,7 @@ export function generateEnteries (plugins, entries) {
           }
 
           /**
-           * 去除其他模块的静态资源
+           * clean other static resources
            */
           Object.assign(options, {
             excludeChunks: _.without(modules, name),
@@ -306,8 +304,8 @@ export function generateEnteries (plugins, entries) {
 }
 
 /**
- * 自动切割 logo 任务
- * 若 logo 不存在则不添加该任务
+ * auto split logo task
+ * if logo file not exists, this task will not be executed.
  */
 export function generateFavicons (plugins) {
   if (!_.isArray(plugins)) {
@@ -344,8 +342,8 @@ export function generateFavicons (plugins) {
     plugins.push(plugin);
 
     /**
-     * 执行编译后, 将生成的 favicon.ico
-     * 复制到根目录下
+     * after compile, it will generate 'favicon.ico' file
+     * and copy it to the root path.
      */
     CallAfter.add(() => {
       let sourceFile = path.join(DISTRICT_PATH, statsFile);
@@ -366,8 +364,9 @@ export function generateFavicons (plugins) {
 }
 
 /**
- * 自动合并精灵图
- * 若精灵图目录不存在则不添加该任务
+ * Auto concat sprite image
+ * if the sprite folder (src/assets/sprites/images/) not exists,
+ * this task will not be excuted.
  */
 export function generateSprites (plugins) {
   if (!_.isArray(plugins)) {
@@ -415,7 +414,9 @@ export function generateSprites (plugins) {
 }
 
 /**
- * SVG 精灵图
+ * Auto concat svg sprite image
+ * if the sprite folder (src/assets/sprites/svg/) not exists,
+ * this task will not be excuted.
  */
 export function generateSVGSprites (plugins) {
   if (!_.isArray(plugins)) {
@@ -449,18 +450,25 @@ export function generateSVGSprites (plugins) {
           { removeUnknownsAndDefaults : true },
           { removeUnusedNS            : true },
           /**
+           * svg in webkit old browser, it not support use (reference)
+           * it must use '<use xlink:href="url#id"></use>'
+           * and because svgo(https://github.com/svg/svgo) do not set
+           * 'xmlns:xlink="http://www.w3.org/1999/xlink"', so it make
+           * origin svg content with use tag lack 'namespace' 'prefix',
+           * and it make svg display success.
+           *
            * SVG 在 webkit 低版本浏览器中不支持内联 use
            * 必须使用 <use xlink:href="url#id"></use>
            * 又因为 svgo 并没有设置 xmlns:xlink="http://www.w3.org/1999/xlink"
            * 因此会使原本 svg 内含有 use 缺少 namespace prefix 的问题, 导致没法兼容加载,
            * 导致外部不能成功导入
            *
-           * 错误代码:
+           * Error Code:
            * This page contains the following errors:
            * error on line 1 at column 15734: Namespace prefix xlink for href on use is not defined
            * Below is a rendering of the page up to the first error.
            *
-           * 测试浏览器 Chrome 48.0.2564.23:
+           * Browser: Chrome 48.0.2564.23:
            * Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)
            * AppleWebKit/537.36 (KHTML, like Gecko)
            * Chrome/48.0.2564.23
@@ -476,7 +484,7 @@ export function generateSVGSprites (plugins) {
             downwardCompatible: {
               type        : 'perItem',
               active      : true,
-              description : '向下兼容, <use> 加上属性 xmlns:xlink="http://www.w3.org/1999/xlink"',
+              description : 'Backward compatibility, <use> add attribute xmlns:xlink="http://www.w3.org/1999/xlink"',
               params      : {},
               fn (item, params) {
                 if (item.isElem('use') && !hasAttr(item, 'xmlns:xlink')) {
@@ -507,7 +515,7 @@ export function generateSVGSprites (plugins) {
 }
 
 /**
- * 在 webpack 执行完成后执行的代码
+ * Callback after webpack excutes
  */
 export function widthDone (plugins) {
   if (!_.isArray(plugins)) {
@@ -536,7 +544,7 @@ export function widthDone (plugins) {
 }
 
 /**
- * 注入 script 脚本
+ * Inject script to entry html file
  */
 export function injectScript (plugins) {
   if (!_.isArray(plugins)) {
@@ -614,9 +622,8 @@ export function injectScript (plugins) {
 }
 
 /**
- * 哈希码
- * See:
- * http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery?answertab=active#tab-top
+ * make hash code
+ * See: http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery?answertab=active#tab-top
  */
 function mkhash (string) {
   string = JSON.stringify(string);
@@ -630,7 +637,9 @@ function mkhash (string) {
     let chr = string.charCodeAt(i);
     hash = (hash << 5) - hash + chr;
 
-    // Convert to 32bit integer
+    /**
+     * Convert to 32bit integer
+     */
     hash |= 0;
   }
 

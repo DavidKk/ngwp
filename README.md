@@ -1,68 +1,111 @@
-# 项目说明
+# Project Information
 
-## 本地环境安装
+## Install
 
 ```
-# 安装 NodeJS NPM
+# Install NodeJS NPM
 $ sudo apt-get install node npm
 
-# 更新 NodeJS (Linux, OSX)
+# Update NodeJS (Linux, OSX)
 $ npm install -g n
 $ n 6.2.2 (or latest)
 
-# 更新 NPM
+# Update NPM
 $ npm install -g npm
 
-# 更新 NodeJS 6.2.2 或以上稳定版本
-$ npm install -g n nrm
+# Update NodeJS 6.2.2 or latest
+$ npm install -g n
 $ n use stable
 
-# 使用淘宝源 或 cnpm 源
-$ nrm use taobao
+# Change npm registries (China)
+# docs: https://github.com/Pana/nrm
+$ npm install -g nrm
+$ nrm use taobao(cnpm)
 
-# 安装 node_modules
+# Install node_modules
 $ cd /path/to/project
-$ npm install
+$ npm install --verbose
 
-# node-sass 需要编译, 所以耐心等待
+# node-sass need to compile and will spend much time, please be patient.
 ```
 
-#### Nginx 配置文件导入
+## Nginx config file generation and import
 
 ```
-# 生成 nginx 配置文件
-$ ./bin/nginx
-# 或者
-$ npm run nginx
+# Generate nginx config file
+$ ./bin/vhost
+# or
+$ npm run vhost
 
-# 导入配置文件
+# Import nginx config file
 $ echo "include /path/to/project/vhosts/nginx.conf;" >> /path/to/nginx/nginx.conf
 
-# 重启nginx
+# Reset nginx
 # Linux
 $ sudo service nginx restart
 # OSX
 $ sudo brew services restart nginx
 ```
 
-## 代码编译与发布
+## Compile and release
 
 ```
-# 开发环境编译
+# Develop env
 $ npm start
 
-# 单元测试
+# Running unitest
 $ npm test
 
-# 发布代码
+# Release project
 $ npm run release
 ```
 
-## 模块与组件
+## Modules and routers
 
 ```
-# 生成路由
+# Generate routers
 $ ./bin/module router module/componentA/componentB/...
 ```
 
-生成新的模块时, 要重新生成 nginx 配置, 并再次重启 nginx 服务
+Regenerate nginx config file when generate new module, and reload/reset ngxin server.
+
+
+# Features
+
+## Mutiple Modules (Mutiple Entrance)
+
+Define a module, you can make folder in entry folder (`src/app/`). The folder name is module name.
+and every module must has one entrnace script file (must be named 'index.js'). And you can open `www.domain.com/{module_name}/` to visit that module.
+
+It provides the run-script for you to generate module easier.
+
+```
+$ npm run module router moduleName
+# see above
+```
+
+At last, every time for build new module, you must generate nginx config, because the base-router is defined by nginx configuration.
+
+
+## Image Sprites Auto-Generate
+
+Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will concat them to one sprite-image (`dist/path/panels/sprite.{hashcode}.png`).
+
+And it also generate the scss file to temporary folder (`.temporary/`), and it would importd use `@import "sprites"`. the base unit is percentage (`$`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
+
+## SVG Sprites Auto-Generate
+
+Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will concat them to one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
+
+And the SVGO config file is in `src/assets/sprites/svg/svgstore.config.js`
+
+
+# Specification
+
+## ES6 Overwrites each script
+
+All the javascript file (include configuration files), you must use babel-es6. And must be followed the eslint standard (`.eslintrc`)
+
+## Use SASS
+
+The stylesheet must be followed the stylelint standard (`.stylelintrc`).

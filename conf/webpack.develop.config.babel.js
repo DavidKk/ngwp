@@ -17,9 +17,9 @@ export default WebpackMerger(webpackConfig, {
   devtool : 'source-map',
   plugins : [
     /**
-     * BrowserSync 插件
-     * 用于本地调试
-     * https://www.browsersync.io
+     * BrowserSync Plugin
+     * local test but weinre not support https
+     * docs: https://www.browsersync.io
      */
     new BrowserSyncPlugin({
       host      : 'localhost',

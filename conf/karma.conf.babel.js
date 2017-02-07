@@ -11,13 +11,12 @@ import {
 }                         from './config';
 
 /**
- * 统一入口
- * 通过查找 spec.js 结尾的文件
- * 获取所有的测试用例文件
- * 然后通过统一入口加载到文件中
- * 否则 karma 配置项 files 中
- * 每一个匹配的文件都会各自执行一次
- * webpack 打包
+ * Unified entrance
+ * find out all files end in '.spec.js'
+ * import these files to the entrance,
+ * because karma will split different
+ * modules and sessions.
+ * And it will excute webpack compile for once.
  */
 const TEST_ENTRY = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, SRC_DIR, '.bootstrap.spec.js');
 const TEST_DIR   = path.join(ROOT_PATH, TEST_DIR, SRC_DIR);
@@ -80,6 +79,13 @@ export default function (config) {
   });
 }
 
+/**
+ * find out scripts files
+ * @param  {String} dir    test folder
+ * @param  {Regexp} regexp match regexp
+ * @param  {Array}  files  output files variables
+ * @return {Array}
+ */
 function findFiles (dir, regexp, files = []) {
   fs
   .readdirSync(dir)

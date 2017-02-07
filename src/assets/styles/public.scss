@@ -1,13 +1,3 @@
-// Definations & Libs
 @import "./bootstrap";
-
-// Core
-@import "./normalize";
-@import "./utilities";
-@import "./variables";
-
-// Component
-@import "./components/form";
-@import "./components/button";
-@import "./components/sprite";
-@import "./components/uib_datepicker_popup";
+@import "./core/index";
+@import "./components/index";

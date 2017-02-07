@@ -17,7 +17,7 @@ export const DEV_DIR       = '.app';
 export const DIST_DIR      = 'app';
 export const TEST_DIR      = 'tests';
 export const COVERAGE_DIR  = 'coverage';
-export const ENTRY_DIR     = 'entry';
+export const ENTRY_DIR     = 'app';
 
 export const ROOT_PATH     = path.join(__dirname, '../');
 export const DISTRICT_PATH = path.join(ROOT_PATH, process.env.DEVELOP ? DEV_DIR : DIST_DIR);
