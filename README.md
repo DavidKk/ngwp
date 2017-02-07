@@ -89,13 +89,13 @@ At last, every time for build new module, you must generate nginx config, becaus
 
 ## Image Sprites Auto-Generate
 
-Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will concat them to one sprite-image (`dist/path/panels/sprite.{hashcode}.png`).
+Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will combine them into one sprite-image (`dist/path/panels/sprite.{hashcode}.png`).
 
-And it also generate the scss file to temporary folder (`.temporary/`), and it would importd use `@import "sprites"`. the base unit is percentage (`$`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
+And it also generate the scss file to temporary folder (`.temporary/`), and you can importd use `@import "sprites"`. the base unit is percentage (`%`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
 
 ## SVG Sprites Auto-Generate
 
-Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will concat them to one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
+Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will combine them into one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
 
 And the SVGO config file is in `src/assets/sprites/svg/svgstore.config.js`
 
