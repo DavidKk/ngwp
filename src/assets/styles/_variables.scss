@@ -1,0 +1,99 @@
+/**
+ * Design Size
+ */
+
+$ratio-design         : 750px/375px; // IPhone 6
+
+/**
+ * max-width
+ */
+
+$max-width            : 500px;
+
+
+/**
+ * Bourbon Rewrite
+ */
+
+$em-base              : 16px;
+
+
+/**
+ * Base Definations
+ */
+
+$root-base            : $em-base;
+
+
+/**
+ * Colors
+ */
+
+$black                : #000 !default;
+$cyan                 : #1995ff !default;
+$red                  : #ff4640 !default;
+$green                : #28c342 !default;
+$white                : #fff !default;
+
+
+/**
+ * Page
+ */
+
+$body-bgc             : #fff !default;
+
+
+/**
+ * Type
+ */
+
+$text-color-obvious   : #333 !default;
+$text-color-normal    : #666 !default;
+$text-color-mute      : #999 !default;
+$text-color-cyan      : $cyan !default;
+$text-color-black     : $black !default;
+$text-color-white     : $white !default;
+
+/**
+ * Base Styles
+ */
+
+$font-size-base       : rem(12px) !default;
+$font-family-normal   : 'PingFang SC', 'Microsoft YaHei', '微软雅黑', 'Adobe 黑体Std R', sans-serif !default;
+
+
+/**
+ * Action Style
+ */
+$link-color           : $text-color-normal !default;
+$link-color-hover     : $text-color-normal !default;
+
+$border-color-normal  : #e5e5e5 !default;
+$border-color-obvious : #bec5cd !default;
+$border-color-bottom  : #d8d8d8 !default;
+
+
+/**
+ * Buttons
+ */
+$button-disable       : #9accf6 !default;
+$button               : $cyan !default;
+
+
+/**
+ * Gutter
+ */
+$gutter-width         :
+  'xl' 30px,
+  'lg' 20px,
+  'md' 15px,
+  'sm' 10px,
+  'sm' 5px,
+;
+
+
+/**
+ * Radio
+ */
+
+$radio-color          : $green;

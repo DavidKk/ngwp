@@ -1,0 +1,51 @@
+# Output folders
+/app
+
+
+# Temporary folders
+/.temporary
+/.app
+/vhosts
+
+
+# Logs
+/logs
+
+
+# Coverage directory used by tools like istanbul
+/coverage
+
+
+# Dependency folders
+node_modules
+npm-debug.log
+
+
+# Numerous always-ignore extensions
+*.bak
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.zip
+*.vi
+*~
+
+
+# OS or Editor folders
+.vscode
+.DS_Store
+._*
+Thumbs.db
+.cache
+.project
+.settings
+.tmproj
+*.esproj
+nbproject
+*.sublime-project
+*.sublime-workspace
+.idea

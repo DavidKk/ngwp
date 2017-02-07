@@ -1,0 +1,134 @@
+$form-control-height : 45px;
+
+label.form-group {
+  position: relative;
+  margin-bottom: 0;
+
+  .icon-required {
+    position: absolute;
+    top: rem(20.5px);
+    left: rem(10px);
+    display: block;
+    border-radius: 100%;
+    width: rem(4px);
+    height: rem(4px);
+    background-color: #f43530;
+  }
+
+  .sp-arrow-right {
+    position: absolute;
+    top: rem(16.25px);
+    right: rem(22px);
+    display: block;
+    width: rem(8px);
+    height: rem(12.5px);
+  }
+
+  .form-label {
+    position: absolute;
+    top: 0;
+    left: rem(21.5px);
+    display: inline-block;
+    height: rem(44px);
+    line-height: rem(44px);
+    font-size: rem(17px);
+    color: $text-color-normal;
+  }
+
+  .form-control {
+    display: block;
+    margin: 0 rem(20);
+    border-radius: 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 1px #e5e5e5 solid;
+    border-left: 0;
+    padding: rem(10px) 0 rem(10px) rem(97.5px);
+    width: auto;
+    min-height: rem(45px);
+
+    > input,
+    > select {
+      display: inline-block;
+      border: 0;
+      padding: 0;
+      width: 100%;
+      height: rem(24px);
+      line-height: rem(24px);
+      font-size: rem(17px);
+      background: transparent;
+    }
+
+    > input[type=date] {
+      width: 90%;
+    }
+
+    > select {
+      padding-right: rem(20px);
+    }
+
+    .tip-info {
+      line-height: rem(18.5px);
+      font-size: rem(13px);
+      color: $text-color-mute;
+    }
+  }
+
+  &:last-of-type {
+    border-bottom: 1px #e5e5e5 solid;
+
+    .form-control {
+      border-bottom: 0;
+    }
+  }
+}
+
+label.form-control {
+  position: relative;
+  display: block;
+  border-radius: rem($form-control-height /2);
+  padding: rem(10.5px) rem(19.5px);
+  height: rem($form-control-height);
+
+  > span {
+    display: inline-block;
+    width: rem(78.5px);
+    height: rem(24px);
+  }
+
+  > input {
+    position: absolute;
+    top: 0;
+    right: rem(19.5px);
+    bottom: 0;
+    left: rem(98px);
+    display: inline-block;
+    margin: auto;
+    border: 0;
+    padding: 0;
+    width: rem(215px);
+    height: rem(28px);
+  }
+}
+
+.form-control-group {
+  position: relative;
+  display: block;
+
+  label.form-control {
+    margin-right: rem(117px);
+    width: auto;
+
+    > input {
+      width: rem(100px);
+    }
+  }
+}
+
+.form-control-addon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+  width: rem(112px);
+}
