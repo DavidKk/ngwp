@@ -11,32 +11,36 @@ import {
 }                         from './config';
 
 /**
- * Unified entrance
- * find out all files end in '.spec.js'
- * import these files to the entrance,
- * because karma will split different
- * modules and sessions.
- * And it will excute webpack compile for once.
+ * Build unified entrance
+ * Find out all files end in '.spec.js'
+ * import these files to bootstrap (the unified entrance).
+ * And karma will split different modules and sessions.
  */
-const TEST_ENTRY = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, SRC_DIR, '.bootstrap.spec.js');
-const TEST_DIR   = path.join(ROOT_PATH, TEST_DIR, SRC_DIR);
-
-let specFiles  = findFiles(TEST_DIR, /^[^\.]+\.spec\.js$/);
-let depsSource = specFiles.map(function (file) {
+let formatImport = function (file) {
   return `import '${file}';\n`;
-})
-.join('');
+};
 
-fs.ensureFileSync(TEST_ENTRY);
-fs.writeFileSync(TEST_ENTRY, depsSource);
+let testEntryFile = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, 'bootstrap.spec.js');
+let testFolder    = path.join(ROOT_PATH, TEST_DIR, 'client');
 
+if (!fs.existsSync(testFolder)) {
+  throw new Error(`Client test folder '${testFolder}' is not exists.`);
+}
+
+let specFiles  = findFiles(testFolder, /^[^\.]+\.spec\.js$/);
+let depsSource = specFiles.map(formatImport).join('');
+
+fs.ensureDirSync(path.dirname(testEntryFile));
+fs.writeFileSync(testEntryFile, depsSource);
+
+/**
+ * Karma Configuration
+ */
 export default function (config) {
   config.set({
     browsers   : ['PhantomJS'],
     frameworks : ['mocha', 'chai', 'sinon'],
-    files      : [
-      TEST_ENTRY,
-    ],
+    files      : [testEntryFile],
     client: {
       chai: {
         includeStack: true,
@@ -47,7 +51,7 @@ export default function (config) {
       'coverage',
     ],
     preprocessors: {
-      [TEST_ENTRY]: [
+      [testEntryFile]: [
         'webpack',
       ],
       [`${TEST_DIR}/**/*.spec.js`]: [
@@ -64,9 +68,16 @@ export default function (config) {
       noInfo : false,
       stats  : 'errors-only',
     },
-    autoWatch : false,
-    singleRun : true,
-    plugins   : [
+    /**
+     * in empty test folder, it will return
+     * status 1 and throw error.
+     * set 'failOnEmptyTestSuite' to false
+     * will resolve this problem.
+     */
+    failOnEmptyTestSuite : false,
+    autoWatch            : false,
+    singleRun            : true,
+    plugins              : [
       'karma-phantomjs-launcher',
       'karma-webpack',
       'karma-chai',

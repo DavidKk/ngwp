@@ -15,7 +15,7 @@ export const LOG_DIR       = 'logs';
 export const TMP_DIR       = '.temporary';
 export const DEV_DIR       = '.app';
 export const DIST_DIR      = 'app';
-export const TEST_DIR      = 'tests';
+export const TEST_DIR      = 'unitest';
 export const COVERAGE_DIR  = 'coverage';
 export const ENTRY_DIR     = 'app';
 

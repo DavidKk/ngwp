@@ -4,6 +4,11 @@ import WebpackMerger      from 'webpack-merge';
 import CleanWebpackPlugin from 'clean-webpack-plugin';
 import ExtractTextPlugin  from 'extract-text-webpack-plugin';
 import {
+  CLIENT_DOMAIN,
+  SERVER_DOMAIN,
+  ASSETS_DOMAIN,
+  UPLOAD_DOMAIN,
+
   ROOT_PATH,
 
   TMP_DIR,
@@ -33,14 +38,14 @@ const plugins = [
    * yout muse define { __VALUE__ : '\"string\"' }
    */
   new webpack.DefinePlugin({
-    __DEVELOP__           : !!process.env.DEVELOP,
-    __PRODUCT__           : !!process.env.PRODUCT,
-    __UNITEST__           : !!process.env.UNITEST,
+    __DEVELOP__       : !!process.env.DEVELOP,
+    __PRODUCT__       : !!process.env.PRODUCT,
+    __UNITEST__       : !!process.env.UNITEST,
 
-    __SERVER_DOMAIN__     : JSON.stringify(SERVER_DOMAIN),
-    __IMAGE_CDN_DOMAIN__  : JSON.stringify(IMAGE_CDN_DOMAIN),
-    __ASSETS_CDN_DOMAIN__ : JSON.stringify(ASSETS_CDN_DOMAIN),
-    __BACKEND_DOMAIN__    : JSON.stringify(BACKEND_DOMAIN),
+    __CLIENT_DOMAIN__ : JSON.stringify(CLIENT_DOMAIN),
+    __ASSETS_DOMAIN__ : JSON.stringify(ASSETS_DOMAIN),
+    __UPLOAD_DOMAIN__ : JSON.stringify(UPLOAD_DOMAIN),
+    __SERVER_DOMAIN__ : JSON.stringify(SERVER_DOMAIN),
   }),
 
   /**
@@ -61,7 +66,6 @@ const plugins = [
    * run it first to reset the project.
    */
   new CleanWebpackPlugin([
-    TMP_DIR,
     DEV_DIR,
     DIST_DIR,
     COVERAGE_DIR,
