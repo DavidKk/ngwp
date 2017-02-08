@@ -21,8 +21,10 @@ let formatImport = function (file) {
 let testEntryFile = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, 'bootstrap.spec.js');
 let testFolder    = path.join(ROOT_PATH, TEST_DIR, 'client');
 
+fs.ensureDirSync(testFolder);
+
 if (!fs.existsSync(testFolder)) {
-  throw new Error(`Client test folder '${testFolder}' is not exists.`);
+  throw new Error(`Client test folder '${testFolder}' is not exists or no permission to create folder.`);
 }
 
 let specFiles  = findFiles(testFolder, /^[^\.]+\.spec\.js$/);
