@@ -1,14 +1,12 @@
-import fs                 from 'fs-extra';
-import path               from 'path';
-import webpackConf        from './webpack.unitest.config.babel';
-import { CallbackPlugin } from './webpack.common.config.babel';
+import fs          from 'fs-extra';
+import path        from 'path';
+import webpackConf from './webpack.unitest.config.babel';
 import {
   ROOT_PATH,
-  SRC_DIR,
   TEST_DIR,
   TMP_DIR,
   COVERAGE_DIR,
-}                         from './config';
+}                  from './config';
 
 /**
  * Build unified entrance

@@ -1,15 +1,9 @@
-import path              from 'path';
-import webpack           from 'webpack';
 import WebpackMerger     from 'webpack-merge';
 import BrowserSyncPlugin from 'browser-sync-webpack-plugin';
 import webpackConfig     from './webpack.common.config.babel';
 import {
   CLIENT_PORT,
-
-  ROOT_PATH,
-
   DISTRICT_PATH,
-  ENTRY_PATH,
 }                        from './config';
 
 export default WebpackMerger(webpackConfig, {

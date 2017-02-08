@@ -51,7 +51,7 @@ export function convertName (name) {
  * @return {String}
  */
 export function formatBytes (bytes, decimals) {
-  if (bytes == 0) {
+  if (0 === bytes) {
     return '0 Bytes';
   }
 
@@ -60,5 +60,5 @@ export function formatBytes (bytes, decimals) {
   let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   let i     = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }

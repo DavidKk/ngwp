@@ -1,4 +1,3 @@
-import path               from 'path';
 import webpack            from 'webpack';
 import WebpackMerger      from 'webpack-merge';
 import CleanWebpackPlugin from 'clean-webpack-plugin';

@@ -1,4 +1,3 @@
-import _                 from 'lodash';
 import webpack           from 'webpack';
 import WebpackMerger     from 'webpack-merge';
 import webpackConfig     from './webpack.common.config.babel';

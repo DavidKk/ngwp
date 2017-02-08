@@ -1,3 +1,5 @@
+/* eslint no-console: off */
+
 import _          from 'lodash';
 import fs         from 'fs-extra';
 import path       from 'path';
@@ -35,12 +37,14 @@ handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options
 
   operators = {
     '==' (l, r) {
+      /* eslint eqeqeq: off */
       return l == r;
     },
     '===' (l, r) {
       return l === r;
     },
     '!=' (l, r) {
+      /* eslint eqeqeq: off */
       return l != r;
     },
     '!==' (l, r) {
@@ -125,7 +129,7 @@ build(MODULES, function (error, { outfile, modules }) {
     }
   });
 
-  console.log(`Generator: 'vhosts.js'`);
+  console.log('Generator: \'vhosts.js\'');
   console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
   console.log(`${tableLogs}\n`);
   console.log(`[${colors.green('ok').bold}] Nginx config file '${outfile.green.bold}' is generated successfully, include it to nginx.conf.`);

@@ -2,7 +2,6 @@ import _                     from 'lodash';
 import fs                    from 'fs-extra';
 import path                  from 'path';
 import webpack               from 'webpack';
-import UglifyJS              from 'uglify-js';
 import CleanWebpackPlugin    from 'clean-webpack-plugin';
 import SpritesmithTemplate   from 'spritesheet-templates';
 import SpritesmithPlugin     from 'webpack-spritesmith';
@@ -72,7 +71,7 @@ const plugins = [
   new webpack.optimize.CommonsChunkPlugin({
     name    : 'vendor',
     chunks  : [],
-    minChunks (module, count) {
+    minChunks (module) {
       let folder = path.resolve(ROOT_PATH, SRC_DIR);
       return module.resource && -1 === module.resource.indexOf(folder);
     },
@@ -487,7 +486,7 @@ export function generateSVGSprites (plugins) {
               active      : true,
               description : 'Backward compatibility, <use> add attribute xmlns:xlink="http://www.w3.org/1999/xlink"',
               params      : {},
-              fn (item, params) {
+              fn (item) {
                 if (item.isElem('use') && !hasAttr(item, 'xmlns:xlink')) {
                   setAttr(item, 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
                 }

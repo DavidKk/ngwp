@@ -12,12 +12,15 @@
     "node": ">= 6.2.2"
   },
   "scripts": {
+    "debug": "eslint ./conf/* ./bin/libs/*",
     "vhost": "./bin/vhosts",
     "builder": "./bin/module",
     "install": "npm run builder router home && npm run vhost",
     "develop": "cross-env DEVELOP=1 webpack --color --debug --config conf/webpack.develop.config.babel.js --watch --delay 250ms",
-    "release": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
+    "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
     "unitest": "cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
+    "release": "npm run test && npm run product --verbose",
+    "test": "npm run debug --verbose && npm run unitest --verbose",
     "start": "npm run develop"
   },
   "devDependencies": {
@@ -75,7 +78,6 @@
     "style-loader": "^0.13.1",
     "stylelint": "^7.0.1",
     "stylelint-loader": "^6.0.0",
-    "uglify-js": "^2.7.5",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.2",
     "webpack-dev-middleware": "^1.6.1",

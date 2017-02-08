@@ -1,3 +1,5 @@
+/* eslint no-console: off */
+
 import _                            from 'lodash';
 import fs                           from 'fs-extra';
 import path                         from 'path';
@@ -41,7 +43,6 @@ function generateRouter (argv) {
   let components = _.trim(argv, '\/').split('\/');
   let moduleName = components.shift();
 
-  let moduleDir = path.join(ENTRY_PATH, moduleName);
   generateModule(moduleName, { ingoreExists: false }, function (error, moduleState) {
     if (error) {
       console.log(error);
@@ -49,7 +50,6 @@ function generateRouter (argv) {
     }
 
     let family    = [moduleName];
-    let dir       = path.join(moduleDir, 'components');
     let startTime = Date.now();
     let tasks     = _.map(components, function (name) {
       return function (callback) {
@@ -68,7 +68,7 @@ function generateRouter (argv) {
 
     async.series(tasks, function (error, componentState) {
       if (error) {
-        callback(error);
+        console.log(error);
         return;
       }
 
@@ -79,7 +79,7 @@ function generateRouter (argv) {
       stats     = _.flattenDeep(stats);
       stats     = _.filter(stats);
 
-      console.log(`Generator: module.js`);
+      console.log('Generator: \'module.js\'');
       console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
 
       if (0 === stats.length) {
@@ -121,7 +121,7 @@ function generateRouter (argv) {
  * @return {Boolean}
  */
 function generateModule (name, options, callback) {
-  if (!_.isFunction(callback)){
+  if (!_.isFunction(callback)) {
     throw new Error('generateModule: callback is not provided.');
   }
 
@@ -178,7 +178,7 @@ function generateComponent (name, family, options, callback) {
     return generateComponent(name, family, {}, options);
   }
 
-  if (!_.isFunction(callback)){
+  if (!_.isFunction(callback)) {
     throw new Error('generateComponent: callback is not provided.');
   }
 
@@ -236,7 +236,7 @@ function generateComponent (name, family, options, callback) {
  * @param {String} toDir   目标路径
  */
 function copyAndRender (files, datas = {}, fromDir = '', toDir = '', callback) {
-  if (!_.isFunction(callback)){
+  if (!_.isFunction(callback)) {
     throw new Error('copyAndRender: callback is not provided.');
   }
 

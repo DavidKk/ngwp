@@ -53,7 +53,7 @@ $ sudo brew services restart nginx
 # Develop env
 $ npm start
 
-# Running unitest
+# Running test
 $ npm test
 
 # Release project
