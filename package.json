@@ -15,7 +15,6 @@
     "debug": "eslint ./conf/* ./bin/libs/*",
     "vhost": "./bin/vhosts",
     "builder": "./bin/module",
-    "install": "npm run builder router home && npm run vhost",
     "develop": "cross-env DEVELOP=1 webpack --color --debug --config conf/webpack.develop.config.babel.js --watch --delay 250ms",
     "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
     "unitest": "cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
