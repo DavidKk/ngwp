@@ -1,167 +1,193 @@
-'use strict';
+import _          from 'lodash';
+import fs         from 'fs-extra';
+import path       from 'path';
+import handlebars from 'handlebars';
+import colors     from 'colors';
+import columnify  from 'columnify';
+import {
+  LOG_DIR,
+  DIST_DIR,
+  ROOT_PATH,
+  MODULES,
+}                 from '../../conf/config';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+/**
+ * Register Handlebars helpers
+ * @docs: http://handlebarsjs.com/block_helpers.html
+ */
 
-var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-exports.default = function (_ref) {
-  var LOG_PATH = _ref.LOG_PATH;
-  var ROOT_PATH = _ref.ROOT_PATH;
-  var DIST_PATH = _ref.DIST_PATH;
-  var MODULES = _ref.MODULES;
-
-  var TMPL_FILE = _path2.default.join(ROOT_PATH, 'generator/templates/vhosts/nginx.conf.hbs');
-  var OUTPUT_FILE = _path2.default.join(ROOT_PATH, 'vhosts/nginx.conf');
-
-  var template = _fsExtra2.default.readFileSync(TMPL_FILE, 'utf-8');
-  var fn = _handlebars2.default.compile(template);
-
-  var exists = [];
-  var datas = MODULES.filter(function (row) {
-    if (-1 !== _lodash2.default.indexOf(exists, row.domain)) {
-      console.error(('Module ' + row.domain + ' is already exists.').red);
-      return false;
-    }
-
-    if (!_lodash2.default.isString(row.domain) && !_lodash2.default.isArray(row.domain)) {
-      console.error('Module domain must be a string or array'.red);
-      return false;
-    }
-
-    if ('proxy' === row.type) {
-      if (!(_lodash2.default.isArray(row.entries) && row.entries.length > 0)) {
-        console.error('Entries must be a array, and size not less than 1.'.red);
-        return false;
-      }
-
-      if (!(_lodash2.default.isString(row.proxy) && /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.exec(row.proxy))) {
-        console.warn('Proxy is requied, and must be proxy ip address. it would auto set proxy to 127.0.0.1'.yellow);
-        row.proxy = '127.0.0.1';
-      }
-
-      if (!_lodash2.default.isNumber(row.proxyPort)) {
-        console.warn('Proxy port is requied, and must be a number it would auto set proxy port to 3030'.yellow);
-        row.proxyPort = 3030;
-      }
-    }
-
-    if (_lodash2.default.isArray(row.domain)) {
-      _lodash2.default.forEach(row.domain, function (domain) {
-        console.log(('Server config ' + domain + ' is ok.\n').green);
-      });
-    } else {
-      console.log(('Server config ' + row.domain + ' is ok.\n').green);
-    }
-
-    exists.push(row.domain);
-    return true;
-  }).map(function (row) {
-    if (_lodash2.default.isArray(row.entries)) {
-      return Object.assign({}, row, {
-        division: row.entries.join('|')
-      });
-    }
-
-    return row;
-  });
-
-  var logsDir = _path2.default.join(ROOT_PATH, LOG_PATH);
-  _fsExtra2.default.ensureDirSync(logsDir);
-
-  var source = fn({
-    rootDir: _path2.default.join(ROOT_PATH, DIST_PATH),
-    logsDir: logsDir,
-    modules: datas
-  });
-
-  _fsExtra2.default.ensureDir(OUTPUT_FILE.replace(_path2.default.basename(OUTPUT_FILE), ''));
-  _fsExtra2.default.writeFileSync(OUTPUT_FILE, source);
-
-  console.log(('Nginx config file ' + OUTPUT_FILE + ' is generated successfully').green);
-  console.log('Remember reload/restart yr nginx server.'.yellow);
-};
-
-require('colors');
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _fsExtra = require('fs-extra');
-
-var _fsExtra2 = _interopRequireDefault(_fsExtra);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _handlebars = require('handlebars');
-
-var _handlebars2 = _interopRequireDefault(_handlebars);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_handlebars2.default.registerHelper('compare', function (lvalue, operator, rvalue, options) {
-  var operators = void 0;
-  var result = void 0;
+/**
+ * Compare number and type-equals with variables
+ */
+handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
+  let operators;
+  let result;
 
   if (3 > arguments.length) {
     throw new Error('Handlerbars Helper "compare" needs 2 parameters');
   }
 
   if (undefined === options) {
-    options = rvalue;
-    rvalue = operator;
+    options  = rvalue;
+    rvalue   = operator;
     operator = '===';
   }
 
   operators = {
-    '==': function _(l, r) {
+    '==' (l, r) {
       return l == r;
     },
-    '===': function _(l, r) {
+    '===' (l, r) {
       return l === r;
     },
-    '!=': function _(l, r) {
+    '!=' (l, r) {
       return l != r;
     },
-    '!==': function _(l, r) {
+    '!==' (l, r) {
       return l !== r;
     },
-    '<': function _(l, r) {
+    '<' (l, r) {
       return l < r;
     },
-    '>': function _(l, r) {
+    '>' (l, r) {
       return l > r;
     },
-    '<=': function _(l, r) {
+    '<=' (l, r) {
       return l <= r;
     },
-    '>=': function _(l, r) {
+    '>=' (l, r) {
       return l >= r;
     },
-    'typeof': function _typeof(l, r) {
-      return (typeof l === 'undefined' ? 'undefined' : _typeof2(l)) == r;
-    }
+    'typeof' (l, r) {
+      return typeof l == r;
+    },
   };
 
   if (!operators[operator]) {
-    throw new Error('Handlerbars Helper \'compare\' doesn\'t know the operator ' + operator);
+    throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`);
   }
 
   result = operators[operator](lvalue, rvalue);
   return result ? options.fn(this) : options.inverse(this);
 });
 
-_handlebars2.default.registerHelper('domain', function (value) {
-  if (_lodash2.default.isString(value)) {
+/**
+ * Separate Array to some string.
+ * [value1, value2, value3] => 'value1 value2 value3';
+ */
+handlebars.registerHelper('separate', function (value, separator = ' ') {
+  if (_.isString(value)) {
     return value;
   }
 
-  if (_lodash2.default.isArray(value)) {
-    return value.join(' ');
+  if (_.isArray(value)) {
+    return value.join(separator);
   }
 });
-//# sourceMappingURL=vhosts.js.map
+
+let tplfile   = path.join(__dirname, 'templates/vhosts/nginx.conf.hbs');
+let outfile   = path.join(ROOT_PATH, 'vhosts/nginx.conf');
+
+if (!fs.existsSync(tplfile)) {
+  throw new Error(`vhost template '${tplfile}' is not exists.`);
+}
+
+let template  = fs.readFileSync(tplfile, 'utf-8');
+let compile   = handlebars.compile(tplfile);
+let startTime = Date.now();
+
+/**
+ * build nginx config
+ */
+build(MODULES, function (error, { outfile, modules }) {
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  modules = _.map(modules, function ({ domain, proxy, entries }) {
+    return {
+      domain  : colors.green(_.isArray(domain) ? domain.join(',') : domain).bold,
+      proxy   : proxy,
+      entries : colors.green(entries.join(',')).bold,
+    };
+  });
+
+  let tableLogs = columnify(modules, {
+    headingTransform (heading) {
+      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+    },
+    config: {
+      domain: {
+        maxWidth : 40,
+        align    : 'right',
+      },
+    }
+  });
+
+  console.log(`Generator: 'vhosts.js'`);
+  console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+  console.log(`${tableLogs}\n`);
+  console.log(`[${colors.green('ok').bold}] Nginx config file '${outfile.green.bold}' is generated successfully, include it to nginx.conf.`);
+  console.log(`Remember '${colors.green('reolad/restart').bold}' your nginx server.`);
+});
+
+/**
+ * build nginx vhosts
+ * @param  {Array}    modules  module setting
+ * @param  {Function} callback result callback function
+ */
+export function build (modules, callback) {
+  if (!_.isFunction(callback)) {
+    throw new Error('callback is not provided.');
+  }
+
+  modules = _.clone(modules);
+
+  for (let module of modules) {
+    if (!(_.isString(module.domain) || _.isArray(module.domain)) && _.isEmpty(module.domain)) {
+      callback(new Error('Domain is not provided.'));
+      return;
+    }
+
+    if ('proxy' === module.type) {
+      if (!(_.isArray(module.entries) && 0 < module.entries.length)) {
+        callback(new Error('Entries is not provided.'));
+        return;
+      }
+
+      if (!(_.isString(module.proxy) && /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.exec(module.proxy))) {
+        callback(new Error('Proxy is not provided or invalid. (Proxy is a ip address, eg: 127.0.0.1)'));
+        return;
+      }
+
+      if (!_.isNumber(module.proxyPort)) {
+        callback(new Error('ProxyPort is not provided or invalid. (ProxyPort must be a port number)'));
+        return;
+      }
+    }
+
+    if (_.isArray(module.entries)) {
+      Object.assign(module, { division: module.entries.join('|') });
+    }
+  }
+
+  let logPath = path.join(ROOT_PATH, LOG_DIR);
+  fs.ensureDirSync(logPath);
+
+  let source = compile({
+    rootPath : path.join(ROOT_PATH, DIST_DIR),
+    logsPath : logPath,
+    modules  : modules,
+  });
+
+  fs.ensureDir(outfile.replace(path.basename(outfile), ''));
+  fs.writeFile(outfile, source, function (error) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    callback(null, { outfile, modules });
+  });
+}
