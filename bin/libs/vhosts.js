@@ -89,8 +89,8 @@ handlebars.registerHelper('separate', function (value, separator = ' ') {
   }
 });
 
-let tplfile   = path.join(__dirname, 'templates/vhosts/nginx.conf.hbs');
-let outfile   = path.join(ROOT_PATH, 'vhosts/nginx.conf');
+let tplfile = path.join(__dirname, 'templates/vhosts/nginx.conf.hbs');
+let outfile = path.join(ROOT_PATH, 'vhosts/nginx.conf');
 
 if (!fs.existsSync(tplfile)) {
   throw new Error(`vhost template '${tplfile}' is not exists.`);

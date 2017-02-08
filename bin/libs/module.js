@@ -39,7 +39,7 @@ program
  * 创建模块与组件
  * @param  {String} argv 指令
  */
-function generateRouter (argv) {
+export function generateRouter (argv) {
   let components = _.trim(argv, '\/').split('\/');
   let moduleName = components.shift();
 
@@ -120,7 +120,7 @@ function generateRouter (argv) {
  * @param  {Boolean} isForce 是否强制
  * @return {Boolean}
  */
-function generateModule (name, options, callback) {
+export function generateModule (name, options, callback) {
   if (!_.isFunction(callback)) {
     throw new Error('generateModule: callback is not provided.');
   }
@@ -173,7 +173,7 @@ function generateModule (name, options, callback) {
  * @param  {Object} datas  数据
  * @return {Boolean}
  */
-function generateComponent (name, family, options, callback) {
+export function generateComponent (name, family, options, callback) {
   if (4 > arguments.length) {
     return generateComponent(name, family, {}, options);
   }
@@ -235,7 +235,7 @@ function generateComponent (name, family, options, callback) {
  * @param {String} fromDir 资源所在路径
  * @param {String} toDir   目标路径
  */
-function copyAndRender (files, datas = {}, fromDir = '', toDir = '', callback) {
+export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', callback) {
   if (!_.isFunction(callback)) {
     throw new Error('copyAndRender: callback is not provided.');
   }

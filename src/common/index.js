@@ -1,15 +1,15 @@
 import 'lodash';
 import angular         from 'angular';
 
-// 第三方库
+// Vendors
 import angularSanitize from 'angular-sanitize';
 import UIRouter        from 'angular-ui-router';
 import ngTouch         from 'angular-touch';
 
-// 辅助函数
+// Helpers
 import './spreads';
 
-// 公共库
+// Public
 import Service         from './services';
 import Filter          from './filters';
 import Component       from './components';
