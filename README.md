@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/DavidKk/webpack-angular.svg?branch=master)](https://travis-ci.org/DavidKk/webpack-angular)
+[![Build status](https://ci.appveyor.com/api/projects/status/njpg463prkj2kg8d?svg=true)](https://ci.appveyor.com/project/DavidKk/webpack-angular)
+
 # Project Information
 
 ## Install
