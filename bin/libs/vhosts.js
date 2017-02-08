@@ -93,7 +93,7 @@ if (!fs.existsSync(tplfile)) {
 }
 
 let template  = fs.readFileSync(tplfile, 'utf-8');
-let compile   = handlebars.compile(tplfile);
+let compile   = handlebars.compile(template);
 let startTime = Date.now();
 
 /**
