@@ -20,8 +20,8 @@
     "unitest": "npm run debug && cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
     "release": "npm run unitest --verbose && npm run product --verbose",
     "mocha-test": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
-    "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "start": "npm run develop"
   },
   "devDependencies": {
