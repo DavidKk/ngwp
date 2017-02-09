@@ -26,10 +26,11 @@ program
   console.log('');
 })
 .arguments('<cmd> [argv]')
+.option('-d, --dist [dist]', 'set target folder.')
 .action((cmd, argv) => {
   switch (cmd) {
     case 'router':
-      generateRouter(argv);
+      generateRouter(argv, { dist: program.dist });
       break;
   }
 })
@@ -39,11 +40,14 @@ program
  * 创建模块与组件
  * @param  {String} argv 指令
  */
-export function generateRouter (argv) {
+export function generateRouter (argv, options) {
   let components = _.trim(argv, '\/').split('\/');
   let moduleName = components.shift();
 
-  generateModule(moduleName, { ingoreExists: false }, function (error, moduleState) {
+  generateModule(moduleName, {
+    ingoreExists : false,
+    distFolder   : options.dist || ENTRY_PATH,
+  }, function (error, moduleState) {
     if (error) {
       console.log(error);
       return;
@@ -53,7 +57,7 @@ export function generateRouter (argv) {
     let startTime = Date.now();
     let tasks     = _.map(components, function (name) {
       return function (callback) {
-        generateComponent(name, family, function (error, stats) {
+        generateComponent(name, family, { distFolder: options.dist || ENTRY_PATH }, function (error, stats) {
           if (error) {
             callback(error);
             return;
@@ -121,6 +125,10 @@ export function generateRouter (argv) {
  * @return {Boolean}
  */
 export function generateModule (name, options, callback) {
+  if (3 > arguments.length) {
+    return generateModule(name, {}, options);
+  }
+
   if (!_.isFunction(callback)) {
     throw new Error('generateModule: callback is not provided.');
   }
@@ -135,11 +143,14 @@ export function generateModule (name, options, callback) {
     return;
   }
 
-  options = _.defaults(options, { ingoreExists: false });
+  options = _.defaults(options, {
+    ingoreExists : false,
+    distFolder   : ENTRY_PATH,
+  });
 
   let names     = convertName(name);
   let filename  = names.underscore;
-  let moduleDir = path.join(ENTRY_PATH, filename);
+  let moduleDir = path.join(options.distFolder, filename);
 
   /**
    * 检查是否已经存在, 如果模块已经存在则直接退出
@@ -192,14 +203,17 @@ export function generateComponent (name, family, options, callback) {
     return;
   }
 
-  options = _.defaults(options, { ingoreExists: false });
+  options = _.defaults(options, {
+    ingoreExists : false,
+    distFolder   : ENTRY_PATH,
+  });
 
   let names = convertName(name);
   let pwd   = _.map(family, function (name) {
     return `${name}/components/`;
   });
 
-  let dist  = path.join(ENTRY_PATH, pwd.join('\/'), name);
+  let dist  = path.join(options.distFolder, pwd.join('\/'), name);
   if (fs.existsSync(dist)) {
     true !== options.ingoreExists && console.log(`Component ${colors.bold(name)} is already exists.`.yellow);
     callback(null);
