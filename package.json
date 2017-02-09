@@ -21,6 +21,7 @@
     "release": "npm run unitest --verbose && npm run product --verbose",
     "mocha-test": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
+    "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "start": "npm run develop"
   },
   "devDependencies": {
