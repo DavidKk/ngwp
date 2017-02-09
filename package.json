@@ -2,7 +2,7 @@
   "name": "webpack-angular",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "seed of project (webpack + angular + sass + jade)",
+  "description": "Project scaffold (Webpack, AngularJS, ES6, SCSS, Jade/Pug)",
   "homepage": "https://github.com/DavidKk/webpack-angular",
   "repository": {
     "type": "git",
@@ -18,8 +18,9 @@
     "develop": "cross-env DEVELOP=1 webpack --color --debug --config conf/webpack.develop.config.babel.js --watch --delay 250ms",
     "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
     "unitest": "npm run debug && cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
-    "release": "npm run test --verbose && npm run product --verbose",
-    "test": "mocha ./unitest/builder --require babel-polyfill --compilers js:babel-register",
+    "release": "npm run unitest --verbose && npm run product --verbose",
+    "test-mocha": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
     "start": "npm run develop"
   },
   "devDependencies": {
