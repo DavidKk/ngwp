@@ -19,7 +19,7 @@
     "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
     "unitest": "npm run debug && cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
     "release": "npm run unitest --verbose && npm run product --verbose",
-    "test-mocha": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
+    "mocha-test": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
     "start": "npm run develop"
   },

@@ -91,7 +91,7 @@ describe('Module builder', function () {
 
       fs.removeSync(tarFolder);
 
-      execFile('./bin/module', ['router', [moduleName, componentName].join('\/'), '--dist', tarFolder], {}, function (error) {
+      execFile(path.resolve('./bin/module'), ['router', [moduleName, componentName].join('\/'), '--dist', tarFolder], {}, function (error) {
         if (error) {
           throw error;
         }
