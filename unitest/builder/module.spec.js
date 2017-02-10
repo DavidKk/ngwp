@@ -1,128 +1,61 @@
-import _            from 'lodash';
-import fs           from 'fs-extra';
-import path         from 'path';
-import async        from 'async';
-import { expect }   from 'chai';
-import { execFile } from 'child_process';
-import {
-  ROOT_PATH,
-  TMP_DIR,
-}                   from '../../conf/config';
-import {
-  generateModule,
-  generateComponent,
-}                   from '../../bin/libs/module';
+import _                      from 'lodash';
+import fs                     from 'fs-extra';
+import path                   from 'path';
+import async                  from 'async';
+import { expect }             from 'chai';
+import { execFile }           from 'child_process';
+import { ROOT_PATH, TMP_DIR } from '../../conf/config';
+import { generateRouter }     from '../../bin/libs/module';
 
 describe('Module builder', function () {
-  describe('Test Generate Module', function () {
+  describe('Test Generate', function () {
     it('should compile handlebars file and copy other files.', function (done) {
-      let name             = '' + Date.now();
-      let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/module');
-      let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/module');
-      let tarTruthlyFolder = path.join(tarFolder, name);
+      let mName           = '' + Date.now();
+      let cName           = '' + Date.now();
+      let srcModuleFolder = path.join(ROOT_PATH, './bin/libs/templates/module');
+      let srcCompFolder   = path.join(ROOT_PATH, './bin/libs/templates/component');
+      let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/module');
+      let absModuleFolder = path.join(tarFolder, mName);
+      let absCompFolder   = path.join(tarFolder, mName, 'components', cName);
 
-      fs.removeSync(tarFolder);
-
-      generateModule(name, { distFolder: tarFolder }, function (error) {
+      generateRouter(mName + '/' + cName, { dist: tarFolder }, function (error) {
         if (error) {
           throw error;
         }
 
-        expect(fs.existsSync(tarTruthlyFolder)).to.be.true;
+        expect(fs.existsSync(absModuleFolder)).to.be.true;
+        expect(fs.existsSync(absCompFolder)).to.be.true;
 
-        let files = fs.readdirSync(tarTruthlyFolder);
-        expect(files.length).to.not.equal(0);
-
-        compareFolder(srcFolder, tarFolder, { tarTruthlyFolder }, function (error) {
-          if (error) {
-            throw error;
-          }
-
-          fs.removeSync(tarFolder);
-
-          done();
-        });
-      });
-    });
-  });
-
-  describe('Test Generate Component', function () {
-    it('should compile handlebars file and copy other files.', function (done) {
-      let name             = '' + Date.now();
-      let family           = ['unitest'];
-      let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/component');
-      let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/router');
-      let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', name);
-
-      fs.removeSync(tarFolder);
-
-      generateComponent(name, family, { distFolder: tarFolder }, function (error) {
-        if (error) {
-          throw error;
-        }
-
-        expect(fs.existsSync(tarTruthlyFolder)).to.be.true;
-
-        let files = fs.readdirSync(tarTruthlyFolder);
-        expect(files.length).to.not.equal(0);
-
-        compareFolder(srcFolder, tarFolder, { tarTruthlyFolder }, function (error) {
-          if (error) {
-            throw error;
-          }
-
-          fs.removeSync(tarFolder);
-          done();
-        });
-      });
-    });
-  });
-
-  // describe('Test generateRouter', function () {
-  // });
-
-  describe('Test CLI (command)', function () {
-    it('can use \'./bin/module router module/component\'', function (done) {
-      let moduleName      = '' + Date.now();
-      let componentName   = '' + Date.now();
-      let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/cli');
-      let moduleFolder    = path.join(tarFolder, moduleName);
-      let componentFolder = path.join(tarFolder, moduleName, 'components', componentName);
-
-      fs.removeSync(tarFolder);
-
-      execFile('node', [path.resolve('./bin/module'), 'router', [moduleName, componentName].join('\/'), '--dist', tarFolder], {}, function (error) {
-        if (error) {
-          throw error;
-        }
-
-        expect(fs.existsSync(moduleFolder)).to.be.true;
-        expect(fs.existsSync(componentFolder)).to.be.true;
-
-        let mFiles = fs.readdirSync(moduleFolder);
+        let mFiles = fs.readdirSync(absModuleFolder);
         expect(mFiles.length).to.not.equal(0);
 
-        let cFiles = fs.readdirSync(componentFolder);
+        let cFiles = fs.readdirSync(absCompFolder);
         expect(cFiles.length).to.not.equal(0);
 
-        fs.removeSync(tarFolder);
+        async.parallel([
+          compareFolder.bind(null, srcModuleFolder, tarFolder, { tarTruthlyFolder: absModuleFolder }),
+          compareFolder.bind(null, srcCompFolder, tarFolder, { tarTruthlyFolder: absCompFolder }),
+        ],
+        function (error) {
+          if (error) {
+            throw error;
+          }
 
-        done();
+          fs.removeSync(tarFolder);
+          done();
+        });
       });
     });
   });
 
-  // describe('Ability to use', function () {
-  //   it('can use module', function () {
+  describe('Ability to use', function () {
+    it('can use module', function () {
+    });
 
-  //   });
-
-  //   it('can use component', function () {
-
-  //   });
-  // });
+    it('can use component', function () {
+    });
+  });
 });
-
 
 /**
  * Compare files from folders.

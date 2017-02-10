@@ -30,7 +30,47 @@ program
 .action((cmd, argv) => {
   switch (cmd) {
     case 'router':
-      generateRouter(argv, { dist: program.dist });
+      let startTime = Date.now();
+
+      generateRouter(argv, { dist: program.dist }, function (error, stats) {
+        /* istanbul ignore if */
+        if (error) {
+          console.log(error);
+          return;
+        }
+
+        console.log('Generator: \'module.js\'');
+        console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+
+        if (0 === stats.length) {
+          console.log(colors.yellow('Generate completed but nothing be generated.'));
+        }
+        else {
+          let tableLogs = columnify(stats, {
+            headingTransform (heading) {
+              return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+            },
+            config: {
+              assets: {
+                align    : 'right',
+                dataTransform (file) {
+                  file = file.replace(ENTRY_PATH + '/', '');
+                  return colors.green(file).bold;
+                },
+              },
+              size: {
+                align: 'right',
+                dataTransform (size) {
+                  return formatBytes(size );
+                },
+              }
+            }
+          });
+
+          console.log(`${tableLogs}\n`);
+        }
+      });
+
       break;
   }
 })
@@ -40,22 +80,27 @@ program
  * 创建模块与组件
  * @param  {String} argv 指令
  */
-export function generateRouter (argv, options) {
+export function generateRouter (argv, options, callback) {
+  if (!_.isFunction(callback)) {
+    throw new Error('generateRouter: callback is not provided.');
+  }
+
   let components = _.trim(argv, '\/').split('\/');
   let moduleName = components.shift();
 
   generateModule(moduleName, {
     ingoreExists : false,
     distFolder   : options.dist || ENTRY_PATH,
-  }, function (error, moduleState) {
+  },
+  function (error, moduleState) {
+    /* istanbul ignore if */
     if (error) {
-      console.log(error);
+      callback(error);
       return;
     }
 
-    let family    = [moduleName];
-    let startTime = Date.now();
-    let tasks     = _.map(components, function (name) {
+    let family = [moduleName];
+    let tasks  = _.map(components, function (name) {
       return function (callback) {
         generateComponent(name, family, { distFolder: options.dist || ENTRY_PATH }, function (error, stats) {
           if (error) {
@@ -70,12 +115,7 @@ export function generateRouter (argv, options) {
       };
     });
 
-    async.series(tasks, function (error, componentState) {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
+    async.series(tasks, function (componentState) {
       moduleState    = moduleState || [];
       componentState = componentState || [];
 
@@ -83,36 +123,7 @@ export function generateRouter (argv, options) {
       stats     = _.flattenDeep(stats);
       stats     = _.filter(stats);
 
-      console.log('Generator: \'module.js\'');
-      console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-
-      if (0 === stats.length) {
-        console.log(colors.yellow('Generate completed but nothing be generated.'));
-      }
-      else {
-        let tableLogs = columnify(stats, {
-          headingTransform (heading) {
-            return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-          },
-          config: {
-            assets: {
-              align    : 'right',
-              dataTransform (file) {
-                file = file.replace(ENTRY_PATH + '/', '');
-                return colors.green(file).bold;
-              },
-            },
-            size: {
-              align: 'right',
-              dataTransform (size) {
-                return formatBytes(size );
-              },
-            }
-          }
-        });
-
-        console.log(`${tableLogs}\n`);
-      }
+      callback(null, stats);
     });
   });
 }
@@ -125,10 +136,12 @@ export function generateRouter (argv, options) {
  * @return {Boolean}
  */
 export function generateModule (name, options, callback) {
+  /* istanbul ignore if */
   if (3 > arguments.length) {
     return generateModule(name, {}, options);
   }
 
+  /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('generateModule: callback is not provided.');
   }
@@ -185,10 +198,12 @@ export function generateModule (name, options, callback) {
  * @return {Boolean}
  */
 export function generateComponent (name, family, options, callback) {
+  /* istanbul ignore if */
   if (4 > arguments.length) {
     return generateComponent(name, family, {}, options);
   }
 
+  /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('generateComponent: callback is not provided.');
   }
@@ -250,6 +265,7 @@ export function generateComponent (name, family, options, callback) {
  * @param {String} toDir   目标路径
  */
 export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', callback) {
+  /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('copyAndRender: callback is not provided.');
   }
