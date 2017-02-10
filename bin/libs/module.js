@@ -1,5 +1,3 @@
-/* eslint no-console: off */
-
 import _                            from 'lodash';
 import fs                           from 'fs-extra';
 import path                         from 'path';
@@ -11,70 +9,91 @@ import handlebars                   from 'handlebars';
 import { convertName, formatBytes } from './utils.js';
 import { ROOT_PATH, ENTRY_PATH }    from '../../conf/config';
 
-let pkgFile = path.join(ROOT_PATH, './package.json');
-let source  = fs.readJSONSync(pkgFile);
-
-program
-.version(source.version)
-.on('--version', () => {
-  console.log(source.version);
-})
-.on('--help', () => {
-  console.log('  Examples:');
-  console.log('    # Create Module/Router');
-  console.log('    $ ./bin/module router module/componentA/componentB/...');
-  console.log('');
-})
-.arguments('<cmd> [argv]')
-.option('-d, --dist [dist]', 'set target folder.')
-.action((cmd, argv) => {
-  switch (cmd) {
-    case 'router':
-      let startTime = Date.now();
-
-      generateRouter(argv, { dist: program.dist }, function (error, stats) {
-        /* istanbul ignore if */
-        if (error) {
-          console.log(error);
-          return;
-        }
-
-        console.log('Generator: \'module.js\'');
-        console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-
-        if (0 === stats.length) {
-          console.log(colors.yellow('Generate completed but nothing be generated.'));
-        }
-        else {
-          let tableLogs = columnify(stats, {
-            headingTransform (heading) {
-              return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-            },
-            config: {
-              assets: {
-                align    : 'right',
-                dataTransform (file) {
-                  file = file.replace(ENTRY_PATH + '/', '');
-                  return colors.green(file).bold;
-                },
-              },
-              size: {
-                align: 'right',
-                dataTransform (size) {
-                  return formatBytes(size );
-                },
-              }
-            }
-          });
-
-          console.log(`${tableLogs}\n`);
-        }
-      });
-
-      break;
+/**
+ * 创建模块
+ * @param  {Array} params  cli argument (default by process.argv)
+ */
+export function build (params = process.argv, options, callback) {
+    /* istanbul ignore if */
+  if (3 > arguments.length) {
+    return build(params, {}, options);
   }
-})
-.parse(process.argv);
+
+  options = _.defaultsDeep(options, {
+    ignoreTrace  : false,
+    ignoreExists : false,
+  });
+
+  let trace   = tracer(options);
+  let pkgFile = path.join(ROOT_PATH, './package.json');
+  let source  = fs.readJSONSync(pkgFile);
+
+  program
+  .version(source.version)
+  .on('--version', () => {
+    trace(source.version);
+  })
+  .on('--help', () => {
+    trace('  Examples:');
+    trace('    # Create Module/Router');
+    trace('    $ ./bin/module router module/componentA/componentB/...');
+    trace('');
+  })
+  .arguments('<cmd> [argv]')
+  .option('-d, --dist [dist]', 'set target folder.')
+  .action((cmd, argv) => {
+    switch (cmd) {
+      case 'router':
+        let startTime = Date.now();
+
+        generateRouter(argv, _.defaultsDeep(options, { dist: program.dist }), function (error, stats) {
+          /* istanbul ignore if */
+          if (error) {
+            _.isFunction(callback) && callback(error);
+            trace(error);
+            return;
+          }
+
+          trace('Generator: \'module.js\'');
+          trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+
+          /* istanbul ignore if */
+          if (0 === stats.length) {
+            trace(colors.yellow('Generate completed but nothing be generated.'));
+          }
+          else {
+            let tableLogs = columnify(stats, {
+              headingTransform (heading) {
+                return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+              },
+              config: {
+                assets: {
+                  align    : 'right',
+                  dataTransform (file) {
+                    file = file.replace(ENTRY_PATH + '/', '');
+                    return colors.green(file).bold;
+                  },
+                },
+                size: {
+                  align: 'right',
+                  dataTransform (size) {
+                    return formatBytes(size);
+                  },
+                }
+              }
+            });
+
+            trace(`${tableLogs}\n`);
+          }
+
+          _.isFunction(callback) && callback(null, stats);
+        });
+
+        break;
+    }
+  })
+  .parse(params);
+}
 
 /**
  * 创建模块与组件
@@ -89,7 +108,8 @@ export function generateRouter (argv, options, callback) {
   let moduleName = components.shift();
 
   generateModule(moduleName, {
-    ingoreExists : false,
+    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
+    ignoreExists : false,
     distFolder   : options.dist || ENTRY_PATH,
   },
   function (error, moduleState) {
@@ -157,10 +177,12 @@ export function generateModule (name, options, callback) {
   }
 
   options = _.defaults(options, {
-    ingoreExists : false,
+    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
+    ignoreExists : false,
     distFolder   : ENTRY_PATH,
   });
 
+  let trace     = tracer(options);
   let names     = convertName(name);
   let filename  = names.underscore;
   let moduleDir = path.join(options.distFolder, filename);
@@ -170,7 +192,7 @@ export function generateModule (name, options, callback) {
    * check module exists and exit process when file is exists.
    */
   if (fs.existsSync(moduleDir)) {
-    true !== options.ingoreExists && console.log(`Module ${colors.bold(name)} is already exists.`.yellow);
+    true !== options.ignoreExists && trace(`Module ${colors.bold(name)} is already exists.`.yellow);
     callback(null);
     return;
   }
@@ -219,10 +241,12 @@ export function generateComponent (name, family, options, callback) {
   }
 
   options = _.defaults(options, {
-    ingoreExists : false,
+    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
+    ignoreExists : false,
     distFolder   : ENTRY_PATH,
   });
 
+  let trace = tracer(options);
   let names = convertName(name);
   let pwd   = _.map(family, function (name) {
     return `${name}/components/`;
@@ -230,7 +254,7 @@ export function generateComponent (name, family, options, callback) {
 
   let dist  = path.join(options.distFolder, pwd.join('\/'), name);
   if (fs.existsSync(dist)) {
-    true !== options.ingoreExists && console.log(`Component ${colors.bold(name)} is already exists.`.yellow);
+    true !== options.ignoreExists && trace(`Component ${colors.bold(name)} is already exists.`.yellow);
     callback(null);
     return;
   }
@@ -334,4 +358,11 @@ export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', call
   });
 
   async.parallel(tasks, callback);
+}
+
+function tracer (options = {}) {
+  return function (message) {
+    /* eslint no-console: off */
+    true !== options.ignoreTrace && console.log(message);
+  };
 }
