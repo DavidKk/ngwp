@@ -81,7 +81,7 @@ describe('Module builder', function () {
       });
     });
 
-    it('should ability to generate multilayer component', function (done) {
+    it('should ability to generate multiple component', function (done) {
       let mName           = 'mdlname';
       let cName           = 'cpnname';
       let srcModuleFolder = path.join(ROOT_PATH, './bin/libs/templates/module');

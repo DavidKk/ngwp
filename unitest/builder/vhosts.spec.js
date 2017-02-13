@@ -13,30 +13,7 @@ import './vhosts.helper';
 
 describe('VHost Generator', function () {
   describe('Test Generate', function () {
-    it('should build nginx conf file automatic', function (done) {
-      let folder = path.join(ROOT_PATH, TMP_DIR, './unitest/vhosts/t1');
-      let file   = path.join(folder, './vhosts.conf');
-
-      fs.removeSync(folder);
-
-      build(undefined, {
-        ignoreTrace : true,
-        outputFile  : file,
-      },
-      function (error) {
-        if (error) {
-          throw error;
-        }
-
-        expect(fs.existsSync(file)).to.be.true;
-
-        fs.removeSync(path.join(ROOT_PATH, LOG_DIR));
-        fs.removeSync(file);
-        done();
-      });
-    });
-
-    it('should configure build-task', function (done) {
+    it('should configure and generate nginx config file', function (done) {
       let tpl      = path.join(__dirname, './vhost.conf.hbs');
       let folder   = path.join(ROOT_PATH, TMP_DIR, './unitest/vhosts/2');
       let file     = path.join(folder, './vhosts.conf');

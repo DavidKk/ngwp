@@ -145,6 +145,7 @@ export function build (config = MODULES, options, callback) {
       }
     });
 
+    /* istanbul ignore if */
     if (true !== options.ignoreTrace) {
       let trace = tracer(options);
 
