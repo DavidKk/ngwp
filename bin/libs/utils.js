@@ -62,3 +62,14 @@ export function formatBytes (bytes, decimals) {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+/**
+ * 提示
+ * @param  {Object} options 配置
+ */
+export function tracer (options = {}) {
+  return function (message) {
+    /* eslint no-console: off */
+    true !== options.ignoreTrace && console.log(message);
+  };
+}

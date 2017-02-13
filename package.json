@@ -13,7 +13,7 @@
   },
   "scripts": {
     "builder-test": "eslint ./conf/* ./bin/libs/* && mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
-    "builder-coverage": "nyc npm run builder-test",
+    "builder-coverage": "nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run builder-test",
     "builder-coveralls": "nyc --reporter=text-lcov npm run builder-test | coveralls",
     "vhost": "./bin/vhosts",
     "builder": "./bin/module",

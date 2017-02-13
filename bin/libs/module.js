@@ -1,20 +1,27 @@
-import _                            from 'lodash';
-import fs                           from 'fs-extra';
-import path                         from 'path';
-import async                        from 'async';
-import colors                       from 'colors';
-import program                      from 'commander';
-import columnify                    from 'columnify';
-import handlebars                   from 'handlebars';
-import { convertName, formatBytes } from './utils.js';
-import { ROOT_PATH, ENTRY_PATH }    from '../../conf/config';
+import _          from 'lodash';
+import fs         from 'fs-extra';
+import path       from 'path';
+import async      from 'async';
+import colors     from 'colors';
+import program    from 'commander';
+import columnify  from 'columnify';
+import handlebars from 'handlebars';
+import {
+  convertName,
+  formatBytes,
+  tracer,
+}                 from './utils.js';
+import {
+  ROOT_PATH,
+  ENTRY_PATH,
+}                 from '../../conf/config';
 
 /**
  * 创建模块
  * @param  {Array} params  cli argument (default by process.argv)
  */
 export function build (params = process.argv, options, callback) {
-    /* istanbul ignore if */
+  /* istanbul ignore if */
   if (3 > arguments.length) {
     return build(params, {}, options);
   }
@@ -358,11 +365,4 @@ export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', call
   });
 
   async.parallel(tasks, callback);
-}
-
-function tracer (options = {}) {
-  return function (message) {
-    /* eslint no-console: off */
-    true !== options.ignoreTrace && console.log(message);
-  };
 }

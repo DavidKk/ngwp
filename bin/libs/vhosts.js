@@ -1,11 +1,10 @@
-/* eslint no-console: off */
-
 import _          from 'lodash';
 import fs         from 'fs-extra';
 import path       from 'path';
 import handlebars from 'handlebars';
 import colors     from 'colors';
 import columnify  from 'columnify';
+import { tracer } from './utils.js';
 import {
   LOG_DIR,
   DIST_DIR,
@@ -25,16 +24,19 @@ handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options
   let operators;
   let result;
 
+  /* istanbul ignore if */
   if (3 > arguments.length) {
     throw new Error('Handlerbars Helper "compare" needs 2 parameters');
   }
 
+  /* istanbul ignore if */
   if (undefined === options) {
     options  = rvalue;
     rvalue   = operator;
     operator = '===';
   }
 
+  /* istanbul ignore next */
   operators = {
     '==' (l, r) {
       /* eslint eqeqeq: off */
@@ -67,6 +69,7 @@ handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options
     },
   };
 
+  /* istanbul ignore if */
   if (!operators[operator]) {
     throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`);
   }
@@ -89,62 +92,100 @@ handlebars.registerHelper('separate', function (value, separator = ' ') {
   }
 });
 
-let tplfile = path.join(__dirname, 'templates/vhosts/nginx.conf.hbs');
-let outfile = path.join(ROOT_PATH, 'vhosts/nginx.conf');
-
-if (!fs.existsSync(tplfile)) {
-  throw new Error(`vhost template '${tplfile}' is not exists.`);
-}
-
-let template  = fs.readFileSync(tplfile, 'utf-8');
-let compile   = handlebars.compile(template);
-let startTime = Date.now();
-
 /**
- * build nginx config
+ * build api
+ * @param  {Object}   config   module setting
+ * @param  {Object}   options  setting
+ * @param  {Function} callback optional
  */
-build(MODULES, function (error, { outfile, modules }) {
-  if (error) {
-    console.error(error);
-    return;
+export function build (config = MODULES, options, callback) {
+  /* istanbul ignore if */
+  if (3 > arguments.length) {
+    return build(config, {}, options);
   }
 
-  modules = _.map(modules, function ({ domain, proxy, entries }) {
-    return {
-      domain  : colors.green(_.isArray(domain) ? domain.join(',') : domain).bold,
-      proxy   : proxy,
-      entries : colors.green(entries.join(',')).bold,
-    };
+  options = _.defaultsDeep(options, {
+    ignoreTrace: false,
   });
 
-  let tableLogs = columnify(modules, {
-    headingTransform (heading) {
-      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-    },
-    config: {
-      domain: {
-        maxWidth : 40,
-        align    : 'right',
-      },
+  let startTime = Date.now();
+
+  /**
+   * build nginx config
+   */
+  generateNginxConfig(config, options, function (error, state) {
+    if (error) {
+      if (_.isFunction(callback)) {
+        callback(error);
+        return;
+      }
+
+      throw error;
     }
-  });
 
-  console.log('Generator: \'vhosts.js\'');
-  console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-  console.log(`${tableLogs}\n`);
-  console.log(`[${colors.green('ok').bold}] Nginx config file '${outfile.green.bold}' is generated successfully, include it to nginx.conf.`);
-  console.log(`Remember '${colors.green('reolad/restart').bold}' your nginx server.`);
-});
+    let { outputFile, modules } = state;
+
+    modules = _.map(modules, function ({ domain, proxy, entries }) {
+      return {
+        domain  : colors.green(_.isArray(domain) ? domain.join(',') : domain).bold,
+        proxy   : proxy || '127.0.0.1',
+        entries : _.isArray(entries) ? colors.green(entries.join(',')).bold : '',
+      };
+    });
+
+    let tableLogs = columnify(modules, {
+      headingTransform (heading) {
+        return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+      },
+      config: {
+        domain: {
+          maxWidth : 40,
+          align    : 'right',
+        },
+      }
+    });
+
+    if (true !== options.ignoreTrace) {
+      let trace = tracer(options);
+
+      trace('Generator: \'vhosts.js\'');
+      trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+      trace(`${tableLogs}\n`);
+      trace(`[${colors.green('ok').bold}] Nginx config file '${outputFile.green.bold}' is generated successfully, include it to nginx.conf.`);
+      trace(`Remember '${colors.green('reolad/restart').bold}' your nginx server.`);
+    }
+
+    _.isFunction(callback) && callback(null, modules, tableLogs);
+  });
+}
 
 /**
  * build nginx vhosts
  * @param  {Array}    modules  module setting
+ * @param  {Object}   options  setting
  * @param  {Function} callback result callback function
  */
-export function build (modules, callback) {
+export function generateNginxConfig (modules, options, callback) {
+  /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('callback is not provided.');
   }
+
+  options = _.defaultsDeep(options, {
+    ignoreTrace  : false,
+    rootPath     : path.join(ROOT_PATH, DIST_DIR),
+    logsPath      : path.join(ROOT_PATH, LOG_DIR),
+    templateFile : path.join(__dirname, 'templates/vhosts/nginx.conf.hbs'),
+    outputFile   : path.join(ROOT_PATH, 'vhosts/nginx.conf'),
+  });
+
+  /* istanbul ignore if */
+  if (!fs.existsSync(options.templateFile)) {
+    throw new Error(`vhost template '${options.templateFile}' is not exists.`);
+  }
+
+  let template  = fs.readFileSync(options.templateFile, 'utf-8');
+  let compile   = handlebars.compile(template);
 
   modules = _.clone(modules);
 
@@ -176,22 +217,22 @@ export function build (modules, callback) {
     }
   }
 
-  let logPath = path.join(ROOT_PATH, LOG_DIR);
-  fs.ensureDirSync(logPath);
+  fs.ensureDirSync(options.logsPath);
 
   let source = compile({
-    rootPath : path.join(ROOT_PATH, DIST_DIR),
-    logsPath : logPath,
+    rootPath : options.rootPath,
+    logsPath : options.logsPath,
     modules  : modules,
   });
 
-  fs.ensureDir(outfile.replace(path.basename(outfile), ''));
-  fs.writeFile(outfile, source, function (error) {
+  fs.ensureDir(options.outputFile.replace(path.basename(options.outputFile), ''));
+  fs.writeFile(options.outputFile, source, function (error) {
+    /* istanbul ignore if */
     if (error) {
       callback(error);
       return;
     }
 
-    callback(null, { outfile, modules });
+    callback(null, { outputFile: options.outputFile, modules });
   });
 }
