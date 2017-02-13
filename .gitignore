@@ -3,6 +3,7 @@
 
 
 # Temporary folders
+/.nyc_output
 /.temporary
 /.app
 /vhosts

@@ -14,14 +14,14 @@ import {
 describe('Module builder', function () {
   describe('Test Generate', function () {
     it('should generate module', function (done) {
-      let name             = 'module';
+      let mName            = 'mdlname';
       let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/module');
       let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gm');
-      let tarTruthlyFolder = path.join(tarFolder, name);
+      let tarTruthlyFolder = path.join(tarFolder, mName);
 
       fs.removeSync(tarFolder);
 
-      generateModule(name, {
+      generateModule(mName, {
         ignoreTrace : true,
         distFolder  : tarFolder,
       },
@@ -48,15 +48,15 @@ describe('Module builder', function () {
     });
 
     it('should generate component', function (done) {
-      let name             = 'module';
+      let mName            = 'mdlname';
       let family           = ['unitest'];
       let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/component');
       let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gc');
-      let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', name);
+      let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', mName);
 
       fs.removeSync(tarFolder);
 
-      generateComponent(name, family, {
+      generateComponent(mName, family, {
         ignoreTrace : true,
         distFolder  : tarFolder,
       },
@@ -82,8 +82,8 @@ describe('Module builder', function () {
     });
 
     it('should ability to generate multilayer component', function (done) {
-      let mName           = 'module';
-      let cName           = 'component';
+      let mName           = 'mdlname';
+      let cName           = 'cpnname';
       let srcModuleFolder = path.join(ROOT_PATH, './bin/libs/templates/module');
       let srcCompFolder   = path.join(ROOT_PATH, './bin/libs/templates/component');
       let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gr');
@@ -126,15 +126,15 @@ describe('Module builder', function () {
 
   describe('Test CLI (command)', function () {
     it('can use \'./bin/module router module/component\'', function (done) {
-      let moduleName      = '' + Date.now();
-      let componentName   = '' + Date.now();
-      let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/cli');
-      let moduleFolder    = path.join(tarFolder, moduleName);
-      let componentFolder = path.join(tarFolder, moduleName, 'components', componentName);
+      let mName     = 'mdlname';
+      let cName     = 'cpnname';
+      let tarFolder = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/cli');
+      let mFolder   = path.join(tarFolder, mName);
+      let cFolder   = path.join(tarFolder, mName, 'components', cName);
 
       fs.removeSync(tarFolder);
 
-      build(['node', './bin/module', 'router', moduleName + '/' + componentName], {
+      build(['node', './bin/module', 'router', mName + '/' + cName], {
         dist        : tarFolder,
         ignoreTrace : true,
       },
@@ -143,13 +143,13 @@ describe('Module builder', function () {
           throw error;
         }
 
-        expect(fs.existsSync(moduleFolder)).to.be.true;
-        expect(fs.existsSync(componentFolder)).to.be.true;
+        expect(fs.existsSync(mFolder)).to.be.true;
+        expect(fs.existsSync(cFolder)).to.be.true;
 
-        let mFiles = fs.readdirSync(moduleFolder);
+        let mFiles = fs.readdirSync(mFolder);
         expect(mFiles.length).to.not.equal(0);
 
-        let cFiles = fs.readdirSync(componentFolder);
+        let cFiles = fs.readdirSync(cFolder);
         expect(cFiles.length).to.not.equal(0);
 
         fs.removeSync(tarFolder);

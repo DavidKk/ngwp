@@ -12,15 +12,16 @@
     "node": ">= 6.2.2"
   },
   "scripts": {
+    "builder-test": "eslint ./conf/* ./bin/libs/* && mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
+    "builder-coverage": "nyc npm run builder-test",
+    "builder-coveralls": "nyc --reporter=text-lcov npm run builder-test | coveralls",
     "vhost": "./bin/vhosts",
     "builder": "./bin/module",
     "develop": "cross-env DEVELOP=1 webpack --color --debug --config conf/webpack.develop.config.babel.js --watch --delay 250ms",
     "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
     "unitest": "cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
     "release": "npm run unitest --verbose && npm run product --verbose",
-    "test": "eslint ./conf/* ./bin/libs/* && mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --require babel-polyfill --compilers js:babel-register --report coverage/ --recursive unitest/builder/ --colors",
-    "coveralls": "npm run coverage --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "test": "npm run unitest",
     "start": "npm run develop"
   },
   "devDependencies": {
@@ -54,7 +55,6 @@
     "html-webpack-plugin": "^2.17.0",
     "image-webpack-loader": "^1.8.0",
     "isparta-loader": "^2.0.0",
-    "istanbul": "^1.1.0-alpha.1",
     "jade": "^1.11.0",
     "jade-loader": "^0.8.0",
     "jquery": "^3.1.0",
@@ -72,6 +72,7 @@
     "mocha": "^3.0.2",
     "ng-annotate-loader": "^0.1.1",
     "node-sass": "^3.7.0",
+    "nyc": "^10.1.2",
     "postcss-loader": "^0.9.1",
     "sass-loader": "^3.2.0",
     "sinon": "^1.17.5",
