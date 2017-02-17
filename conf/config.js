@@ -3,7 +3,7 @@ import path     from 'path';
 import { name } from '../package';
 
 export const PROJECT_NAME  = name;
-export const CLIENT_PORT   = 51000;
+export const CLIENT_PORT   = 9786;
 
 export const CLIENT_DOMAIN = 'www.example.com';
 export const SERVER_DOMAIN = '';

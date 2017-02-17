@@ -43,7 +43,7 @@ export function build (params = process.argv, options, callback) {
   .on('--help', () => {
     trace('  Examples:');
     trace('    # Create Module/Router');
-    trace('    $ ./bin/module router module/componentA/componentB/...');
+    trace('    $ ./scripts/module router module/componentA/componentB/...');
     trace('');
   })
   .arguments('<cmd> [argv]')

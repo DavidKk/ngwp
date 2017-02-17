@@ -2,7 +2,7 @@ import _          from 'lodash';
 import fs         from 'fs-extra';
 import path       from 'path';
 import { expect } from 'chai';
-import { build }  from '../../bin/libs/vhosts';
+import { build }  from '../../scripts/libs/vhosts';
 import {
   ROOT_PATH,
   TMP_DIR,

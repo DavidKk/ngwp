@@ -172,7 +172,7 @@ export default {
       },
       {
         test    : /\.jade$/,
-        loader  : 'jade',
+        loader  : 'pug',
       },
       {
         test    : /\.js$/,

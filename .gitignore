@@ -22,6 +22,14 @@ node_modules
 npm-debug.log
 
 
+# NPM
+npm-shrinkwrap.json
+
+
+# YARN
+yarn.lock
+
+
 # Numerous always-ignore extensions
 *.bak
 *.diff

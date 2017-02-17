@@ -124,7 +124,7 @@ export default WebpackMerger({
     preLoaders: [
       {
         test    : /\.js$/,
-        loader  : 'isparta',
+        loader  : 'istanbul-instrumenter',
         include : webpackConfig.resolve.root,
         exclude : [/node_modules/, new RegExp(TMP_DIR)],
       },

@@ -9,13 +9,13 @@ import {
   generateRouter,
   generateModule,
   generateComponent,
-}                             from '../../bin/libs/module';
+}                             from '../../scripts/libs/module';
 
 describe('Module builder', function () {
   describe('Test Generate', function () {
     it('should generate module', function (done) {
       let mName            = 'mdlname';
-      let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/module');
+      let srcFolder        = path.join(ROOT_PATH, './scripts/libs/templates/module');
       let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gm');
       let tarTruthlyFolder = path.join(tarFolder, mName);
 
@@ -50,7 +50,7 @@ describe('Module builder', function () {
     it('should generate component', function (done) {
       let mName            = 'mdlname';
       let family           = ['unitest'];
-      let srcFolder        = path.join(ROOT_PATH, './bin/libs/templates/component');
+      let srcFolder        = path.join(ROOT_PATH, './scripts/libs/templates/component');
       let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gc');
       let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', mName);
 
@@ -84,8 +84,8 @@ describe('Module builder', function () {
     it('should ability to generate multiple component', function (done) {
       let mName           = 'mdlname';
       let cName           = 'cpnname';
-      let srcModuleFolder = path.join(ROOT_PATH, './bin/libs/templates/module');
-      let srcCompFolder   = path.join(ROOT_PATH, './bin/libs/templates/component');
+      let srcModuleFolder = path.join(ROOT_PATH, './scripts/libs/templates/module');
+      let srcCompFolder   = path.join(ROOT_PATH, './scripts/libs/templates/component');
       let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gr');
       let absModuleFolder = path.join(tarFolder, mName);
       let absCompFolder   = path.join(tarFolder, mName, 'components', cName);
@@ -125,7 +125,7 @@ describe('Module builder', function () {
   });
 
   describe('Test CLI (command)', function () {
-    it('can use \'./bin/module router module/component\'', function (done) {
+    it('can use \'./scripts/module router module/component\'', function (done) {
       let mName     = 'mdlname';
       let cName     = 'cpnname';
       let tarFolder = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/cli');
@@ -134,7 +134,7 @@ describe('Module builder', function () {
 
       fs.removeSync(tarFolder);
 
-      build(['node', './bin/module', 'router', mName + '/' + cName], {
+      build(['node', './scripts/module', 'router', mName + '/' + cName], {
         dist        : tarFolder,
         ignoreTrace : true,
       },
