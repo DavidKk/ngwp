@@ -26,19 +26,14 @@ describe('Module builder', function () {
         distFolder  : tarFolder,
       },
       function (error) {
-        if (error) {
-          throw error;
-        }
-
+        expect(error).to.not.be.an('error');
         expect(fs.existsSync(tarTruthlyFolder)).to.be.true;
 
         let files = fs.readdirSync(tarTruthlyFolder);
         expect(files.length).to.not.equal(0);
 
         compareFolder(srcFolder, tarFolder, { tarTruthlyFolder }, function (error) {
-          if (error) {
-            throw error;
-          }
+          expect(error).to.not.be.an('error');
 
           fs.removeSync(tarFolder);
 
@@ -61,19 +56,14 @@ describe('Module builder', function () {
         distFolder  : tarFolder,
       },
       function (error) {
-        if (error) {
-          throw error;
-        }
-
+        expect(error).to.not.be.an('error');
         expect(fs.existsSync(tarTruthlyFolder)).to.be.true;
 
         let files = fs.readdirSync(tarTruthlyFolder);
         expect(files.length).to.not.equal(0);
 
         compareFolder(srcFolder, tarFolder, { tarTruthlyFolder }, function (error) {
-          if (error) {
-            throw error;
-          }
+          expect(error).to.not.be.an('error');
 
           fs.removeSync(tarFolder);
           done();
@@ -94,9 +84,7 @@ describe('Module builder', function () {
       fs.removeSync(tarFolder);
 
       generateRouter(mName + '/' + cName + '/chilren', { dist: tarFolder }, function (error) {
-        if (error) {
-          throw error;
-        }
+        expect(error).to.not.be.an('error');
 
         expect(fs.existsSync(absModuleFolder)).to.be.true;
         expect(fs.existsSync(absCompFolder)).to.be.true;
@@ -113,9 +101,7 @@ describe('Module builder', function () {
           compareFolder.bind(null, srcCompFolder, absCompFolder, { tarTruthlyFolder: subCompFolder }),
         ],
         function (error) {
-          if (error) {
-            throw error;
-          }
+          expect(error).to.not.be.an('error');
 
           fs.removeSync(tarFolder);
           done();
@@ -139,9 +125,7 @@ describe('Module builder', function () {
         ignoreTrace : true,
       },
       function (error) {
-        if (error) {
-          throw error;
-        }
+        expect(error).to.not.be.an('error');
 
         expect(fs.existsSync(mFolder)).to.be.true;
         expect(fs.existsSync(cFolder)).to.be.true;

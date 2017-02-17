@@ -45,9 +45,7 @@ describe('VHost Generator', function () {
       fs.removeSync(folder);
 
       build(modules, config, function (error) {
-        if (error) {
-          throw error;
-        }
+        expect(error).to.not.be.an('error');
 
         expect(fs.existsSync(file)).to.be.true;
 
