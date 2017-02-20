@@ -67,7 +67,7 @@ if (ASSETS_DOMAIN) {
   UPLOAD_DOMAIN && UPLOAD_DOMAIN !== ASSETS_DOMAIN && domains.push(UPLOAD_DOMAIN);
 
   MODULES.push({
-    type      : 'cdn',
-    domain    : domains,
+    type   : 'cdn',
+    domain : domains,
   });
 }

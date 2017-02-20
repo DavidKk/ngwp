@@ -77,7 +77,11 @@ handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options
  * Separate Array to some string.
  * [value1, value2, value3] => 'value1 value2 value3';
  */
-handlebars.registerHelper('separate', function (value, separator = ' ') {
+handlebars.registerHelper('separate', function (value, separator) {
+  if (3 > arguments.length) {
+    separator = ' ';
+  }
+
   if (_.isString(value)) {
     return value;
   }

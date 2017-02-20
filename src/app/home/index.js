@@ -1,9 +1,9 @@
 import './index.scss';
 
-import angular         from 'angular';
-import Common          from 'common';
-import Components      from './components';
-import Template        from './home.jade';
+import angular    from 'angular';
+import Common     from 'common';
+import Components from './components';
+import Template   from './home.jade';
 
 export default angular.module('home', [
   Common,
@@ -20,5 +20,14 @@ export default angular.module('home', [
   });
 
   $urlRouterProvider.when('/', '/home/');
+})
+/**
+ * Run before above resolve url
+ * You can configure something,
+ * write some common async logic.
+ */
+.run(function ($urlRouter) {
+  $urlRouter.listen();
+  $urlRouter.sync();
 })
 .name;
