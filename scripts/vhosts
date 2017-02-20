@@ -1,8 +1,0 @@
-#!/usr/bin/env node
-
-require('babel-register');
-require('babel-preset-es2015');
-require('babel-preset-stage-0');
-
-let vhosts = require('./libs/vhosts');
-vhosts.build();

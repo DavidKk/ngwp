@@ -2,14 +2,9 @@ import _          from 'lodash';
 import fs         from 'fs-extra';
 import path       from 'path';
 import handlebars from 'handlebars';
-import colors     from 'colors';
-import columnify  from 'columnify';
-import { tracer } from './utils.js';
 import {
-  LOG_DIR,
   DIST_DIR,
-  ROOT_PATH,
-  MODULES,
+  LOG_DIR,
 }                 from '../../conf/config';
 
 /**
@@ -93,91 +88,27 @@ handlebars.registerHelper('separate', function (value, separator = ' ') {
 });
 
 /**
- * build api
- * @param  {Object}   config   module setting
- * @param  {Object}   options  setting
- * @param  {Function} callback optional
- */
-export function build (config = MODULES, options, callback) {
-  /* istanbul ignore if */
-  if (3 > arguments.length) {
-    return build(config, {}, options);
-  }
-
-  options = _.defaultsDeep(options, {
-    ignoreTrace: false,
-  });
-
-  let startTime = Date.now();
-
-  /**
-   * build nginx config
-   */
-  generateNginxConfig(config, options, function (error, state) {
-    if (error) {
-      if (_.isFunction(callback)) {
-        callback(error);
-        return;
-      }
-
-      throw error;
-    }
-
-    let { outputFile, modules } = state;
-
-    modules = _.map(modules, function ({ domain, proxy, entries }) {
-      return {
-        domain  : colors.green(_.isArray(domain) ? domain.join(',') : domain).bold,
-        proxy   : proxy || '127.0.0.1',
-        entries : _.isArray(entries) ? colors.green(entries.join(',')).bold : '',
-      };
-    });
-
-    let tableLogs = columnify(modules, {
-      headingTransform (heading) {
-        return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-      },
-      config: {
-        domain: {
-          maxWidth : 40,
-          align    : 'right',
-        },
-      }
-    });
-
-    /* istanbul ignore if */
-    if (true !== options.ignoreTrace) {
-      let trace = tracer(options);
-
-      trace('Generator: \'vhosts.js\'');
-      trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-      trace(`${tableLogs}\n`);
-      trace(`[${colors.green('ok').bold}] Nginx config file '${outputFile.green.bold}' is generated successfully, include it to nginx.conf.`);
-      trace(`Remember '${colors.green('reolad/restart').bold}' your nginx server.`);
-    }
-
-    _.isFunction(callback) && callback(null, modules, tableLogs);
-  });
-}
-
-/**
  * build nginx vhosts
  * @param  {Array}    modules  module setting
  * @param  {Object}   options  setting
  * @param  {Function} callback result callback function
  */
-export function generateNginxConfig (modules, options, callback) {
+export function mkVhost (modules, options, callback) {
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('callback is not provided.');
   }
 
+  let basePath = options.basePath || process.cwd();
+
   options = _.defaultsDeep(options, {
     ignoreTrace  : false,
-    rootPath     : path.join(ROOT_PATH, DIST_DIR),
-    logsPath      : path.join(ROOT_PATH, LOG_DIR),
-    templateFile : path.join(__dirname, 'templates/vhosts/nginx.conf.hbs'),
-    outputFile   : path.join(ROOT_PATH, 'vhosts/nginx.conf'),
+    distFile     : path.join(basePath, 'vhosts/nginx.conf'),
+    templateFile : path.join(__dirname, './templates/vhosts/nginx.conf.hbs'),
+    variables    : {
+      rootPath : path.join(basePath, DIST_DIR),
+      logsPath : path.join(basePath, LOG_DIR),
+    },
   });
 
   /* istanbul ignore if */
@@ -218,22 +149,22 @@ export function generateNginxConfig (modules, options, callback) {
     }
   }
 
-  fs.ensureDirSync(options.logsPath);
+  fs.ensureDirSync(options.variables.logsPath);
 
   let source = compile({
-    rootPath : options.rootPath,
-    logsPath : options.logsPath,
+    rootPath : options.variables.rootPath,
+    logsPath : options.variables.logsPath,
     modules  : modules,
   });
 
-  fs.ensureDir(options.outputFile.replace(path.basename(options.outputFile), ''));
-  fs.writeFile(options.outputFile, source, function (error) {
+  fs.ensureDir(options.distFile.replace(path.basename(options.distFile), ''));
+  fs.writeFile(options.distFile, source, function (error) {
     /* istanbul ignore if */
     if (error) {
       callback(error);
       return;
     }
 
-    callback(null, { outputFile: options.outputFile, modules });
+    callback(null, { file: options.distFile, modules });
   });
 }

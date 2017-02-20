@@ -3,157 +3,15 @@ import fs         from 'fs-extra';
 import path       from 'path';
 import async      from 'async';
 import colors     from 'colors';
-import program    from 'commander';
-import columnify  from 'columnify';
 import handlebars from 'handlebars';
 import {
   convertName,
-  formatBytes,
   tracer,
 }                 from './utils.js';
 import {
-  ROOT_PATH,
-  ENTRY_PATH,
+  SRC_DIR,
+  ENTRY_DIR,
 }                 from '../../conf/config';
-
-/**
- * 创建模块
- * @param  {Array} params  cli argument (default by process.argv)
- */
-export function build (params = process.argv, options, callback) {
-  /* istanbul ignore if */
-  if (3 > arguments.length) {
-    return build(params, {}, options);
-  }
-
-  options = _.defaultsDeep(options, {
-    ignoreTrace  : false,
-    ignoreExists : false,
-  });
-
-  let trace   = tracer(options);
-  let pkgFile = path.join(ROOT_PATH, './package.json');
-  let source  = fs.readJSONSync(pkgFile);
-
-  program
-  .version(source.version)
-  .on('--version', () => {
-    trace(source.version);
-  })
-  .on('--help', () => {
-    trace('  Examples:');
-    trace('    # Create Module/Router');
-    trace('    $ ./scripts/module router module/componentA/componentB/...');
-    trace('');
-  })
-  .arguments('<cmd> [argv]')
-  .option('-d, --dist [dist]', 'set target folder.')
-  .action((cmd, argv) => {
-    switch (cmd) {
-      case 'router':
-        let startTime = Date.now();
-
-        generateRouter(argv, _.defaultsDeep(options, { dist: program.dist }), function (error, stats) {
-          /* istanbul ignore if */
-          if (error) {
-            _.isFunction(callback) && callback(error);
-            trace(error);
-            return;
-          }
-
-          trace('Generator: \'module.js\'');
-          trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-
-          /* istanbul ignore if */
-          if (0 === stats.length) {
-            trace(colors.yellow('Generate completed but nothing be generated.'));
-          }
-          else {
-            let tableLogs = columnify(stats, {
-              headingTransform (heading) {
-                return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-              },
-              config: {
-                assets: {
-                  align    : 'right',
-                  dataTransform (file) {
-                    file = file.replace(ENTRY_PATH + '/', '');
-                    return colors.green(file).bold;
-                  },
-                },
-                size: {
-                  align: 'right',
-                  dataTransform (size) {
-                    return formatBytes(size);
-                  },
-                }
-              }
-            });
-
-            trace(`${tableLogs}\n`);
-          }
-
-          _.isFunction(callback) && callback(null, stats);
-        });
-
-        break;
-    }
-  })
-  .parse(params);
-}
-
-/**
- * 创建模块与组件
- * @param  {String} argv 指令
- */
-export function generateRouter (argv, options, callback) {
-  if (!_.isFunction(callback)) {
-    throw new Error('generateRouter: callback is not provided.');
-  }
-
-  let components = _.trim(argv, '\/').split('\/');
-  let moduleName = components.shift();
-
-  generateModule(moduleName, {
-    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
-    ignoreExists : false,
-    distFolder   : options.dist || ENTRY_PATH,
-  },
-  function (error, moduleState) {
-    /* istanbul ignore if */
-    if (error) {
-      callback(error);
-      return;
-    }
-
-    let family = [moduleName];
-    let tasks  = _.map(components, function (name) {
-      return function (callback) {
-        generateComponent(name, family, { distFolder: options.dist || ENTRY_PATH }, function (error, stats) {
-          if (error) {
-            callback(error);
-            return;
-          }
-
-          family.push(name);
-
-          callback(null, stats);
-        });
-      };
-    });
-
-    async.series(tasks, function (componentState) {
-      moduleState    = moduleState || [];
-      componentState = componentState || [];
-
-      let stats = moduleState.concat(componentState);
-      stats     = _.flattenDeep(stats);
-      stats     = _.filter(stats);
-
-      callback(null, stats);
-    });
-  });
-}
 
 /**
  * 生成模块
@@ -162,15 +20,15 @@ export function generateRouter (argv, options, callback) {
  * @param  {Boolean} isForce 是否强制
  * @return {Boolean}
  */
-export function generateModule (name, options, callback) {
+export function mkModule (name, options, callback) {
   /* istanbul ignore if */
   if (3 > arguments.length) {
-    return generateModule(name, {}, options);
+    return mkModule(name, {}, options);
   }
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('generateModule: callback is not provided.');
+    throw new Error('mkModule: callback is not provided.');
   }
 
   /**
@@ -186,13 +44,14 @@ export function generateModule (name, options, callback) {
   options = _.defaults(options, {
     ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
     ignoreExists : false,
-    distFolder   : ENTRY_PATH,
+    basePath     : process.cwd(),
+    distFolder   : path.join(SRC_DIR, ENTRY_DIR),
   });
 
   let trace     = tracer(options);
   let names     = convertName(name);
   let filename  = names.underscore;
-  let moduleDir = path.join(options.distFolder, filename);
+  let moduleDir = path.join(options.basePath, options.distFolder, filename);
 
   /**
    * 检查是否已经存在, 如果模块已经存在则直接退出
@@ -220,21 +79,60 @@ export function generateModule (name, options, callback) {
 }
 
 /**
+ * 创建模块与组件
+ * @param  {String} argv 指令
+ */
+export function mkRoute (route, moduleName, options, callback) {
+  if (!_.isFunction(callback)) {
+    throw new Error('mkRoute: callback is not provided.');
+  }
+
+  let routes = _.isArray(route) ? route : route.split('\/');
+  let family = [moduleName];
+  let tasks  = _.map(routes, function (name) {
+    return function (callback) {
+      mkComponent(name, family, options, function (error, stats) {
+        if (error) {
+          callback(error);
+          return;
+        }
+
+        family.push(name);
+
+        callback(null, stats);
+      });
+    };
+  });
+
+  async.series(tasks, function (error, stats) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    stats = _.flattenDeep(stats);
+    stats = _.filter(stats);
+
+    callback(null, stats);
+  });
+}
+
+/**
  * 创建组件
  * @param  {String} name   组件名称
  * @param  {Array}  family 模块关系
  * @param  {Object} datas  数据
  * @return {Boolean}
  */
-export function generateComponent (name, family, options, callback) {
+export function mkComponent (name, family, options, callback) {
   /* istanbul ignore if */
   if (4 > arguments.length) {
-    return generateComponent(name, family, {}, options);
+    return mkComponent(name, family, {}, options);
   }
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('generateComponent: callback is not provided.');
+    throw new Error('mkComponent: callback is not provided.');
   }
 
   /**
@@ -249,8 +147,9 @@ export function generateComponent (name, family, options, callback) {
 
   options = _.defaults(options, {
     ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
-    ignoreExists : false,
-    distFolder   : ENTRY_PATH,
+    ignoreExists : true,
+    basePath     : process.cwd(),
+    distFolder   : path.join(SRC_DIR, ENTRY_DIR),
   });
 
   let trace = tracer(options);
@@ -259,7 +158,7 @@ export function generateComponent (name, family, options, callback) {
     return `${name}/components/`;
   });
 
-  let dist  = path.join(options.distFolder, pwd.join('\/'), name);
+  let dist = path.join(options.basePath, options.distFolder, pwd.join('\/'), name);
   if (fs.existsSync(dist)) {
     true !== options.ignoreExists && trace(`Component ${colors.bold(name)} is already exists.`.yellow);
     callback(null);
@@ -364,5 +263,15 @@ export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', call
     };
   });
 
-  async.parallel(tasks, callback);
+  async.parallel(tasks, function (error, stats) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    stats = _.flattenDeep(stats);
+    stats = _.filter(stats);
+
+    callback(null, stats);
+  });
 }

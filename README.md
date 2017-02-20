@@ -38,9 +38,7 @@ $ npm install --verbose
 
 ```
 # Generate nginx config file
-$ ./bin/vhost
-# or
-$ npm run vhost
+$ ./scripts/ngwp vhosts
 
 # Import nginx config file
 $ echo "include /path/to/project/vhosts/nginx.conf;" >> /path/to/nginx/nginx.conf
@@ -65,11 +63,18 @@ $ npm test
 $ npm run release
 ```
 
-## Modules and routers
+## Modules
 
 ```
-# Generate routers
-$ ./bin/module router module/componentA/componentB/...
+# Generate module
+$ ./scripts/ngwp module moduleName
+```
+
+## Router and components
+
+```
+# Generate components
+$ ./scripts/ngwp route moduleName componentA/componentB/...
 ```
 
 Regenerate nginx config file when generate new module, and reload/reset ngxin server.

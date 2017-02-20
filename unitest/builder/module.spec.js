@@ -5,11 +5,10 @@ import async                  from 'async';
 import { expect }             from 'chai';
 import { ROOT_PATH, TMP_DIR } from '../../conf/config';
 import {
-  build,
-  generateRouter,
-  generateModule,
-  generateComponent,
-}                             from '../../scripts/libs/module';
+  mkRoute,
+  mkModule,
+  mkComponent,
+}                             from '../../scripts/libs/builder';
 
 describe('Module builder', function () {
   describe('Test Generate', function () {
@@ -21,8 +20,9 @@ describe('Module builder', function () {
 
       fs.removeSync(tarFolder);
 
-      generateModule(mName, {
+      mkModule(mName, {
         ignoreTrace : true,
+        basePath    : '',
         distFolder  : tarFolder,
       },
       function (error) {
@@ -51,8 +51,9 @@ describe('Module builder', function () {
 
       fs.removeSync(tarFolder);
 
-      generateComponent(mName, family, {
+      mkComponent(mName, family, {
         ignoreTrace : true,
+        basePath    : '',
         distFolder  : tarFolder,
       },
       function (error) {
@@ -74,29 +75,25 @@ describe('Module builder', function () {
     it('should ability to generate multiple component', function (done) {
       let mName           = 'mdlname';
       let cName           = 'cpnname';
-      let srcModuleFolder = path.join(ROOT_PATH, './scripts/libs/templates/module');
       let srcCompFolder   = path.join(ROOT_PATH, './scripts/libs/templates/component');
       let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gr');
-      let absModuleFolder = path.join(tarFolder, mName);
       let absCompFolder   = path.join(tarFolder, mName, 'components', cName);
       let subCompFolder   = path.join(absCompFolder, 'components/chilren')
 
       fs.removeSync(tarFolder);
 
-      generateRouter(mName + '/' + cName + '/chilren', { dist: tarFolder }, function (error) {
+      mkRoute(cName + '/chilren', mName, {
+        basePath   : '',
+        distFolder : tarFolder,
+      },
+      function (error) {
         expect(error).to.not.be.an('error');
-
-        expect(fs.existsSync(absModuleFolder)).to.be.true;
         expect(fs.existsSync(absCompFolder)).to.be.true;
-
-        let mFiles = fs.readdirSync(absModuleFolder);
-        expect(mFiles.length).to.not.equal(0);
 
         let cFiles = fs.readdirSync(absCompFolder);
         expect(cFiles.length).to.not.equal(0);
 
         async.parallel([
-          compareFolder.bind(null, srcModuleFolder, tarFolder, { tarTruthlyFolder: absModuleFolder }),
           compareFolder.bind(null, srcCompFolder, tarFolder, { tarTruthlyFolder: absCompFolder }),
           compareFolder.bind(null, srcCompFolder, absCompFolder, { tarTruthlyFolder: subCompFolder }),
         ],
@@ -106,39 +103,6 @@ describe('Module builder', function () {
           fs.removeSync(tarFolder);
           done();
         });
-      });
-    });
-  });
-
-  describe('Test CLI (command)', function () {
-    it('can use \'./scripts/module router module/component\'', function (done) {
-      let mName     = 'mdlname';
-      let cName     = 'cpnname';
-      let tarFolder = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/cli');
-      let mFolder   = path.join(tarFolder, mName);
-      let cFolder   = path.join(tarFolder, mName, 'components', cName);
-
-      fs.removeSync(tarFolder);
-
-      build(['node', './scripts/module', 'router', mName + '/' + cName], {
-        dist        : tarFolder,
-        ignoreTrace : true,
-      },
-      function (error) {
-        expect(error).to.not.be.an('error');
-
-        expect(fs.existsSync(mFolder)).to.be.true;
-        expect(fs.existsSync(cFolder)).to.be.true;
-
-        let mFiles = fs.readdirSync(mFolder);
-        expect(mFiles.length).to.not.equal(0);
-
-        let cFiles = fs.readdirSync(cFolder);
-        expect(cFiles.length).to.not.equal(0);
-
-        fs.removeSync(tarFolder);
-
-        done();
       });
     });
   });

@@ -1,15 +1,15 @@
-import _          from 'lodash';
-import fs         from 'fs-extra';
-import path       from 'path';
-import { expect } from 'chai';
-import { build }  from '../../scripts/libs/vhosts';
+import './vhosts.helper';
+
+import _           from 'lodash';
+import fs          from 'fs-extra';
+import path        from 'path';
+import { expect }  from 'chai';
+import { mkVhost } from '../../scripts/libs/vhosts';
 import {
   ROOT_PATH,
   TMP_DIR,
   LOG_DIR,
-}                 from '../../conf/config';
-
-import './vhosts.helper';
+}                  from '../../conf/config';
 
 describe('VHost Generator', function () {
   describe('Test Generate', function () {
@@ -36,15 +36,17 @@ describe('VHost Generator', function () {
 
       let config = {
         ignoreTrace  : true,
-        rootPath     : rootPath,
-        logsPath     : logsPath,
+        distFile     : file,
         templateFile : tpl,
-        outputFile   : file,
+        variables    : {
+          rootPath     : rootPath,
+          logsPath     : logsPath,
+        },
       };
 
       fs.removeSync(folder);
 
-      build(modules, config, function (error) {
+      mkVhost(modules, config, function (error) {
         expect(error).to.not.be.an('error');
 
         expect(fs.existsSync(file)).to.be.true;
