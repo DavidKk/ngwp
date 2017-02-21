@@ -35,13 +35,16 @@ describe('VHost Generator', function () {
       ];
 
       let config = {
-        ignoreTrace  : true,
-        distFile     : file,
-        templateFile : tpl,
-        variables    : {
-          rootPath     : rootPath,
-          logsPath     : logsPath,
-        },
+        trace    : true,
+        distFile : file,
+        template : tpl,
+        rootPath : rootPath,
+        logsPath : logsPath,
+
+        useHttps : true,
+        certPath : path.join(__dirname, './certs'),
+        certFile : 'cert.pem',
+        certKey  : 'cert.key',
       };
 
       fs.removeSync(folder);
@@ -57,6 +60,10 @@ describe('VHost Generator', function () {
         expect(source.logsPath).to.equal(logsPath);
         expect(source.rootPath).to.equal(rootPath);
         expect(fs.existsSync(logsPath)).to.be.true;
+
+        expect(source.certPath).to.equal(config.certPath);
+        expect(source.certFile).to.equal(config.certFile);
+        expect(source.certKey).to.equal(config.certKey);
 
         expect(source.modules).to.be.instanceof(Array);
         expect(source.modules.length).to.be.equal(2);

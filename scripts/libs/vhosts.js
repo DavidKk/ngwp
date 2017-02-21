@@ -100,27 +100,56 @@ handlebars.registerHelper('separate', function (value, separator) {
 export function mkVhost (modules, options, callback) {
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('callback is not provided.');
+    throw new Error('Callback is not provided.');
   }
 
   let basePath = options.basePath || process.cwd();
 
   options = _.defaultsDeep(options, {
-    ignoreTrace  : false,
-    distFile     : path.join(basePath, 'vhosts/nginx.conf'),
-    templateFile : path.join(__dirname, './templates/vhosts/nginx.conf.hbs'),
-    variables    : {
-      rootPath : path.join(basePath, DIST_DIR),
-      logsPath : path.join(basePath, LOG_DIR),
-    },
+    trace    : false,
+
+    distFile : path.join(basePath, 'vhosts/nginx.conf'),
+    template : path.join(__dirname, './templates/vhosts/nginx.conf.hbs'),
+    rootPath : path.join(basePath, DIST_DIR),
+    logsPath : path.join(basePath, LOG_DIR),
+
+    useHttps : _.isBoolean(options.useHttps) ? options.useHttps : false,
+    certPath : options.certPath || path.join(basePath, 'certs'),
+    certFile : options.certFile,
+    certKey  : options.certKey,
   });
 
-  /* istanbul ignore if */
-  if (!fs.existsSync(options.templateFile)) {
-    throw new Error(`vhost template '${options.templateFile}' is not exists.`);
+  if (true === options.useHttps) {
+    if (!options.certFile) {
+      callback(new Error('CertFile is not provided when use https'));
+      return;
+    }
+
+    let certFile = path.join(options.certPath, options.certFile);
+    if (!fs.existsSync(certFile)) {
+      callback(new Error(`CertFile ${certFile} is not found`));
+      return;
+    }
+
+    if (!options.certKey) {
+      callback(new Error('CertKey is not provided when use https'));
+      return;
+    }
+
+    let certKey = path.join(options.certPath, options.certKey);
+    if (!fs.existsSync(certKey)) {
+      callback(new Error(`CertKey ${certKey} is not found`));
+      return;
+    }
   }
 
-  let template  = fs.readFileSync(options.templateFile, 'utf-8');
+  /* istanbul ignore if */
+  if (!fs.existsSync(options.template)) {
+    callback(new Error(`Template '${options.template}' is not exists.`));
+    return;
+  }
+
+  let template  = fs.readFileSync(options.template, 'utf-8');
   let compile   = handlebars.compile(template);
 
   modules = _.clone(modules);
@@ -153,11 +182,16 @@ export function mkVhost (modules, options, callback) {
     }
   }
 
-  fs.ensureDirSync(options.variables.logsPath);
+  fs.ensureDirSync(options.logsPath);
 
   let source = compile({
-    rootPath : options.variables.rootPath,
-    logsPath : options.variables.logsPath,
+    rootPath : options.rootPath,
+    logsPath : options.logsPath,
+
+    certPath : options.certPath,
+    certFile : options.certFile,
+    certKey  : options.certKey,
+
     modules  : modules,
   });
 

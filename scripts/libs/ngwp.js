@@ -139,7 +139,12 @@ export function exec (params = process.argv) {
   .option('-c, --config', 'Set module config (Default path/to/conf/config.js)')
   .option('-d, --dist <filename>', 'Set destination file')
   .option('-b, --base <folder>', 'Set destination base path')
-  .option('-v, --variables <JSON String>', 'Set variables')
+  .option('--root-path <Root folder>', 'Set variable \'root\' in nginx conf (Default destination folder)')
+  .option('--logs-path <Logs folder>', 'Set log folder in nginx conf (Default \'base/logs/\')')
+  .option('--use-https', 'Use https protocol (Default false)')
+  .option('--cert-path', 'Set root cert path (Default base folder)')
+  .option('--cert-file', 'Set cert file (Require when --use-https is open)')
+  .option('--cert-key', 'Set cert key file (Require when --use-https is true)')
   .action((options) => {
     let startTime = Date.now();
     let confFile  = options.config || path.join(process.cwd(), './conf/config.js');
@@ -148,27 +153,21 @@ export function exec (params = process.argv) {
       throw new Error(`${confFile} is not exists`);
     }
 
-    let config    = require(confFile);
-    let variables = {};
-
-    if (options.variables) {
-      try {
-        variables = JSON.parse(options.variables);
-      }
-      catch (err) {
-        /* eslint no-console:off */
-        console.log(colors.yellow('variables is invalid'));
-      }
-    }
-
+    let config = require(confFile);
     if (_.isEmpty(config.MODULES)) {
       throw new Error(`${confFile} is invalid, MODULES must be provided`);
     }
 
     mkVhost(config.MODULES, {
-      basePath  : options.base,
-      distFile  : options.dist,
-      variables : variables,
+      basePath : options.base,
+      distFile : options.dist,
+      rootPath : options.rootPath,
+      logsPath : options.logsPath,
+
+      useHttps : options.hasOwnProperty('useHttps') ? true : undefined,
+      certPath : options.certPath,
+      certFile : options.certFile,
+      certKey  : options.certKey,
     },
     function (error, stats) {
       /* istanbul ignore if */

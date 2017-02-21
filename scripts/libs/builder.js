@@ -28,7 +28,7 @@ export function mkModule (name, options, callback) {
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('mkModule: callback is not provided.');
+    throw new Error('Callback is not provided.');
   }
 
   /**
@@ -84,7 +84,7 @@ export function mkModule (name, options, callback) {
  */
 export function mkRoute (route, moduleName, options, callback) {
   if (!_.isFunction(callback)) {
-    throw new Error('mkRoute: callback is not provided.');
+    throw new Error('Callback is not provided.');
   }
 
   let routes = _.isArray(route) ? route : route.split('\/');
@@ -132,7 +132,7 @@ export function mkComponent (name, family, options, callback) {
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('mkComponent: callback is not provided.');
+    throw new Error('Callback is not provided.');
   }
 
   /**
@@ -197,7 +197,7 @@ export function mkComponent (name, family, options, callback) {
 export function copyAndRender (files, datas = {}, fromDir = '', toDir = '', callback) {
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('copyAndRender: callback is not provided.');
+    throw new Error('Callback is not provided.');
   }
 
   let tasks = _.map(files, function (filename) {
