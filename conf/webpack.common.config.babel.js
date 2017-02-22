@@ -26,6 +26,7 @@ import {
   COVERAGE_DIR,
 
   ROOT_PATH,
+  EXEC_PATH,
   DISTRICT_PATH,
   ENTRY_PATH,
 }                            from './config';
@@ -133,6 +134,24 @@ let faviconFile = path.join(DISTRICT_PATH, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
 
 /**
+ * check resolve path
+ */
+let resolveRoot = [
+  path.join(EXEC_PATH, 'node_modules'),
+  path.join(ROOT_PATH, 'node_modules'),
+  path.join(ROOT_PATH, TMP_DIR),
+  path.join(ROOT_PATH, SRC_DIR),
+];
+
+function backup (file, bkfile) {
+  if (!fs.existsSync(file)) {
+    return bkfile;
+  }
+
+  return file;
+}
+
+/**
  * Webpack Setting
  */
 export default {
@@ -174,9 +193,16 @@ export default {
         test    : /\.jade$/,
         loader  : 'pug',
       },
+      /**
+       * Disable the default .babelrc file in the
+       * current directory (process.cwd() not EXEC_PATH),
+       * although it works as well without this flag.
+       * And load the same presets as in the .babelrc file.
+       * docs: https://github.com/babel/babel-loader/issues/179
+       */
       {
         test    : /\.js$/,
-        loader  : 'ng-annotate!babel',
+        loader  : `ng-annotate!babel?babelrc=false&extends=${path.join(EXEC_PATH, '.babelrc')}`,
         exclude : [/node_modules/],
       },
       /**
@@ -190,41 +216,22 @@ export default {
     ],
   },
   resolve : {
-    root: [
-      path.join(ROOT_PATH, 'node_modules'),
-      path.join(ROOT_PATH, TMP_DIR),
-      path.join(ROOT_PATH, SRC_DIR, 'common'),
-      path.join(ROOT_PATH, SRC_DIR, 'assets'),
-      path.join(ROOT_PATH, SRC_DIR),
-    ],
-    modulesDirectories: [
-      'node_modules',
-    ],
-    extensions: ['', '.js', '.jade']
+    root               : resolveRoot,
+    modulesDirectories : ['node_modules'],
+    extensions         : ['', '.js', '.jade'],
   },
   resolveLoader: {
-    root: [
-      path.join(ROOT_PATH, 'node_modules'),
-      path.join(ROOT_PATH, TMP_DIR),
-      path.join(ROOT_PATH, SRC_DIR, 'common'),
-      path.join(ROOT_PATH, SRC_DIR, 'assets'),
-      path.join(ROOT_PATH, SRC_DIR),
-    ],
+    root               : resolveRoot,
+    modulesDirectories : ['node_modules'],
   },
   sassLoader: {
-    includePaths: [
-      path.join(ROOT_PATH, 'node_modules'),
-      path.join(ROOT_PATH, TMP_DIR),
-      path.join(ROOT_PATH, SRC_DIR, 'common'),
-      path.join(ROOT_PATH, SRC_DIR, 'assets'),
-      path.join(ROOT_PATH, SRC_DIR),
-    ],
+    includePaths: resolveRoot,
   },
   stylelint: {
-    configFile: path.join(ROOT_PATH, '.stylelintrc'),
+    configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
   },
   eslint: {
-    configFile: path.join(ROOT_PATH, '.eslintrc'),
+    configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
   },
   postcss: [
     autoprefixer({
@@ -373,7 +380,7 @@ export function generateSprites (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR           = path.join(SRC_DIR, 'assets/sprites/images');
+  const SPRITE_DIR           = path.join(ROOT_PATH, SRC_DIR, 'assets/sprites/images');
   const SPRITE_TEMPLATE_FILE = path.join(SPRITE_DIR, 'sprite.scss.template.handlebars');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_TEMPLATE_FILE)) {

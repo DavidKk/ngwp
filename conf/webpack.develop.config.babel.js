@@ -2,8 +2,8 @@ import WebpackMerger     from 'webpack-merge';
 import BrowserSyncPlugin from 'browser-sync-webpack-plugin';
 import webpackConfig     from './webpack.common.config.babel';
 import {
-  CLIENT_PORT,
   DISTRICT_PATH,
+  DEVELOP_SERVER_PORT,
 }                        from './config';
 
 export default WebpackMerger(webpackConfig, {
@@ -17,16 +17,16 @@ export default WebpackMerger(webpackConfig, {
      */
     new BrowserSyncPlugin({
       host      : 'localhost',
-      port      : CLIENT_PORT,
+      port      : DEVELOP_SERVER_PORT,
       open      : false,
       logLevel  : 'debug',
       server    : {
         baseDir : [DISTRICT_PATH],
       },
       ui: {
-        port: CLIENT_PORT + 1,
+        port: DEVELOP_SERVER_PORT + 1,
         weinre: {
-          port: CLIENT_PORT + 2,
+          port: DEVELOP_SERVER_PORT + 2,
         },
       },
     }),

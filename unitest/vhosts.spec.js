@@ -1,21 +1,24 @@
+/* eslint max-nested-callbacks: off */
+/* eslint-env mocha */
+
 import './vhosts.helper';
 
 import _           from 'lodash';
 import fs          from 'fs-extra';
 import path        from 'path';
 import { expect }  from 'chai';
-import { mkVhost } from '../../scripts/libs/vhosts';
+import { mkVhost } from '../scripts/vhosts';
 import {
-  ROOT_PATH,
+  EXEC_PATH,
   TMP_DIR,
   LOG_DIR,
-}                  from '../../conf/config';
+}                  from '../conf/config';
 
 describe('VHost Generator', function () {
   describe('Test Generate', function () {
     it('should configure and generate nginx config file', function (done) {
       let tpl      = path.join(__dirname, './vhost.conf.hbs');
-      let folder   = path.join(ROOT_PATH, TMP_DIR, './unitest/vhosts/2');
+      let folder   = path.join(EXEC_PATH, TMP_DIR, './unitest/vhosts/2');
       let file     = path.join(folder, './vhosts.conf');
       let logsPath = path.join(folder, 'logs');
       let rootPath = path.join(folder, 'apps');

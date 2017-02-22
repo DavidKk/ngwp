@@ -5,7 +5,7 @@ import handlebars from 'handlebars';
 import {
   DIST_DIR,
   LOG_DIR,
-}                 from '../../conf/config';
+}                 from '../conf/config';
 
 /**
  * Register Handlebars helpers
@@ -15,81 +15,13 @@ import {
 /**
  * Compare number and type-equals with variables
  */
-handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
-  let operators;
-  let result;
-
-  /* istanbul ignore if */
-  if (3 > arguments.length) {
-    throw new Error('Handlerbars Helper "compare" needs 2 parameters');
-  }
-
-  /* istanbul ignore if */
-  if (undefined === options) {
-    options  = rvalue;
-    rvalue   = operator;
-    operator = '===';
-  }
-
-  /* istanbul ignore next */
-  operators = {
-    '==' (l, r) {
-      /* eslint eqeqeq: off */
-      return l == r;
-    },
-    '===' (l, r) {
-      return l === r;
-    },
-    '!=' (l, r) {
-      /* eslint eqeqeq: off */
-      return l != r;
-    },
-    '!==' (l, r) {
-      return l !== r;
-    },
-    '<' (l, r) {
-      return l < r;
-    },
-    '>' (l, r) {
-      return l > r;
-    },
-    '<=' (l, r) {
-      return l <= r;
-    },
-    '>=' (l, r) {
-      return l >= r;
-    },
-    'typeof' (l, r) {
-      return typeof l == r;
-    },
-  };
-
-  /* istanbul ignore if */
-  if (!operators[operator]) {
-    throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`);
-  }
-
-  result = operators[operator](lvalue, rvalue);
-  return result ? options.fn(this) : options.inverse(this);
-});
+handlebars.registerHelper('compare', compare);
 
 /**
  * Separate Array to some string.
  * [value1, value2, value3] => 'value1 value2 value3';
  */
-handlebars.registerHelper('separate', function (value, separator) {
-  if (3 > arguments.length) {
-    separator = ' ';
-  }
-
-  if (_.isString(value)) {
-    return value;
-  }
-
-  if (_.isArray(value)) {
-    return value.join(separator);
-  }
-});
+handlebars.registerHelper('separate', separate);
 
 /**
  * build nginx vhosts
@@ -98,7 +30,6 @@ handlebars.registerHelper('separate', function (value, separator) {
  * @param  {Function} callback result callback function
  */
 export function mkVhost (modules, options, callback) {
-  /* istanbul ignore if */
   if (!_.isFunction(callback)) {
     throw new Error('Callback is not provided.');
   }
@@ -109,7 +40,7 @@ export function mkVhost (modules, options, callback) {
     trace    : false,
 
     distFile : path.join(basePath, 'vhosts/nginx.conf'),
-    template : path.join(__dirname, './templates/vhosts/nginx.conf.hbs'),
+    template : path.join(__dirname, '../templates/vhosts/nginx.conf.hbs'),
     rootPath : path.join(basePath, DIST_DIR),
     logsPath : path.join(basePath, LOG_DIR),
 
@@ -143,7 +74,6 @@ export function mkVhost (modules, options, callback) {
     }
   }
 
-  /* istanbul ignore if */
   if (!fs.existsSync(options.template)) {
     callback(new Error(`Template '${options.template}' is not exists.`));
     return;
@@ -197,7 +127,6 @@ export function mkVhost (modules, options, callback) {
 
   fs.ensureDir(options.distFile.replace(path.basename(options.distFile), ''));
   fs.writeFile(options.distFile, source, function (error) {
-    /* istanbul ignore if */
     if (error) {
       callback(error);
       return;
@@ -205,4 +134,86 @@ export function mkVhost (modules, options, callback) {
 
     callback(null, { file: options.distFile, modules });
   });
+}
+
+/**
+ * compare values
+ * @param  {String} lvalue   first value
+ * @param  {String} operator operator symbol
+ * @param  {String} rvalue   second value
+ * @param  {Object} options
+ */
+function compare (lvalue, operator, rvalue, options) {
+  let operators;
+  let result;
+
+  if (3 > arguments.length) {
+    throw new Error('Handlerbars Helper "compare" needs 2 parameters');
+  }
+
+  if (undefined === options) {
+    options  = rvalue;
+    rvalue   = operator;
+    operator = '===';
+  }
+
+  operators = {
+    '==' (l, r) {
+      /* eslint eqeqeq:off */
+      return l == r;
+    },
+    '===' (l, r) {
+      return l === r;
+    },
+    '!=' (l, r) {
+      /* eslint eqeqeq:off */
+      return l != r;
+    },
+    '!==' (l, r) {
+      return l !== r;
+    },
+    '<' (l, r) {
+      return l < r;
+    },
+    '>' (l, r) {
+      return l > r;
+    },
+    '<=' (l, r) {
+      return l <= r;
+    },
+    '>=' (l, r) {
+      return l >= r;
+    },
+    'typeof' (l, r) {
+      /* eslint eqeqeq:off */
+      return typeof l == r;
+    },
+  };
+
+  if (!operators[operator]) {
+    throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`);
+  }
+
+  result = operators[operator](lvalue, rvalue);
+  return result ? options.fn(this) : options.inverse(this);
+}
+
+/**
+ * separate array
+ * @param  {String|Array} value     input value
+ * @param  {String}       separator separate symbol
+ * @return {String}
+ */
+function separate (value, separator) {
+  if (3 > arguments.length) {
+    separator = ' ';
+  }
+
+  if (_.isString(value)) {
+    return value;
+  }
+
+  if (_.isArray(value)) {
+    return value.join(separator);
+  }
 }

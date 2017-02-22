@@ -19,7 +19,7 @@ let formatImport = function (file) {
 };
 
 let testEntryFile = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, 'bootstrap.spec.js');
-let testFolder    = path.join(ROOT_PATH, TEST_DIR, 'client');
+let testFolder    = path.join(ROOT_PATH, TEST_DIR);
 
 fs.ensureDirSync(testFolder);
 
@@ -36,8 +36,9 @@ fs.writeFileSync(testEntryFile, depsSource);
 /**
  * Karma Configuration
  */
-export default function (config) {
+module.exports = function (config) {
   config.set({
+    basePath   : ROOT_PATH,
     browsers   : ['PhantomJS'],
     frameworks : ['mocha', 'chai', 'sinon'],
     files      : [testEntryFile],
@@ -54,19 +55,19 @@ export default function (config) {
       [testEntryFile]: [
         'webpack',
       ],
-      [`${TEST_DIR}/**/*.spec.js`]: [
+      [`${testFolder}/**/*.spec.js`]: [
         'webpack',
         'sourcemap',
       ],
     },
     coverageReporter: {
       type : 'html',
-      dir  : COVERAGE_DIR,
+      dir  : path.join(ROOT_PATH, COVERAGE_DIR),
     },
     webpack: webpackConf,
     webpackMiddleware: {
       noInfo : false,
-      stats  : 'errors-only',
+      stats  : true,
     },
     /**
      * in empty test folder, it will return
@@ -88,7 +89,7 @@ export default function (config) {
       'karma-coverage',
     ],
   });
-}
+};
 
 /**
  * find out scripts files

@@ -1,4 +1,6 @@
-import angular.module('common.conf.router', [])
+import angular from 'angular';
+
+export default angular.module('common.conf.router', [])
 .config(function ($locationProvider, $urlRouterProvider) {
   let location = document.location;
 

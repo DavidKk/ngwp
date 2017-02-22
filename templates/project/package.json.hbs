@@ -1,0 +1,27 @@
+{
+  "name": "{{ name }}",
+  "version": "{{ version }}",
+  "license": "MIT",
+  "description": "{{ description }}",
+  "engines": {
+    "node": ">= 6.2.2"
+  },
+  "scripts": {
+    "develop": "cross-env DEVELOP=1 ngwp run develop",
+    "product": "cross-env PRODUCT=1 ngwp run product",
+    "unitest": "cross-env PRODUCT=1 && cross-env UNITEST=1 ngwp run unitest",
+    "release": "npm run unitest && npm run product",
+    "test": "npm run unitest",
+    "start": "npm run develop"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "angular": "^1.5.6",
+    "angular-resource": "^1.5.7",
+    "angular-sanitize": "^1.5.6",
+    "angular-touch": "^1.5.7",
+    "angular-ui-router": "^0.2.15",
+    "bourbon": "^4.2.7",
+    "lodash": "^4.14.0"
+  }
+}

@@ -1,31 +1,26 @@
 {
   "name": "ngwp",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "license": "MIT",
   "description": "Project scaffold (Webpack, AngularJS, ES6, SCSS, Jade/Pug)",
-  "homepage": "https://github.com/DavidKk/webpack-angular",
+  "homepage": "https://github.com/DavidKk/ngwp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DavidKk/webpack-angular.git"
+    "url": "https://github.com/DavidKk/ngwp.git"
   },
   "engines": {
     "node": ">= 6.2.2"
   },
   "scripts": {
-    "builder:eslint": "eslint ./conf/* ./scripts/libs/*",
-    "builder:mocha": "mocha --require babel-polyfill --compilers js:babel-register unitest/builder/",
-    "builder:test": "npm run builder:eslint && npm run builder:mocha",
-    "builder:coverage": "nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run builder:test",
-    "builder:coveralls": "nyc --reporter=text-lcov npm run builder:test | coveralls",
-    "develop": "cross-env DEVELOP=1 webpack --color --debug --config conf/webpack.develop.config.babel.js --watch --delay 250ms",
-    "product": "cross-env PRODUCT=1 webpack --progress --profile --hide-modules --config conf/webpack.product.config.babel.js",
-    "unitest": "cross-env PRODUCT=1 && cross-env UNITEST=1 ./node_modules/karma/bin/karma start",
-    "release": "npm run unitest --verbose && npm run product --verbose",
-    "test": "npm run unitest",
-    "start": "npm run develop"
+    "prepublish": "babel ./src --out-dir ./libs --source-maps",
+    "eslint": "eslint ./src/**/*",
+    "mocha": "mocha --require babel-polyfill --compilers js:babel-register unitest/",
+    "test": "npm run eslint && npm run mocha",
+    "coverage": "nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run test",
+    "coveralls": "nyc --reporter=text-lcov npm run test | coveralls"
   },
   "bin": {
-    "ngwp": "./scripts/ngwp"
+    "ngwp": "./bin/ngwp"
   },
   "devDependencies": {
     "angular-mocks": "^1.5.8",
@@ -89,14 +84,5 @@
     "webpack-merge": "^0.14.1",
     "webpack-spritesmith": "^0.2.0",
     "webpack-svgstore-plugin": "^3.0.6"
-  },
-  "dependencies": {
-    "angular": "^1.5.6",
-    "angular-resource": "^1.5.7",
-    "angular-sanitize": "^1.5.6",
-    "angular-touch": "^1.5.7",
-    "angular-ui-router": "^0.2.15",
-    "bourbon": "^4.2.7",
-    "lodash": "^4.13.1"
   }
 }

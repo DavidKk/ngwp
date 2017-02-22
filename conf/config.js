@@ -1,73 +1,126 @@
-import fs       from 'fs';
-import path     from 'path';
-import { name } from '../package';
+import _               from 'lodash';
+import fs              from 'fs-extra';
+import path            from 'path';
+import { name }        from '../package';
+import { convertName } from '../scripts/utils';
 
-export const PROJECT_NAME  = name;
-export const CLIENT_PORT   = 9786;
+export let PROJECT_NAME        = name;
 
-export const CLIENT_DOMAIN = 'www.example.com';
-export const SERVER_DOMAIN = '';
-export const ASSETS_DOMAIN = '';
-export const UPLOAD_DOMAIN = '';
+export let SRC_DIR             = 'src';
+export let LOG_DIR             = 'logs';
+export let TMP_DIR             = '.temporary';
+export let DEV_DIR             = '.dist';
+export let DIST_DIR            = 'dist';
+export let TEST_DIR            = 'unitest';
+export let COVERAGE_DIR        = 'coverage';
+export let ENTRY_DIR           = 'app';
 
-export const SRC_DIR       = 'src';
-export const LOG_DIR       = 'logs';
-export const TMP_DIR       = '.temporary';
-export const DEV_DIR       = '.app';
-export const DIST_DIR      = 'app';
-export const TEST_DIR      = 'unitest';
-export const COVERAGE_DIR  = 'coverage';
-export const ENTRY_DIR     = 'app';
+export let RC_FILE             = '.ngwprc';
 
-export const ROOT_PATH     = path.join(__dirname, '../');
-export const DISTRICT_PATH = path.join(ROOT_PATH, process.env.DEVELOP ? DEV_DIR : DIST_DIR);
-export const ENTRY_PATH    = path.join(ROOT_PATH, SRC_DIR, ENTRY_DIR);
+export let ROOT_PATH           = process.cwd();
+export let EXEC_PATH           = path.join(__dirname, '../');
+export let DISTRICT_PATH       = path.join(ROOT_PATH, process.env.DEVELOP ? DEV_DIR : DIST_DIR);
+export let ENTRY_PATH          = path.join(ROOT_PATH, SRC_DIR, ENTRY_DIR);
 
-export const MODULES       = [];
+export let DEVELOP_SERVER_PORT = 50000;
+
+export let CLIENT_DOMAIN       = `www.${path.basename(ROOT_PATH).toLowerCase()}.com`;
+export let SERVER_DOMAIN       = '';
+export let ASSETS_DOMAIN       = '';
+export let UPLOAD_DOMAIN       = '';
+
+export let MODULES             = [];
+export let NGINX_PROXY         = [];
 
 /**
- * Check required setting.
+ * Setting domains and develop server port
  */
-if (!CLIENT_DOMAIN) {
-  throw new Error('Config: CLIENT_DOMAIN is not provided.');
+let rc = path.join(ROOT_PATH, '.ngwprc');
+if (fs.existsSync(rc)) {
+  let source = fs.readJsonSync(rc);
+
+  DEVELOP_SERVER_PORT = source.port || DEVELOP_SERVER_PORT;
+  CLIENT_DOMAIN       = source.clientDomain || CLIENT_DOMAIN;
+  SERVER_DOMAIN       = source.serverDomain || SERVER_DOMAIN;
+  ASSETS_DOMAIN       = source.assetsDomain || ASSETS_DOMAIN;
+  UPLOAD_DOMAIN       = source.uploadDomain || UPLOAD_DOMAIN;
+  NGINX_PROXY         = source.nginxProxy || NGINX_PROXY;
 }
 
 /**
  * Generate modules from app folder.
  * folder: /app_resource/{module_name}/
  */
-if (fs.existsSync(ENTRY_PATH) && fs.lstatSync(ENTRY_PATH).isDirectory()) {
+if (_.isEmpty(MODULES) && fs.existsSync(ENTRY_PATH) && fs.lstatSync(ENTRY_PATH).isDirectory()) {
   let modules = fs.readdirSync(ENTRY_PATH);
-  modules = modules.filter(function (name) {
-    return /^[\w\d\_\-]+$/.test(name);
-  });
 
-  modules = modules.map(function (name) {
-    return name.replace(/[A-Z]/g, function (char, index) {
-      return 0 === index ? char.toLowerCase() : '_' + char.toLowerCase();
-    });
-  });
-
-  0 < modules.length && MODULES.push({
-    type      : 'proxy',
-    proxy     : '127.0.0.1',
-    proxyPort : CLIENT_PORT,
-    entries   : modules,
-    domain    : [CLIENT_DOMAIN],
-  });
+  modules = _.filter(modules, findModule);
+  modules = _.map(modules, convertName);
+  modules = _.map(modules, 'underscore');
+  MODULES = MODULES.concat(modules);
 }
 
 /**
- * Generate domain with static files
+ * generate nginx proxy config
  */
-if (ASSETS_DOMAIN) {
-  let domains = [];
+if (_.isEmpty(NGINX_PROXY)) {
+  if (!_.isEmpty(MODULES)) {
+    let proxy = {
+      type      : 'proxy',
+      proxy     : '127.0.0.1',
+      proxyPort : DEVELOP_SERVER_PORT,
+      entries   : MODULES,
+      domain    : [CLIENT_DOMAIN],
+    };
 
-  ASSETS_DOMAIN && domains.push(ASSETS_DOMAIN);
-  UPLOAD_DOMAIN && UPLOAD_DOMAIN !== ASSETS_DOMAIN && domains.push(UPLOAD_DOMAIN);
+    NGINX_PROXY.push(proxy);
+  }
+}
+else {
+  NGINX_PROXY = _.map(NGINX_PROXY, function (proxy) {
+    return _.defaultsDeep(proxy, {
+      type      : 'proxy',
+      proxy     : '127.0.0.1',
+      proxyPort : DEVELOP_SERVER_PORT,
+    });
+  });
+}
 
-  MODULES.push({
+if (isValidDomain(ASSETS_DOMAIN)) {
+  let domains = [ASSETS_DOMAIN];
+
+  if (UPLOAD_DOMAIN !== ASSETS_DOMAIN && isValidDomain(UPLOAD_DOMAIN)) {
+    domains.push(UPLOAD_DOMAIN);
+  }
+
+  let proxy = {
     type   : 'cdn',
     domain : domains,
-  });
+  };
+
+  NGINX_PROXY.push(proxy);
+}
+
+
+/**
+ * filter valid module
+ * @param  {String} name module name
+ * @return {Boolean}
+ */
+function findModule (name) {
+  return /^[\w\d\_\-]+$/.test(name);
+}
+
+/**
+ * valid domain
+ * - check valid chars
+ * - check overall length
+ * - check length of each label
+ * @param  {String}  domain Domain name
+ * @return {Boolean}
+ */
+function isValidDomain (domain) {
+  return /^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i.test(domain)
+    && /^.{1,253}$/.test(domain)
+    && /^[^\.]{1,63}(\.[^\.]{1,63})*$/.test(domain);
 }

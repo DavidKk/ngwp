@@ -4,4 +4,4 @@ require('babel-register');
 require('babel-preset-es2015');
 require('babel-preset-stage-0');
 
-require('./libs/ngwp').exec(process.argv);
+require('../scripts/ngwp').exec(process.argv);

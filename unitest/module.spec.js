@@ -1,21 +1,27 @@
-import _                      from 'lodash';
-import fs                     from 'fs-extra';
-import path                   from 'path';
-import async                  from 'async';
-import { expect }             from 'chai';
-import { ROOT_PATH, TMP_DIR } from '../../conf/config';
+/* eslint max-nested-callbacks: off */
+/* eslint-env mocha */
+
+import _          from 'lodash';
+import fs         from 'fs-extra';
+import path       from 'path';
+import async      from 'async';
+import { expect } from 'chai';
 import {
   mkRoute,
   mkModule,
   mkComponent,
-}                             from '../../scripts/libs/builder';
+}                 from '../scripts/builder';
+import {
+  EXEC_PATH,
+  TMP_DIR,
+}                 from '../conf/config';
 
 describe('Module builder', function () {
   describe('Test Generate', function () {
     it('should generate module', function (done) {
       let mName            = 'mdlname';
-      let srcFolder        = path.join(ROOT_PATH, './scripts/libs/templates/module');
-      let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gm');
+      let srcFolder        = path.join(EXEC_PATH, './templates/module');
+      let tarFolder        = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gm');
       let tarTruthlyFolder = path.join(tarFolder, mName);
 
       fs.removeSync(tarFolder);
@@ -45,8 +51,8 @@ describe('Module builder', function () {
     it('should generate component', function (done) {
       let mName            = 'mdlname';
       let family           = ['unitest'];
-      let srcFolder        = path.join(ROOT_PATH, './scripts/libs/templates/component');
-      let tarFolder        = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gc');
+      let srcFolder        = path.join(EXEC_PATH, './templates/component');
+      let tarFolder        = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gc');
       let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', mName);
 
       fs.removeSync(tarFolder);
@@ -75,8 +81,8 @@ describe('Module builder', function () {
     it('should ability to generate multiple component', function (done) {
       let mName           = 'mdlname';
       let cName           = 'cpnname';
-      let srcCompFolder   = path.join(ROOT_PATH, './scripts/libs/templates/component');
-      let tarFolder       = path.join(ROOT_PATH, TMP_DIR, 'unitest/builder/gr');
+      let srcCompFolder   = path.join(EXEC_PATH, './templates/component');
+      let tarFolder       = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gr');
       let absCompFolder   = path.join(tarFolder, mName, 'components', cName);
       let subCompFolder   = path.join(absCompFolder, 'components/chilren')
 
