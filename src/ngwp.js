@@ -1,11 +1,13 @@
-import _                     from 'lodash';
-import fs                    from 'fs-extra';
-import path                  from 'path';
-import colors                from 'colors';
-import program               from 'commander';
-import columnify             from 'columnify';
-import { formatBytes }       from './libs/utils';
-import OptionMerger          from './libs/option_merger';
+import _            from 'lodash';
+import fs           from 'fs-extra';
+import path         from 'path';
+import colors       from 'colors';
+import program      from 'commander';
+import OptionMerger from './libs/option_merger';
+import {
+  printStats,
+  trace,
+}                   from './libs/utils';
 
 /**
  * node module colors will be changed by karma
@@ -23,14 +25,15 @@ import OptionMerger          from './libs/option_merger';
  */
 export function exec (params = process.argv) {
   let cwd    = path.basename(require.main.filename);
-  let pkg    = path.join(OptionMerger.EXEC_PATH, './package.json');
+  let pkg    = path.join(__dirname, '../package.json');
   let source = fs.readJSONSync(pkg);
 
   /**
    * version setting
    */
   program
-  .version(source.version);
+  .version(source.version)
+  .option('--quiet');
 
   /**
    * init command
@@ -62,34 +65,16 @@ export function exec (params = process.argv) {
         throw error;
       }
 
-      /* eslint no-console:off */
-      console.log('Generator: installer');
-      console.log(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
+      trace('Generator: installer');
+      trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
 
-      printStats(stats, {
-        config: {
-          assets: {
-            align: 'right',
-            dataTransform (file) {
-              file = file.replace(OptionMerger.ROOT_PATH + '/', '');
-              return colors.green(file).bold;
-            },
-          },
-          size: {
-            align: 'right',
-            dataTransform (size) {
-              return formatBytes(size);
-            },
-          }
-        }
-      });
+      printStats(stats);
     });
   })
   .on('--help', () => {
-    /* eslint no-console:off */
-    console.log('  Examples:');
-    console.log(`    $ ${cwd} init myProject`);
-    console.log('');
+    trace('  Examples:');
+    trace(`    $ ${cwd} init myProject`);
+    trace('');
   });
 
   /**
@@ -114,34 +99,16 @@ export function exec (params = process.argv) {
         throw error;
       }
 
-      /* eslint no-console:off */
-      console.log('Generator: module');
-      console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+      trace('Generator: module');
+      trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
 
-      printStats(stats, {
-        config: {
-          assets: {
-            align: 'right',
-            dataTransform (file) {
-              file = file.replace(OptionMerger.ROOT_PATH + '/', '');
-              return colors.green(file).bold;
-            },
-          },
-          size: {
-            align: 'right',
-            dataTransform (size) {
-              return formatBytes(size);
-            },
-          }
-        }
-      });
+      printStats(stats);
     });
   })
   .on('--help', () => {
-    /* eslint no-console:off */
-    console.log('  Examples:');
-    console.log(`    $ ${cwd} module myModule`);
-    console.log('');
+    trace('  Examples:');
+    trace(`    $ ${cwd} module myModule`);
+    trace('');
   });
 
   /**
@@ -166,34 +133,16 @@ export function exec (params = process.argv) {
         throw error;
       }
 
-      /* eslint no-console:off */
-      console.log('Generator: route');
-      console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+      trace('Generator: route');
+      trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
 
-      printStats(stats, {
-        config: {
-          assets: {
-            align: 'right',
-            dataTransform (file) {
-              file = file.replace(OptionMerger.ROOT_PATH + '/', '');
-              return colors.green(file).bold;
-            },
-          },
-          size: {
-            align: 'right',
-            dataTransform (size) {
-              return formatBytes(size);
-            },
-          }
-        }
-      });
+      printStats(stats);
     });
   })
   .on('--help', () => {
-    /* eslint no-console:off */
-    console.log('  Examples:');
-    console.log(`    $ ${cwd} route myModule route1/route2/route3`);
-    console.log('');
+    trace('  Examples:');
+    trace(`    $ ${cwd} route myModule route1/route2/route3`);
+    trace('');
   });
 
   /**
@@ -245,29 +194,23 @@ export function exec (params = process.argv) {
 
       let { file, modules } = stats;
 
-      modules = _.map(modules, function ({ domain, proxy, entries }) {
-        return {
-          domain  : colors.green(_.isArray(domain) ? domain.join(',') : domain).bold,
-          proxy   : proxy || '127.0.0.1',
-          entries : _.isArray(entries) ? colors.green(entries.join(',')).bold : '',
-        };
+      modules = _.filter(modules, function (module) {
+        return _.isEmpty(module.domain) || _.isEmpty(module.proxy) || _.isEmpty(module.entries);
       });
 
-      /* eslint no-console:off */
-      console.log('Generator: route');
-      console.log(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+      trace('Generator: route');
+      trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
 
-      printStats(modules);
-
-      console.log(`[${colors.green('ok').bold}] Nginx config file '${colors.green(file).bold}' is generated successfully`);
-      console.log(`Remember include it and '${colors.green('reolad/restart').bold}' your nginx server`);
+      if (printStats(modules)) {
+        trace(`[${colors.bold(colors.green('ok'))}] Nginx config file '${colors.bold(colors.green(file))}' is generated successfully`);
+        trace(`Remember include it and '${colors.bold(colors.green('reolad/restart'))}' your nginx server`);
+      }
     });
   })
   .on('--help', () => {
-    /* eslint no-console:off */
-    console.log('  Examples:');
-    console.log(`    $ ${cwd} vhosts`);
-    console.log('');
+    trace('  Examples:');
+    trace(`    $ ${cwd} vhosts`);
+    trace('');
   });
 
   let runCommander = program
@@ -290,12 +233,11 @@ export function exec (params = process.argv) {
     }
   })
   .on('--help', () => {
-    /* eslint no-console:off */
-    console.log('  Examples:');
-    console.log(`    $ ${cwd} run develop`);
-    console.log(`    $ ${cwd} run product`);
-    console.log(`    $ ${cwd} run unitest`);
-    console.log('');
+    trace('  Examples:');
+    trace(`    $ ${cwd} run develop`);
+    trace(`    $ ${cwd} run product`);
+    trace(`    $ ${cwd} run unitest`);
+    trace('');
   });
 
   /**
@@ -318,7 +260,7 @@ export function exec (params = process.argv) {
  */
 function runDevelopTasks () {
   let { run } = require('./libs/webpack');
-  run(path.join(OptionMerger.EXEC_PATH, './conf/webpack.develop.config.babel.js'), { watch: true });
+  run(path.join(__dirname, './conf/webpack.develop.config.babel.js'), { watch: true });
 }
 
 /**
@@ -327,7 +269,7 @@ function runDevelopTasks () {
  */
 function runReleaseTasks () {
   let { run } = require('./libs/webpack');
-  run(path.join(OptionMerger.EXEC_PATH, './conf/webpack.product.config.babel.js'));
+  run(path.join(__dirname, './conf/webpack.product.config.babel.js'));
 }
 
 /**
@@ -336,28 +278,5 @@ function runReleaseTasks () {
  */
 function runUnitestTasks () {
   let { run } = require('./libs/karma');
-  run(path.join(OptionMerger.EXEC_PATH, './conf/karma.conf.js'));
-}
-
-/**
- * Print results
- * @param  {Array}  stats   result set
- * @param  {Object} options columnify setting
- */
-function printStats (stats, options) {
-  /* istanbul ignore if */
-  if (_.isEmpty(stats)) {
-    /* eslint no-console:off */
-    console.log(colors.yellow('Generate completed but nothing be generated.'));
-  }
-  else {
-    options = _.defaultsDeep(options, {
-      headingTransform (heading) {
-        return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
-      },
-    });
-
-    /* eslint no-console:off */
-    console.log(columnify(stats, options) + '\n');
-  }
+  run(path.join(__dirname, './conf/karma.conf.js'));
 }

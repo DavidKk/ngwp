@@ -7,7 +7,7 @@ import _           from 'lodash';
 import fs          from 'fs-extra';
 import path        from 'path';
 import { expect }  from 'chai';
-import { mkVhost } from '../src/scripts/vhosts';
+import { mkVhost } from '../src/libs/vhosts';
 import {
   EXEC_PATH,
   TMP_DIR,

@@ -1,8 +1,13 @@
-import _          from 'lodash';
-import fs         from 'fs-extra';
-import path       from 'path';
-import async      from 'async';
-import handlebars from 'handlebars';
+import _            from 'lodash';
+import fs           from 'fs-extra';
+import path         from 'path';
+import async        from 'async';
+import colors       from 'colors';
+import handlebars   from 'handlebars';
+import columnify    from 'columnify';
+import OptionMerger from './option_merger';
+
+const ingoreTrace = -1 === _.indexOf(process.argv, '--quiet');
 
 /**
  * convert name
@@ -73,11 +78,8 @@ export function formatBytes (bytes, decimals) {
  * print stats
  * @param  {Object} options setting
  */
-export function tracer (options = {}) {
-  return function (message) {
-    /* eslint no-console: off */
-    true !== options.ignoreTrace && console.log(message);
-  };
+export function trace (message) {
+  ingoreTrace && console.log(message);
 }
 
 /**
@@ -197,4 +199,61 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
 
     callback(null, stats);
   });
+}
+
+/**
+ * Print results
+ * @param  {Array}  stats   result set
+ * @param  {Object} options columnify setting
+ */
+export function printStats (stats, options) {
+  /* istanbul ignore if */
+  if (_.isEmpty(stats)) {
+    trace(colors.yellow('Generate completed but nothing to be generated.'));
+    return false;
+  }
+
+  options = _.defaultsDeep(options, {
+    headingTransform (heading) {
+      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+    },
+    config: {
+      assets: {
+        align: 'right',
+        dataTransform (file) {
+          file = file.replace(OptionMerger.ROOT_PATH + '/', '');
+          return colors.green(file).bold;
+        },
+      },
+      size: {
+        align: 'right',
+        dataTransform (size) {
+          return formatBytes(size);
+        },
+      },
+    },
+    domain: {
+      align: 'right',
+      dataTransform (domain) {
+        domain = _.isArray(domain) ? domain.join(',') : domain;
+        domain = colors.green(domain);
+        return colors.bold(domain);
+      },
+    },
+    proxy: {
+      align: 'right',
+    },
+    entries: {
+      align: 'left',
+      dataTransform (entries) {
+        entries = _.isArray(entries) ? entries.join(',') : '';
+        entries = colors.green(entries);
+        return colors.bold(entries);
+      },
+    },
+  });
+
+  /* eslint no-console:off */
+  trace(columnify(stats, options) + '\n');
+  return true;
 }

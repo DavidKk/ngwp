@@ -10,7 +10,7 @@ import {
   mkRoute,
   mkModule,
   mkComponent,
-}                 from '../src/scripts/builder';
+}                 from '../src/libs/builder';
 import {
   EXEC_PATH,
   TMP_DIR,

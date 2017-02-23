@@ -4,8 +4,8 @@ import path         from 'path';
 import async        from 'async';
 import colors       from 'colors';
 import {
+  trace,
   convertName,
-  tracer,
   copyAndRender,
 }                   from './utils.js';
 import {
@@ -43,13 +43,11 @@ export function mkModule (name, options, callback) {
   }
 
   options = _.defaults(options, {
-    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
     ignoreExists : false,
     basePath     : process.cwd(),
     distFolder   : path.join(SRC_DIR, ENTRY_DIR),
   });
 
-  let trace     = tracer(options);
   let names     = convertName(name);
   let filename  = names.underscore;
   let moduleDir = path.join(options.basePath, options.distFolder, filename);
@@ -146,13 +144,11 @@ export function mkComponent (name, family, options, callback) {
   }
 
   options = _.defaults(options, {
-    ignoreTrace  : _.isBoolean(options.ignoreTrace) ? options.ignoreTrace : false,
     ignoreExists : true,
     basePath     : process.cwd(),
     distFolder   : path.join(SRC_DIR, ENTRY_DIR),
   });
 
-  let trace = tracer(options);
   let names = convertName(name);
   let pwd   = _.map(family, function (name) {
     return `${name}/components/`;
