@@ -1,8 +1,8 @@
 import _               from 'lodash';
 import fs              from 'fs-extra';
 import path            from 'path';
-import { name }        from '../package';
-import { convertName } from '../scripts/utils';
+import { name }        from '../../package';
+import { convertName } from '../libs/utils';
 
 export let PROJECT_NAME        = name;
 
@@ -18,7 +18,7 @@ export let ENTRY_DIR           = 'app';
 export let RC_FILE             = '.ngwprc';
 
 export let ROOT_PATH           = process.cwd();
-export let EXEC_PATH           = path.join(__dirname, '../');
+export let EXEC_PATH           = path.join(__dirname, '../../');
 export let DISTRICT_PATH       = path.join(ROOT_PATH, process.env.DEVELOP ? DEV_DIR : DIST_DIR);
 export let ENTRY_PATH          = path.join(ROOT_PATH, SRC_DIR, ENTRY_DIR);
 

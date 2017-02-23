@@ -1,17 +1,18 @@
-import _          from 'lodash';
-import fs         from 'fs-extra';
-import path       from 'path';
-import async      from 'async';
-import colors     from 'colors';
+import _            from 'lodash';
+import fs           from 'fs-extra';
+import path         from 'path';
+import async        from 'async';
+import colors       from 'colors';
 import {
   convertName,
   tracer,
   copyAndRender,
-}                 from './utils.js';
+}                   from './utils.js';
 import {
   SRC_DIR,
   ENTRY_DIR,
-}                 from '../conf/config';
+}                   from '../conf/config';
+import OptionMerger from './option_merger';
 
 /**
  * 生成模块
@@ -35,7 +36,7 @@ export function mkModule (name, options, callback) {
    * 检查模板是否存在, 不存在则报错并退出
    * check moudle template exists and exist process when template not exists.
    */
-  let templateDir = path.join(__dirname, '../templates/module');
+  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/module');
   if (!fs.existsSync(templateDir)) {
     callback(new Error(`Module template is not found, see ${templateDir}`));
     return;
@@ -138,7 +139,7 @@ export function mkComponent (name, family, options, callback) {
    * 检查模板是否存在, 不存在则报错并退出
    * check component template exists and exist process when template not exists.
    */
-  let templateDir = path.join(__dirname, '../templates/component');
+  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/component');
   if (!fs.existsSync(templateDir)) {
     callback(new Error(`Component template is not found, see ${templateDir}.`));
     return;
@@ -179,7 +180,6 @@ export function mkComponent (name, family, options, callback) {
       }),
     };
 
-    let templateFiles = fs.readdirSync(templateDir);
     copyAndRender(templateDir, dist, { names, ns }, callback);
   });
 

@@ -7,12 +7,12 @@ import _           from 'lodash';
 import fs          from 'fs-extra';
 import path        from 'path';
 import { expect }  from 'chai';
-import { mkVhost } from '../scripts/vhosts';
+import { mkVhost } from '../src/scripts/vhosts';
 import {
   EXEC_PATH,
   TMP_DIR,
   LOG_DIR,
-}                  from '../conf/config';
+}                  from '../src/conf/config';
 
 describe('VHost Generator', function () {
   describe('Test Generate', function () {

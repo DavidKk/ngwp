@@ -1,11 +1,12 @@
-import _          from 'lodash';
-import fs         from 'fs-extra';
-import path       from 'path';
-import handlebars from 'handlebars';
+import _            from 'lodash';
+import fs           from 'fs-extra';
+import path         from 'path';
+import handlebars   from 'handlebars';
 import {
   DIST_DIR,
   LOG_DIR,
-}                 from '../conf/config';
+}                   from '../conf/config';
+import OptionMerger from './option_merger';
 
 /**
  * Register Handlebars helpers
@@ -40,7 +41,7 @@ export function mkVhost (modules, options, callback) {
     trace    : false,
 
     distFile : path.join(basePath, 'vhosts/nginx.conf'),
-    template : path.join(__dirname, '../templates/vhosts/nginx.conf.hbs'),
+    template : path.join(OptionMerger.EXEC_PATH, './templates/vhosts/nginx.conf.hbs'),
     rootPath : path.join(basePath, DIST_DIR),
     logsPath : path.join(basePath, LOG_DIR),
 

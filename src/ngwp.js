@@ -4,8 +4,8 @@ import path                  from 'path';
 import colors                from 'colors';
 import program               from 'commander';
 import columnify             from 'columnify';
-import { formatBytes }       from './utils';
-import OptionMerger          from './option_merger';
+import { formatBytes }       from './libs/utils';
+import OptionMerger          from './libs/option_merger';
 
 /**
  * node module colors will be changed by karma
@@ -41,7 +41,7 @@ export function exec (params = process.argv) {
   .option('--ver <project version>', 'Set project version')
   .option('--description <project description>', 'Set project description')
   .action((name, options) => {
-    let { install } = require('./installer');
+    let { install } = require('./libs/installer');
     let startTime   = Date.now();
     let folder      = path.join(OptionMerger.ROOT_PATH, name);
 
@@ -101,7 +101,7 @@ export function exec (params = process.argv) {
   .option('-d, --dist <filename>', 'Set destination file')
   .option('-b, --base <folder>', 'Set destination base path')
   .action((name, options) => {
-    let { mkModule } = require('./builder');
+    let { mkModule } = require('./libs/builder');
     let startTime = Date.now();
 
     mkModule(name, {
@@ -153,7 +153,7 @@ export function exec (params = process.argv) {
   .option('-d, --dist <filename>', 'Set destination file')
   .option('-b, --base <folder>', 'Set destination base path')
   .action((module, routes, options) => {
-    let { mkModule, mkRoute } = require('./builder');
+    let { mkRoute } = require('./libs/builder');
     let startTime = Date.now();
 
     mkRoute(routes, module, {
@@ -213,7 +213,7 @@ export function exec (params = process.argv) {
   .option('--cert-file', 'Set cert file (Require when --use-https is open)')
   .option('--cert-key', 'Set cert key file (Require when --use-https is true)')
   .action((options) => {
-    let { mkVhost } = require('./vhosts');
+    let { mkVhost } = require('./libs/vhosts');
     let startTime = Date.now();
 
     if (options.port) {
@@ -317,7 +317,7 @@ export function exec (params = process.argv) {
  * run webpack develop server and watch the file changed
  */
 function runDevelopTasks () {
-  let { run } = require('./webpack');
+  let { run } = require('./libs/webpack');
   run(path.join(OptionMerger.EXEC_PATH, './conf/webpack.develop.config.babel.js'), { watch: true });
 }
 
@@ -326,7 +326,7 @@ function runDevelopTasks () {
  * minify all we can compress
  */
 function runReleaseTasks () {
-  let { run } = require('./webpack');
+  let { run } = require('./libs/webpack');
   run(path.join(OptionMerger.EXEC_PATH, './conf/webpack.product.config.babel.js'));
 }
 
@@ -335,7 +335,7 @@ function runReleaseTasks () {
  * import all test/*.spec.js files
  */
 function runUnitestTasks () {
-  let { run } = require('./karma');
+  let { run } = require('./libs/karma');
   run(path.join(OptionMerger.EXEC_PATH, './conf/karma.conf.js'));
 }
 

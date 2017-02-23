@@ -10,11 +10,11 @@ import {
   mkRoute,
   mkModule,
   mkComponent,
-}                 from '../scripts/builder';
+}                 from '../src/scripts/builder';
 import {
   EXEC_PATH,
   TMP_DIR,
-}                 from '../conf/config';
+}                 from '../src/conf/config';
 
 describe('Module builder', function () {
   describe('Test Generate', function () {

@@ -129,14 +129,7 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
             return;
           }
 
-          fs.readdir(file, function (error, others) {
-            if (error) {
-              callback(error);
-              return;
-            }
-
-            copyAndRender(file, targetDir, datas, callback);
-          });
+          copyAndRender(file, targetDir, datas, callback);
         });
 
         return;
@@ -153,7 +146,7 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
          * 如果目标文件已经存在, 则退出不做任何操作,
          * 因此请确定文件是否存在, 若存在则无办法继续执行复制.
          */
-        if (fs.existsSync(doneFile)) {
+        if (fs.existsSync(targetFile)) {
           callback(null);
           return;
         }
