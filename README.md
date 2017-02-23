@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/DavidKk/webpack-angular.svg?branch=master)](https://travis-ci.org/DavidKk/webpack-angular)
-[![Build status](https://ci.appveyor.com/api/projects/status/njpg463prkj2kg8d?svg=true)](https://ci.appveyor.com/project/DavidKk/webpack-angular)
-[![Coverage Status](https://coveralls.io/repos/github/DavidKk/webpack-angular/badge.svg)](https://coveralls.io/github/DavidKk/webpack-angular)
-[![Dependency Status](https://dependencyci.com/github/DavidKk/webpack-angular/badge)](https://dependencyci.com/github/DavidKk/webpack-angular)
+[![Build Status](https://travis-ci.org/DavidKk/ngwp.svg?branch=master)](https://travis-ci.org/DavidKk/ngwp)
+[![Build status](https://ci.appveyor.com/api/projects/status/p76hetxe0us38axx?svg=true)](https://ci.appveyor.com/project/DavidKk/ngwp)
+[![Coverage Status](https://coveralls.io/repos/github/DavidKk/ngwp/badge.svg?branch=master)](https://coveralls.io/github/DavidKk/ngwp?branch=master)
+[![Dependency Status](https://dependencyci.com/github/DavidKk/ngwp/badge)](https://dependencyci.com/github/DavidKk/ngwp)
 
 # Project Information
 
