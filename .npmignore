@@ -1,0 +1,60 @@
+.git
+.hg
+.svn
+.gitignore
+
+
+# NPM
+.npmrc
+
+
+# Temporary folders
+/.nyc_output
+/.temporary
+
+
+# Coverage directory used by tools like istanbul
+/coverage
+
+
+# Dependency folders
+node_modules
+npm-debug.log
+
+
+# NPM
+npm-shrinkwrap.json
+
+
+# YARN
+yarn.lock
+
+
+# Numerous always-ignore extensions
+*.bak
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.zip
+*.vi
+*~
+
+
+# OS or Editor folders
+.vscode
+.DS_Store
+._*
+Thumbs.db
+.cache
+.project
+.settings
+.tmproj
+*.esproj
+nbproject
+*.sublime-project
+*.sublime-workspace
+.idea
