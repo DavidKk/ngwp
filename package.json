@@ -12,11 +12,11 @@
     "node": ">= 6.2.2"
   },
   "scripts": {
-    "build": "rimraf ./dist ./.temporary && babel-node ./src/makefiles.js",
+    "build": "rimraf ./dist && babel-node ./src/makefiles.js",
     "eslint": "eslint ./src",
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/",
-    "test": "npm run eslint && npm run mocha",
-    "coverage": "nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run test",
+    "test": "npm run eslint && npm run mocha && rimraf ./.temporary",
+    "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run test",
     "coveralls": "nyc --reporter=text-lcov npm run test | coveralls",
     "prepublish": "npm run build"
   },

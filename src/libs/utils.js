@@ -1,11 +1,12 @@
-import _            from 'lodash';
-import fs           from 'fs-extra';
-import path         from 'path';
-import async        from 'async';
-import colors       from 'colors';
-import handlebars   from 'handlebars';
-import columnify    from 'columnify';
-import OptionMerger from './option_merger';
+import _                 from 'lodash';
+import fs                from 'fs-extra';
+import path              from 'path';
+import async             from 'async';
+import colors            from 'colors';
+import handlebars        from 'handlebars';
+import columnify         from 'columnify';
+import { transformFile } from 'babel-core';
+import OptionMerger      from './option_merger';
 
 const ingoreTrace = -1 === _.indexOf(process.argv, '--quiet');
 
@@ -256,4 +257,88 @@ export function printStats (stats, options) {
   /* eslint no-console:off */
   trace(columnify(stats, options) + '\n');
   return true;
+}
+
+/**
+ * convert babel es6 to es5
+ * @param  {String}   folder      folder with es6 files
+ * @param  {String}   destination target folder
+ * @param  {Object}   options     setting
+ * @param  {Function} callback    after running
+ */
+export function convertBabel (folder, destination, options, callback) {
+  let tasks = _.map(fs.readdirSync(folder), function (filename) {
+    return function (callback) {
+      let file    = path.join(folder, filename);
+      let target  = path.join(destination, filename);
+
+      if (fs.statSync(file).isDirectory()) {
+        fs.ensureDir(target);
+
+        convertBabel(file, target, options, callback);
+        return;
+      }
+
+      if (!/\.js$/.test(filename)) {
+        callback(null);
+        return;
+      }
+
+      transformFile(file, { sourceMaps: true }, function (error, result) {
+        if (error) {
+          callback(error);
+          return;
+        }
+
+        let { code, map } = result;
+        let jsFile        = _.isFunction(options.rename) ? options.rename(target) : target;
+        let mapFile       = jsFile + '.map';
+
+        async.parallel([
+          function (callback) {
+            let content = code + '\n//# sourceMappingURL=' + path.basename(mapFile);
+            fs.writeFile(jsFile, content, function () {
+              if (error) {
+                callback(error);
+                return;
+              }
+
+              callback(null, { assets: jsFile, size: content.length });
+            });
+          },
+          function (callback) {
+            let content = JSON.stringify(map);
+            fs.writeFile(mapFile, content, function (error) {
+              if (error) {
+                callback(error);
+                return;
+              }
+
+              callback(null, { assets: mapFile, size: content.length });
+            });
+          },
+        ],
+        function (error, stats) {
+          if (error) {
+            callback(error);
+            return;
+          }
+
+          callback(null, stats);
+        });
+      });
+    };
+  });
+
+  async.parallel(tasks, function (error, stats) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    stats = _.flattenDeep(stats);
+    stats = _.filter(stats);
+
+    callback(null, stats);
+  });
 }

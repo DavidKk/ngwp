@@ -1,8 +1,13 @@
 language: node_js
+sudo: false
 node_js:
   - 6.2.2
   - 6.3.0
   - 6.4.0
+
+cache:
+  directories:
+    - node_modules
 
 install:
   - npm install
@@ -15,10 +20,11 @@ before_script:
 script:
 - npm run coveralls
 
-before_deploy:
-
 deploy:
   provider: npm
+  on:
+    tags: true
   email: qowera@qq.com
   api_key:
     secure: EWrUoaRR6hQsRNFxQdqSbu9U1J9mF4u2y8oYs36aFLl6/Z6nn3X4tvmkRtw/jF1fNDJFsEwA7qx7tBMQvxXxg53XC2ljxIQxlwR5Wra7/ppIvLMoyGj0OoboA/YJWM2JOLjpAEZPsSOSoopZut8q8jm7CTybiQ5pSWKPZSC0mwJBCvsU6UUTAsjYc06lq8qAKgy+yV5XrVwyVBm85FKjcqbAGgn1cM1WAtgfSkvTuBUTlXtVpIU6rqR4x/0CPtAQzL7JTz7jPTTgkKtMHuXy+wtLt57rHXutvI8fgUDtPoHANRbVA1azAAqOOosPcWaOtE6+jbSkOonsDJExS+ZmXWNvhE/11U1L6NfygIMnc6KL8rZ7mJ8FtBPbQASxtn4nDV11t6w2JoQBgxr9wwlvEFw/IO6YfXzrDNdXCnupJ9WPVTHUNoiQUxu7giZhfxmJNBgBBSYuBAnrLvdp/ZLOsYq+2sg13ESDCzuOQuwjDbtj8NAnfjuQ4LwunkahxIAH23BvQ6aYv/znq36RlxgokcUo79WGfNNd1oJumbSUDWi+8MpEEmnjQTlRI/JYFHOG2F9B54ll3wMVKGzvWks6CFKk/OC//wo2i2SMsw1fQ/6QoBxbYhocNhAj8yJs5ZU9WPQ4daUgIv9LUy1dKpPpTCr6WAf6HOBi4ZAJt7P3zk0=
+  skip_cleanup: true
