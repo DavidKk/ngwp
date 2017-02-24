@@ -5,51 +5,45 @@
 [![Coverage Status](https://coveralls.io/repos/github/DavidKk/ngwp/badge.svg?branch=master)](https://coveralls.io/github/DavidKk/ngwp?branch=master)
 [![Dependency Status](https://dependencyci.com/github/DavidKk/ngwp/badge)](https://dependencyci.com/github/DavidKk/ngwp)
 
+
 # Project Information
 
 ## Install
 
 ```
-# Install NodeJS NPM
-$ sudo apt-get install node npm
+# For global
+$ npm install -g ngwp
 
-# Update NodeJS (Linux, OSX)
-$ npm install -g n
-$ n 6.2.2 (or latest)
+# For local
+$ npm install ngwp
+```
 
-# Update NPM
-$ npm install -g npm
+## Initialization
 
-# Update NodeJS 6.2.2 or latest
-$ npm install -g n
-$ n use stable
-
-# Change npm registries (China)
-# docs: https://github.com/Pana/nrm
-$ npm install -g nrm
-$ nrm use taobao(cnpm)
-
-# Install node_modules
-$ cd /path/to/project
-$ npm install --verbose
-
-# node-sass need to compile and will spend much time, please be patient.
+```
+$ ngwp init project_name
+$ cd project_name
+$ npm install
 ```
 
 ## Nginx config file generation and import
 
 ```
-# Generate nginx config file
-$ ./scripts/ngwp vhosts
+$ ngwp vhosts --port webpack_develop_server_port (default: 50000, suggest)
+```
 
-# Import nginx config file
-$ echo "include /path/to/project/vhosts/nginx.conf;" >> /path/to/nginx/nginx.conf
+## Generate modules
 
-# Reset nginx
-# Linux
-$ sudo service nginx restart
-# OSX
-$ sudo brew services restart nginx
+```
+$ ngwp module module_name
+```
+
+Regenerate nginx config file when generate new module, and reload/reset ngxin server.
+
+## Generate router
+
+```
+$ ngwp reoute module_name route1/route2/routeN...
 ```
 
 ## Compile and release
@@ -62,24 +56,34 @@ $ npm start
 $ npm test
 
 # Release project
-$ npm run release
+$ npm run product
 ```
 
-## Modules
+## Set develop server domain
 
 ```
-# Generate module
-$ ./scripts/ngwp module moduleName
+$ vi project/.ngwprc
+
+{
+  port: 51000,
+  clientDomain: 'www.domain.com',     // default is your project name: www.[project_name].com
+  serverDomain: 'api.domain.com',     // optional it will be inject variables SERVER_DOMAIN
+  assetsDomain: 'static.domain.com',  // optional
+  uploadDomain: 'upload.domain.com',  // optional
+  nginxProxy: [                       // optional
+    {
+      entries   : ['home', 'user'],
+      domain    : ['www.domain.com'],
+    },
+    {
+      entries   : ['payment'],
+      domain    : ['pay.domain.com'],
+    },
+  ],
+}
 ```
 
-## Router and components
-
-```
-# Generate components
-$ ./scripts/ngwp route moduleName componentA/componentB/...
-```
-
-Regenerate nginx config file when generate new module, and reload/reset ngxin server.
+`clientDomain`, `serverDomain`, `assetsDomain`, `uploadDomain` will inject to javascript, but it is not in global (`webpack.DefinePlugin`)
 
 
 # Features
@@ -88,13 +92,6 @@ Regenerate nginx config file when generate new module, and reload/reset ngxin se
 
 Define a module, you can make folder in entry folder (`src/app/`). The folder name is module name.
 and every module must has one entrnace script file (must be named 'index.js'). And you can open `www.domain.com/{module_name}/` to visit that module.
-
-It provides the run-script for you to generate module easier.
-
-```
-$ npm run module router moduleName
-# see above
-```
 
 At last, every time for build new module, you must generate nginx config, because the base-router is defined by nginx configuration.
 
@@ -105,19 +102,42 @@ Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will c
 
 And it also generate the scss file to temporary folder (`.temporary/`), and you can importd use `@import "sprites"`. the base unit is percentage (`%`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
 
+
 ## SVG Sprites Auto-Generate
 
 Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will combine them into one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
 
 And the SVGO config file is in `src/assets/sprites/svg/svgstore.config.js`
 
+Compatibility must be known:
+
+```
+svg in webkit old browser, it not support use (reference)
+it must use '<use xlink:href="url#id"></use>'
+and because svgo(https://github.com/svg/svgo) do not set
+'xmlns:xlink="http://www.w3.org/1999/xlink"', so it make
+origin svg content with use tag lack 'namespace' 'prefix',
+and it make svg display success.
+
+Error Code:
+This page contains the following errors:
+error on line 1 at column 15734: Namespace prefix xlink for href on use is not defined
+Below is a rendering of the page up to the first error.
+Browser: Chrome 48.0.2564.23:
+Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)
+AppleWebKit/537.36 (KHTML, like Gecko)
+Chrome/48.0.2564.23
+Mobile Safari/537.36
+wechatdevtools/0.7.0
+MicroMessenger/6.3.22
+webview/0
+
+Docs : https://github.com/svg/svgo/blob/master/docs/how-it-works/en.md#3-plugins
+API  : https://github.com/svg/svgo/blob/master/docs/how-it-works/en.md#32-api
+```
 
 # Specification
 
-## ES6 Overwrites each script
+## ES6 Overwrites each script and SASS overwrites each styles
 
-All the javascript file (include configuration files), you must use babel-es6. And must be followed the eslint standard (`.eslintrc`)
-
-## Use SASS
-
-The stylesheet must be followed the stylelint standard (`.stylelintrc`).
+You can create `.eslintrc` or `.stylelintrc` to the root path of project. ngwp will base on your  standard rc-file to check all the scripts and styles.
