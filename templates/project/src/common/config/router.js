@@ -2,8 +2,6 @@ import angular from 'angular';
 
 export default angular.module('common.conf.router', [])
 .config(function ($locationProvider, $urlRouterProvider) {
-  let location = document.location;
-
   /**
    * Lock UI-Router
    * As configure with ajax before parse url,
@@ -31,13 +29,14 @@ export default angular.module('common.conf.router', [])
    * /path/to/url to be /path/to/url/
    */
   $urlRouterProvider.rule(function () {
-    let path             = location.pathname;
+    let docLocation      = document.location;
+    let path             = docLocation.pathname;
     let hasTrailingSlash = '/' === path.substr(-1, 1);
 
     if (!hasTrailingSlash) {
-      if (location.search) {
+      if (docLocation.search) {
         let index = path.indexOf('?');
-        let full  = location.href.replace(location.origin, '');
+        let full  = docLocation.href.replace(docLocation.origin, '');
 
         return `${path}/${full.substr(index, full.length)}`;
       }
@@ -50,18 +49,16 @@ export default angular.module('common.conf.router', [])
    * Configure not match url.
    */
   $urlRouterProvider.otherwise(() => {
-    let fromPath = window.location.pathname;
-    let fromName = fromPath.split('\/').splice(1, 1).pop();
-    let toUrl    = location.href.replace(location.origin, '');
-    let toPath   = location.pathname;
-    let toName   = toPath.split('\/').splice(1, 1).pop();
+    let docLocation = document.location;
+    let fromPath    = window.location.href;
+    let fromName    = fromPath.split('\/').splice(1, 1).pop();
+    let toUrl       = docLocation.href.replace(docLocation.origin, '');
+    let toPath      = docLocation.pathname;
+    let toName      = toPath.split('\/').splice(1, 1).pop();
 
-    if (fromName === toName) {
-      window.location.replace('/');
-      return;
+    if (fromName && toName && fromName !== toName) {
+      window.location.href = toUrl;
     }
-
-    window.location.href = toUrl;
   });
 })
 .name;

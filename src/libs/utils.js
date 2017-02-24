@@ -1,12 +1,11 @@
-import _                 from 'lodash';
-import fs                from 'fs-extra';
-import path              from 'path';
-import async             from 'async';
-import colors            from 'colors';
-import handlebars        from 'handlebars';
-import columnify         from 'columnify';
-import { transformFile } from 'babel-core';
-import OptionMerger      from './option_merger';
+import _            from 'lodash';
+import fs           from 'fs-extra';
+import path         from 'path';
+import async        from 'async';
+import colors       from 'colors';
+import handlebars   from 'handlebars';
+import columnify    from 'columnify';
+import OptionMerger from './option_merger';
 
 const ingoreTrace = -1 === _.indexOf(process.argv, '--quiet');
 
@@ -232,24 +231,24 @@ export function printStats (stats, options) {
           return formatBytes(size);
         },
       },
-    },
-    domain: {
-      align: 'right',
-      dataTransform (domain) {
-        domain = _.isArray(domain) ? domain.join(',') : domain;
-        domain = colors.green(domain);
-        return colors.bold(domain);
+      domain: {
+        align: 'right',
+        dataTransform (domain) {
+          domain = _.isArray(domain) ? domain.join(',') : domain;
+          domain = colors.green(domain);
+          return colors.bold(domain);
+        },
       },
-    },
-    proxy: {
-      align: 'right',
-    },
-    entries: {
-      align: 'left',
-      dataTransform (entries) {
-        entries = _.isArray(entries) ? entries.join(',') : '';
-        entries = colors.green(entries);
-        return colors.bold(entries);
+      proxy: {
+        align: 'right',
+      },
+      entries: {
+        align: 'left',
+        dataTransform (entries) {
+          entries = _.isArray(entries) ? entries.join('|') : entries;
+          entries = colors.green(entries);
+          return colors.bold(entries);
+        },
       },
     },
   });

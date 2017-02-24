@@ -1,6 +1,6 @@
 {
   "name": "ngwp",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "license": "MIT",
   "description": "Project scaffold (Webpack, AngularJS, ES6, SCSS, Jade/Pug)",
   "homepage": "https://github.com/DavidKk/ngwp",
@@ -17,7 +17,8 @@
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/",
     "test": "npm run eslint && npm run mocha && rimraf ./.temporary",
     "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage npm run test",
-    "coveralls": "nyc --reporter=text-lcov npm run test | coveralls"
+    "coveralls": "nyc --reporter=text-lcov npm run test | coveralls",
+    "start": "babel ./src --out-dir ./dist --watch"
   },
   "bin": {
     "ngwp": "./bin/ngwp"

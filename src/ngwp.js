@@ -133,7 +133,6 @@ program
 
     trace('Generator: route');
     trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-
     printStats(stats);
   });
 })
@@ -193,10 +192,14 @@ program
     let { file, modules } = stats;
 
     modules = _.filter(modules, function (module) {
-      return _.isEmpty(module.domain) || _.isEmpty(module.proxy) || _.isEmpty(module.entries);
+      return !(_.isEmpty(module.domain) || _.isEmpty(module.proxy) || _.isEmpty(module.entries));
     });
 
-    trace('Generator: route');
+    modules = _.map(modules, function (module) {
+      return _.pick(module, ['domain', 'proxy', 'entries']);
+    });
+
+    trace('Generator: vhosts');
     trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
 
     if (printStats(modules)) {

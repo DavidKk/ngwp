@@ -13,9 +13,7 @@ import './spreads';
 import Service         from './services';
 import Filter          from './filters';
 import Component       from './components';
-import Config          from './conf';
-import Model           from './models';
-import Bootstrap       from './bootstrap';
+import Config          from './config';
 
 export default angular.module('common', [
   angularSanitize,
@@ -26,7 +24,5 @@ export default angular.module('common', [
   Filter,
   Component,
   Config,
-  Model,
-  Bootstrap,
 ])
 .name;

@@ -1,5 +1,5 @@
 /* eslint no-undef:0 */
-const CDN_DOMAIN              = 'undefined' === typeof ASSETS_DOMAIN ? '/' : ASSETS_DOMAIN;
+const CDN_DOMAIN              = 'undefined' === typeof __CDN_DOMAIN__ ? '/' : __CDN_DOMAIN__;
 const SVG_NAMESPACE           = 'http://www.w3.org/1999/xlink';
 const SVGSTORE_PLUGIN_NEST_ID = 'webpack-svgstore-plugin';
 const __svg__                 = {
