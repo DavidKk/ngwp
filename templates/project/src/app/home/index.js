@@ -28,6 +28,5 @@ export default angular.module('home', [
  */
 .run(function ($urlRouter) {
   $urlRouter.listen();
-  $urlRouter.sync();
 })
 .name;
