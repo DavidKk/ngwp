@@ -1,3 +1,7 @@
+# Output files
+/dist
+
+
 # Temporary folders
 /.nyc_output
 /.temporary
