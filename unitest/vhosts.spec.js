@@ -10,15 +10,15 @@ import { expect }  from 'chai';
 import { mkVhost } from '../src/libs/vhosts';
 import {
   EXEC_PATH,
-  TMP_DIR,
-  LOG_DIR,
+  TEMPORARY_FOLDER_NAME,
+  LOGGER_FOLDER_NAME,
 }                  from '../src/conf/config';
 
 describe('VHost Generator', function () {
   describe('Test Generate', function () {
     it('should configure and generate nginx config file', function (done) {
       let tpl      = path.join(__dirname, './vhost.conf.hbs');
-      let folder   = path.join(EXEC_PATH, TMP_DIR, './unitest/vhosts/2');
+      let folder   = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, './unitest/vhosts/2');
       let file     = path.join(folder, './vhosts.conf');
       let logsPath = path.join(folder, 'logs');
       let rootPath = path.join(folder, 'apps');

@@ -89,7 +89,7 @@ program
 
   mkModule(name, {
     basePath   : options.base || OptionMerger.ROOT_PATH,
-    distFolder : options.dist || path.join(OptionMerger.SRC_DIR, OptionMerger.ENTRY_DIR),
+    distFolder : options.dist || path.join(OptionMerger.RESOURCE_FOLDER_NAME, OptionMerger.ENTRY_FOLDER_NAME),
   },
   function (error, stats) {
     /* istanbul ignore if */
@@ -123,7 +123,7 @@ program
 
   mkRoute(routes, module, {
     basePath   : options.base || OptionMerger.ROOT_PATH,
-    distFolder : options.dist || path.join(OptionMerger.SRC_DIR, OptionMerger.ENTRY_DIR),
+    distFolder : options.dist || path.join(OptionMerger.RESOURCE_FOLDER_NAME, OptionMerger.ENTRY_FOLDER_NAME),
   },
   function (error, stats) {
     /* istanbul ignore if */

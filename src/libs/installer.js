@@ -18,7 +18,7 @@ export function install (name, options, callback) {
 
   fs.ensureDirSync(tarFolder);
 
-  let gitIgnore        = _.pick(OptionMerger, ['LOG_DIR', 'TMP_DIR', 'DEV_DIR', 'DIST_DIR', 'COVERAGE_DIR']);
+  let gitIgnore        = _.pick(OptionMerger, ['LOGGER_FOLDER_NAME', 'TEMPORARY_FOLDER_NAME', 'DEVELOP_FOLDER_NAME', 'DISTRICT_FOLDER_NAME', 'COVERAGE_FOLDER_NAME', 'VHOSTS_FOLDER_NAME']);
   let gitIngoreFolders = _.values(gitIgnore);
 
   /**

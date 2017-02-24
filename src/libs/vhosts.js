@@ -3,8 +3,8 @@ import fs           from 'fs-extra';
 import path         from 'path';
 import handlebars   from 'handlebars';
 import {
-  DIST_DIR,
-  LOG_DIR,
+  DISTRICT_FOLDER_NAME,
+  LOGGER_FOLDER_NAME,
 }                   from '../conf/config';
 import OptionMerger from './option_merger';
 
@@ -42,8 +42,8 @@ export function mkVhost (modules, options, callback) {
 
     distFile : path.join(basePath, 'vhosts/nginx.conf'),
     template : path.join(OptionMerger.EXEC_PATH, './templates/vhosts/nginx.conf.hbs'),
-    rootPath : path.join(basePath, DIST_DIR),
-    logsPath : path.join(basePath, LOG_DIR),
+    rootPath : path.join(basePath, DISTRICT_FOLDER_NAME),
+    logsPath : path.join(basePath, LOGGER_FOLDER_NAME),
 
     useHttps : _.isBoolean(options.useHttps) ? options.useHttps : false,
     certPath : options.certPath || path.join(basePath, 'certs'),

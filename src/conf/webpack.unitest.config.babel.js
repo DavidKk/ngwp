@@ -10,10 +10,10 @@ import {
 
   ROOT_PATH,
 
-  TMP_DIR,
-  DEV_DIR,
-  DIST_DIR,
-  COVERAGE_DIR,
+  TEMPORARY_FOLDER_NAME,
+  DEVELOP_FOLDER_NAME,
+  DISTRICT_FOLDER_NAME,
+  COVERAGE_FOLDER_NAME,
 }                         from './config';
 import webpackConfig,
 { generateSprites }       from './webpack.common.config.babel';
@@ -65,9 +65,9 @@ const plugins = [
    * run it first to reset the project.
    */
   new CleanWebpackPlugin([
-    DEV_DIR,
-    DIST_DIR,
-    COVERAGE_DIR,
+    DEVELOP_FOLDER_NAME,
+    DISTRICT_FOLDER_NAME,
+    COVERAGE_FOLDER_NAME,
   ],
   {
     root      : ROOT_PATH,
@@ -126,7 +126,7 @@ export default WebpackMerger({
         test    : /\.js$/,
         loader  : 'istanbul-instrumenter',
         include : webpackConfig.resolve.root,
-        exclude : [/node_modules/, new RegExp(TMP_DIR)],
+        exclude : [/node_modules/, new RegExp(TEMPORARY_FOLDER_NAME)],
       },
     ],
   },

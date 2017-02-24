@@ -13,7 +13,7 @@ import {
 }                 from '../src/libs/builder';
 import {
   EXEC_PATH,
-  TMP_DIR,
+  TEMPORARY_FOLDER_NAME,
 }                 from '../src/conf/config';
 
 describe('Module builder', function () {
@@ -21,7 +21,7 @@ describe('Module builder', function () {
     it('should generate module', function (done) {
       let mName            = 'mdlname';
       let srcFolder        = path.join(EXEC_PATH, './templates/module');
-      let tarFolder        = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gm');
+      let tarFolder        = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'unitest/builder/gm');
       let tarTruthlyFolder = path.join(tarFolder, mName);
 
       fs.removeSync(tarFolder);
@@ -52,7 +52,7 @@ describe('Module builder', function () {
       let mName            = 'mdlname';
       let family           = ['unitest'];
       let srcFolder        = path.join(EXEC_PATH, './templates/component');
-      let tarFolder        = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gc');
+      let tarFolder        = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'unitest/builder/gc');
       let tarTruthlyFolder = path.join(tarFolder, family.join('\/'), 'components', mName);
 
       fs.removeSync(tarFolder);
@@ -82,7 +82,7 @@ describe('Module builder', function () {
       let mName           = 'mdlname';
       let cName           = 'cpnname';
       let srcCompFolder   = path.join(EXEC_PATH, './templates/component');
-      let tarFolder       = path.join(EXEC_PATH, TMP_DIR, 'unitest/builder/gr');
+      let tarFolder       = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'unitest/builder/gr');
       let absCompFolder   = path.join(tarFolder, mName, 'components', cName);
       let subCompFolder   = path.join(absCompFolder, 'components/chilren')
 

@@ -19,11 +19,11 @@ import {
 
   PROJECT_NAME,
 
-  SRC_DIR,
-  TMP_DIR,
-  DEV_DIR,
-  DIST_DIR,
-  COVERAGE_DIR,
+  RESOURCE_FOLDER_NAME,
+  TEMPORARY_FOLDER_NAME,
+  DEVELOP_FOLDER_NAME,
+  DISTRICT_FOLDER_NAME,
+  COVERAGE_FOLDER_NAME,
 
   ROOT_PATH,
   EXEC_PATH,
@@ -73,7 +73,7 @@ const plugins = [
     name    : 'vendor',
     chunks  : [],
     minChunks (module) {
-      let folder = path.resolve(ROOT_PATH, SRC_DIR);
+      let folder = path.resolve(ROOT_PATH, RESOURCE_FOLDER_NAME);
       return module.resource && -1 === module.resource.indexOf(folder);
     },
   }),
@@ -91,7 +91,7 @@ const plugins = [
    */
   new CopyWebpackPlugin([
     {
-      from    : path.join(ROOT_PATH, SRC_DIR, 'assets/panels/**'),
+      from    : path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/panels/**'),
       to      : path.join(DISTRICT_PATH, 'assets/panels/'),
       flatten : true,
     }
@@ -102,10 +102,10 @@ const plugins = [
    * run it first to reset the project.
    */
   new CleanWebpackPlugin([
-    TMP_DIR,
-    DEV_DIR,
-    DIST_DIR,
-    COVERAGE_DIR,
+    TEMPORARY_FOLDER_NAME,
+    DEVELOP_FOLDER_NAME,
+    DISTRICT_FOLDER_NAME,
+    COVERAGE_FOLDER_NAME,
   ],
   {
     root      : ROOT_PATH,
@@ -139,8 +139,8 @@ fs.ensureFileSync(faviconFile);
 let resolveRoot = [
   path.join(EXEC_PATH, 'node_modules'),
   path.join(ROOT_PATH, 'node_modules'),
-  path.join(ROOT_PATH, TMP_DIR),
-  path.join(ROOT_PATH, SRC_DIR),
+  path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME),
+  path.join(ROOT_PATH, RESOURCE_FOLDER_NAME),
 ];
 
 function backup (file, bkfile) {
@@ -319,7 +319,7 @@ export function generateFavicons (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const LOGO_FILE = path.join(ROOT_PATH, SRC_DIR, 'assets/panels/logo.png');
+  const LOGO_FILE = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/panels/logo.png');
 
   if (fs.existsSync(LOGO_FILE)) {
     let statsFile = 'favicon/iconstats.json';
@@ -380,7 +380,7 @@ export function generateSprites (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR           = path.join(ROOT_PATH, SRC_DIR, 'assets/sprites/images');
+  const SPRITE_DIR           = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/sprites/images');
   const SPRITE_TEMPLATE_FILE = path.join(SPRITE_DIR, 'sprite.scss.template.handlebars');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_TEMPLATE_FILE)) {
@@ -393,10 +393,10 @@ export function generateSprites (plugins) {
         glob : '**/*.{png,gif,jpg}',
       },
       target: {
-        image : path.join(TMP_DIR, 'sprites.png'),
+        image : path.join(TEMPORARY_FOLDER_NAME, 'sprites.png'),
         css   : [
           [
-            path.join(TMP_DIR, 'sprites.scss'),
+            path.join(TEMPORARY_FOLDER_NAME, 'sprites.scss'),
             {
               format: 'spriteScssTemplate',
             },
@@ -430,7 +430,7 @@ export function generateSVGSprites (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR         = path.join(SRC_DIR, 'assets/sprites/svg');
+  const SPRITE_DIR         = path.join(RESOURCE_FOLDER_NAME, 'assets/sprites/svg');
   const SPRITE_CONFIG_FILE = path.join(SPRITE_DIR, 'svgstore.config.js');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_CONFIG_FILE)) {

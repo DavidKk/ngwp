@@ -3,9 +3,9 @@ import path        from 'path';
 import webpackConf from './webpack.unitest.config.babel';
 import {
   ROOT_PATH,
-  TEST_DIR,
-  TMP_DIR,
-  COVERAGE_DIR,
+  UNITEST_FOLDER_NAME,
+  TEMPORARY_FOLDER_NAME,
+  COVERAGE_FOLDER_NAME,
 }                  from './config';
 
 /**
@@ -18,8 +18,8 @@ let formatImport = function (file) {
   return `import '${file}';\n`;
 };
 
-let testEntryFile = path.join(ROOT_PATH, TMP_DIR, TEST_DIR, 'bootstrap.spec.js');
-let testFolder    = path.join(ROOT_PATH, TEST_DIR);
+let testEntryFile = path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME, UNITEST_FOLDER_NAME, 'bootstrap.spec.js');
+let testFolder    = path.join(ROOT_PATH, UNITEST_FOLDER_NAME);
 
 fs.ensureDirSync(testFolder);
 
@@ -62,7 +62,7 @@ module.exports = function (config) {
     },
     coverageReporter: {
       type : 'html',
-      dir  : path.join(ROOT_PATH, COVERAGE_DIR),
+      dir  : path.join(ROOT_PATH, COVERAGE_FOLDER_NAME),
     },
     webpack: webpackConf,
     webpackMiddleware: {

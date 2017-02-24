@@ -4,33 +4,34 @@ import path            from 'path';
 import { name }        from '../../package';
 import { convertName } from '../libs/utils';
 
-export let PROJECT_NAME        = name;
+export let PROJECT_NAME          = name;
 
-export let SRC_DIR             = 'src';
-export let LOG_DIR             = 'logs';
-export let TMP_DIR             = '.temporary';
-export let DEV_DIR             = '.dist';
-export let DIST_DIR            = 'dist';
-export let TEST_DIR            = 'unitest';
-export let COVERAGE_DIR        = 'coverage';
-export let ENTRY_DIR           = 'app';
+export let RESOURCE_FOLDER_NAME  = 'src';
+export let LOGGER_FOLDER_NAME    = 'logs';
+export let TEMPORARY_FOLDER_NAME = '.temporary';
+export let DEVELOP_FOLDER_NAME   = '.dist';
+export let VHOSTS_FOLDER_NAME    = 'vhosts';
+export let DISTRICT_FOLDER_NAME  = 'dist';
+export let UNITEST_FOLDER_NAME   = 'unitest';
+export let COVERAGE_FOLDER_NAME  = 'coverage';
+export let ENTRY_FOLDER_NAME     = 'app';
 
-export let RC_FILE             = '.ngwprc';
+export let RC_FILE               = '.ngwprc';
 
-export let ROOT_PATH           = process.cwd();
-export let EXEC_PATH           = path.join(__dirname, '../../');
-export let DISTRICT_PATH       = path.join(ROOT_PATH, process.env.DEVELOP ? DEV_DIR : DIST_DIR);
-export let ENTRY_PATH          = path.join(ROOT_PATH, SRC_DIR, ENTRY_DIR);
+export let ROOT_PATH             = process.cwd();
+export let EXEC_PATH             = path.join(__dirname, '../../');
+export let DISTRICT_PATH         = path.join(ROOT_PATH, process.env.DEVELOP ? DEVELOP_FOLDER_NAME : DISTRICT_FOLDER_NAME);
+export let ENTRY_PATH            = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME);
 
-export let DEVELOP_SERVER_PORT = 50000;
+export let DEVELOP_SERVER_PORT   = 50000;
 
-export let CLIENT_DOMAIN       = `www.${path.basename(ROOT_PATH).toLowerCase()}.com`;
-export let SERVER_DOMAIN       = '';
-export let ASSETS_DOMAIN       = '';
-export let UPLOAD_DOMAIN       = '';
+export let CLIENT_DOMAIN         = `www.${path.basename(ROOT_PATH).toLowerCase()}.com`;
+export let SERVER_DOMAIN         = '';
+export let ASSETS_DOMAIN         = '';
+export let UPLOAD_DOMAIN         = '';
 
-export let MODULES             = [];
-export let NGINX_PROXY         = [];
+export let MODULES               = [];
+export let NGINX_PROXY           = [];
 
 /**
  * Setting domains and develop server port

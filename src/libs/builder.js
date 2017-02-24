@@ -9,8 +9,8 @@ import {
   copyAndRender,
 }                   from './utils.js';
 import {
-  SRC_DIR,
-  ENTRY_DIR,
+  RESOURCE_FOLDER_NAME,
+  ENTRY_FOLDER_NAME,
 }                   from '../conf/config';
 import OptionMerger from './option_merger';
 
@@ -45,7 +45,7 @@ export function mkModule (name, options, callback) {
   options = _.defaults(options, {
     ignoreExists : false,
     basePath     : process.cwd(),
-    distFolder   : path.join(SRC_DIR, ENTRY_DIR),
+    distFolder   : path.join(RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME),
   });
 
   let names     = convertName(name);
@@ -146,7 +146,7 @@ export function mkComponent (name, family, options, callback) {
   options = _.defaults(options, {
     ignoreExists : true,
     basePath     : process.cwd(),
-    distFolder   : path.join(SRC_DIR, ENTRY_DIR),
+    distFolder   : path.join(RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME),
   });
 
   let names = convertName(name);
