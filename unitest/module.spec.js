@@ -16,8 +16,10 @@ import {
   TEMPORARY_FOLDER_NAME,
 }                 from '../src/conf/config';
 
+import { Server } from 'karma';
+
 describe('Module builder', function () {
-  describe('Test Generate', function () {
+  describe('Test Generating', function () {
     it('should generate module', function (done) {
       let mName            = 'mdlname';
       let srcFolder        = path.join(EXEC_PATH, './templates/module');
