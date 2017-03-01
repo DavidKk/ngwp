@@ -34,9 +34,155 @@ import {
 /**
  * Entries definitions
  */
-const entries = {
-  'babel-polyfill': 'babel-polyfill',
-};
+const entries = {};
+
+/**
+ * reolve path definitions
+ */
+const resolveModules = [
+  path.join(EXEC_PATH, 'node_modules'),
+  path.join(ROOT_PATH, 'node_modules'),
+  path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME),
+  path.join(ROOT_PATH, RESOURCE_FOLDER_NAME),
+];
+
+/**
+ * loader and rules definitions
+ */
+const rules = [
+  {
+    test : /\.html$/,
+    use  : [
+      {
+        loader: 'html-loader',
+        options: {
+          attrs: ['img:src', 'img:ng-src'],
+        },
+      },
+    ],
+  },
+  {
+    test : /\.jade$/,
+    use  : [
+      {
+        loader: 'pug-loader',
+      },
+    ],
+  },
+  {
+    test    : /\.css$/,
+    enforce : 'pre',
+    exclude : [/node_modules/],
+    loader  : 'stylelint-loader',
+    options : {
+      configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
+    },
+  },
+  /**
+   * As Jade/Pug will use require() to load public style
+   * like bootstrap.css, so that we must provider a loader
+   * to load the file.
+   * At the same time, `ExtractTextPlugin` plugin do not
+   * match .css file, because it will throw an error to
+   * tell you no loader can load this file.
+   *
+   * Error:
+   *   Module build failed:
+   *   Error: "extract-text-webpack-plugin" loader is used
+   *   without the corresponding plugin, refer to
+   *   https://github.com/webpack/extract-text-webpack-plugin
+   *   for the usage example
+   */
+  {
+    test : /\.css$/,
+    use  : {
+      loader  : 'url-loader',
+      options : {
+        limit : 10000,
+        name  : 'styles/[name].[hash].css',
+      }
+    },
+  },
+  /**
+   * docs:
+   * - https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/263
+   */
+  {
+    test : /\.(sass|scss)$/,
+    use  : ExtractTextPlugin.extract({
+      fallback : 'style-loader',
+      use      : [
+        {
+          loader  : 'css-loader',
+          options : {
+            sourceMap: true,
+          },
+        },
+        {
+          loader  : 'sass-loader',
+          options : {
+            includePaths: resolveModules,
+          },
+        },
+        {
+          loader  : 'postcss-loader',
+          options : {
+            plugins: [
+              autoprefixer({
+                browsers: [
+                  'last 10 version',
+                  'ie >= 9',
+                ],
+              }),
+            ],
+          },
+        },
+      ],
+    }),
+  },
+  {
+    test    : /\.js$/,
+    enforce : 'pre',
+    exclude : [/node_modules/],
+    loader  : 'eslint-loader',
+    options : {
+      configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
+    },
+  },
+  {
+    test : /\.js$/,
+    use  : [
+      {
+        loader: 'ng-annotate-loader',
+      },
+      {
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            require.resolve('babel-preset-es2015'),
+            require.resolve('babel-preset-stage-0'),
+          ],
+        },
+      },
+    ],
+  },
+  /**
+   * 少于 10K 图片用 base64
+   * url-loader 依赖 file-loader
+   */
+  {
+    test : /\.(jpe?g|png|gif)$/i,
+    use  : [
+      {
+        loader  : 'url-loader',
+        options : {
+          limit : 10000,
+          name  : 'panels/[name].[hash].[ext]',
+        },
+      },
+    ],
+  },
+];
 
 /**
  * Plugins definitions
@@ -61,11 +207,6 @@ const plugins = [
   }),
 
   /**
-   * Find out equals module
-   */
-  new webpack.optimize.DedupePlugin(),
-
-  /**
    * Extract common modules
    * to reduce code duplication
    */
@@ -82,7 +223,8 @@ const plugins = [
    * Extract style file
    * Inline styles can be externally optimized for loading
    */
-  new ExtractTextPlugin('styles/[name].[contenthash].css', {
+  new ExtractTextPlugin({
+    filename: 'styles/[name].[contenthash].css',
     allChunks: true,
   }),
 
@@ -123,7 +265,7 @@ const CallAfter = widthDone(plugins);
 generateEnteries(plugins, entries);
 generateFavicons(plugins);
 generateSprites(plugins);
-generateSVGSprites(plugins);
+// generateSVGSprites(plugins);
 
 /**
  * some browser will request '/favicon.ico' file
@@ -132,24 +274,6 @@ generateSVGSprites(plugins);
  */
 let faviconFile = path.join(DISTRICT_PATH, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
-
-/**
- * check resolve path
- */
-let resolveRoot = [
-  path.join(EXEC_PATH, 'node_modules'),
-  path.join(ROOT_PATH, 'node_modules'),
-  path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME),
-  path.join(ROOT_PATH, RESOURCE_FOLDER_NAME),
-];
-
-function backup (file, bkfile) {
-  if (!fs.existsSync(file)) {
-    return bkfile;
-  }
-
-  return file;
-}
 
 /**
  * Webpack Setting
@@ -161,86 +285,15 @@ export default {
     publicPath  : '/',
     filename    : '[name].js',
   },
-  module  : {
-    preLoaders: [
-      {
-        test    : /\.js$/,
-        exclude : /node_modules/,
-        loader  : 'eslint',
-      },
-      {
-        test    : /].(scss|sass)$/,
-        exclude : /node_modules/,
-        loader  : 'stylelint',
-      },
-    ],
-    loaders: [
-      {
-        test    : /\.(css)$/,
-        loader  : 'url?limit=10000&name=styles/[name].[hash].css',
-      },
-      {
-        test    : /\.(scss|sass)$/,
-        loader  : ExtractTextPlugin.extract('style-loader', 'css!postcss!sass'),
-      },
-      {
-        test    : /\.html$/,
-        loader  : `html?${JSON.stringify({
-          attrs: ['img:src', 'img:ng-src'],
-        })}`,
-      },
-      {
-        test    : /\.jade$/,
-        loader  : 'pug',
-      },
-      /**
-       * Disable the default .babelrc file in the
-       * current directory (process.cwd() not EXEC_PATH),
-       * although it works as well without this flag.
-       * And load the same presets as in the .babelrc file.
-       * docs: https://github.com/babel/babel-loader/issues/179
-       */
-      {
-        test    : /\.js$/,
-        loader  : `ng-annotate!babel?babelrc=false&extends=${path.join(EXEC_PATH, '.babelrc')}`,
-        exclude : [/node_modules/],
-      },
-      /**
-       * Use base64 when picture size less than 10k
-       * url-loader dependent on url-loader
-       */
-      {
-        test    : /\.(jpe?g|png|gif)$/i,
-        loader  : 'url?limit=10000&name=panels/[name].[hash].[ext]',
-      },
-    ],
+  module: {
+    rules: rules,
   },
-  resolve : {
-    root               : resolveRoot,
-    modulesDirectories : ['node_modules'],
-    extensions         : ['', '.js', '.jade'],
+  resolve: {
+    modules: resolveModules,
   },
   resolveLoader: {
-    root               : resolveRoot,
-    modulesDirectories : ['node_modules'],
+    modules: resolveModules,
   },
-  sassLoader: {
-    includePaths: resolveRoot,
-  },
-  stylelint: {
-    configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
-  },
-  eslint: {
-    configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
-  },
-  postcss: [
-    autoprefixer({
-      browsers: [
-        'last 10 version',
-        'ie >= 9',
-      ],
-    }),
-  ],
   plugins,
 };
 
@@ -651,4 +704,12 @@ function mkhash (string) {
   }
 
   return hash;
+}
+
+function backup (file, bkfile) {
+  if (!fs.existsSync(file)) {
+    return bkfile;
+  }
+
+  return file;
 }

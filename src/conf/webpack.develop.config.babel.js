@@ -1,3 +1,4 @@
+import webpack           from 'webpack';
 import WebpackMerger     from 'webpack-merge';
 import BrowserSyncPlugin from 'browser-sync-webpack-plugin';
 import webpackConfig     from './webpack.common.config.babel';
@@ -7,9 +8,11 @@ import {
 }                        from './config';
 
 export default WebpackMerger(webpackConfig, {
-  debug   : true,
   devtool : 'source-map',
   plugins : [
+    new webpack.LoaderOptionsPlugin({
+      debug: true,
+    }),
     /**
      * BrowserSync Plugin
      * local test but weinre not support https

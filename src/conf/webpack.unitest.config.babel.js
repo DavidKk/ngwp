@@ -48,16 +48,12 @@ const plugins = [
   }),
 
   /**
-   * Find out equals module
-   */
-  new webpack.optimize.DedupePlugin(),
-
-  /**
    * Extract style file
    * Inline styles can be externally optimized for loading
    */
-  new ExtractTextPlugin('styles/[name].[contenthash].css', {
-    allChunks: true,
+  new ExtractTextPlugin({
+    filename  : 'styles/[name].[contenthash].css',
+    allChunks : true,
   }),
 
   /**
@@ -82,17 +78,17 @@ const plugins = [
 generateSprites(plugins);
 
 export default WebpackMerger({
-  devtool          : 'inline-source-map',
-  entry            : entries,
-  output           : webpackConfig.output,
-  module           : webpackConfig.module,
-  resolve          : webpackConfig.resolve,
-  resolveLoader    : webpackConfig.resolveLoader,
-  sassLoader       : webpackConfig.sassLoader,
-  stylelint        : webpackConfig.stylelint,
-  eslint           : webpackConfig.eslint,
-  postcss          : webpackConfig.postcss,
-  plugins          : plugins,
+  devtool       : 'inline-source-map',
+  entry         : entries,
+  output        : webpackConfig.output,
+  module        : webpackConfig.module,
+  resolve       : webpackConfig.resolve,
+  resolveLoader : webpackConfig.resolveLoader,
+  sassLoader    : webpackConfig.sassLoader,
+  stylelint     : webpackConfig.stylelint,
+  eslint        : webpackConfig.eslint,
+  postcss       : webpackConfig.postcss,
+  plugins       : plugins,
 },
 /**
  * Sinon setting
@@ -121,13 +117,14 @@ export default WebpackMerger({
  */
 {
   module: {
-    preLoaders: [
+    rules: [
       {
         test    : /\.js$/,
-        loader  : 'istanbul-instrumenter',
-        include : webpackConfig.resolve.root,
+        enforce : 'pre',
+        loader  : 'isparta-loader',
+        include : webpackConfig.resolve.modules,
         exclude : [/node_modules/, new RegExp(TEMPORARY_FOLDER_NAME)],
-      },
+      }
     ],
   },
 });
