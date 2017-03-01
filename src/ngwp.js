@@ -279,5 +279,5 @@ function runReleaseTasks () {
  */
 function runUnitestTasks () {
   let { run } = require('./libs/karma');
-  run(path.join(__dirname, './conf/karma.conf.js'));
+  run(path.join(__dirname, './conf/karma.conf.babel.js'));
 }

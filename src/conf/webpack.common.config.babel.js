@@ -155,6 +155,12 @@ const rules = [
       {
         loader: 'ng-annotate-loader',
       },
+      /**
+       * babel@6.0.0 break the .babelrc file
+       * so configure presets below
+       * docs:
+       * - https://github.com/babel/babel-loader/issues/166
+       */
       {
         loader: 'babel-loader',
         options: {
