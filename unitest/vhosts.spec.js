@@ -1,7 +1,7 @@
 /* eslint max-nested-callbacks: off */
 /* eslint-env mocha */
 
-import './vhosts.helper';
+import './vhosts/vhosts.helper';
 
 import _           from 'lodash';
 import fs          from 'fs-extra';
@@ -11,17 +11,22 @@ import { mkVhost } from '../src/libs/vhosts';
 import {
   EXEC_PATH,
   TEMPORARY_FOLDER_NAME,
-  LOGGER_FOLDER_NAME,
 }                  from '../src/conf/config';
 
 describe('VHost Generator', function () {
+  let srcPath = path.join(__dirname, './vhosts');
+  let tmpPath = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'test_vhosts_' + Date.now());
+
+  after(function () {
+    fs.removeSync(tmpPath);
+  });
+
   describe('Test Generate', function () {
     it('should configure and generate nginx config file', function (done) {
-      let tpl      = path.join(__dirname, './vhost.conf.hbs');
-      let folder   = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, './unitest/vhosts/2');
-      let file     = path.join(folder, './vhosts.conf');
-      let logsPath = path.join(folder, 'logs');
-      let rootPath = path.join(folder, 'apps');
+      let tplFile   = path.join(srcPath, 'vhost.conf.hbs');
+      let outFile   = path.join(tmpPath, './vhosts.conf');
+      let logFolder = path.join(tmpPath, './logs');
+      let appFolder = path.join(tmpPath, './apps');
 
       let modules = [
         {
@@ -39,30 +44,28 @@ describe('VHost Generator', function () {
 
       let config = {
         trace    : true,
-        distFile : file,
-        template : tpl,
-        rootPath : rootPath,
-        logsPath : logsPath,
+        distFile : outFile,
+        template : tplFile,
+        rootPath : appFolder,
+        logsPath : logFolder,
 
         useHttps : true,
-        certPath : path.join(__dirname, './certs'),
+        certPath : path.join(__dirname, './vhosts/certs'),
         certFile : 'cert.pem',
         certKey  : 'cert.key',
       };
 
-      fs.removeSync(folder);
-
       mkVhost(modules, config, function (error) {
         expect(error).to.not.be.an('error');
 
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(outFile)).to.be.true;
 
-        let source = fs.readJSONSync(file);
+        let source = fs.readJSONSync(outFile);
         expect(_.isPlainObject(source)).to.be.true;
 
-        expect(source.logsPath).to.equal(logsPath);
-        expect(source.rootPath).to.equal(rootPath);
-        expect(fs.existsSync(logsPath)).to.be.true;
+        expect(source.logsPath).to.equal(logFolder);
+        expect(source.rootPath).to.equal(appFolder);
+        expect(fs.existsSync(logFolder)).to.be.true;
 
         expect(source.certPath).to.equal(config.certPath);
         expect(source.certFile).to.equal(config.certFile);
@@ -72,9 +75,8 @@ describe('VHost Generator', function () {
         expect(source.modules.length).to.be.equal(2);
         expect(JSON.stringify(source.modules)).to.equal(JSON.stringify(modules));
 
-        fs.removeSync(file);
         done();
       });
-    })
+    });
   });
 });

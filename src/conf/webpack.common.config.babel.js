@@ -114,7 +114,7 @@ const plugins = [
   }),
 ];
 
-// const Injector  = injectScript(plugins);
+// const Injector = injectScript(plugins);
 const CallAfter = widthDone(plugins);
 
 /**

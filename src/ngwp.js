@@ -42,9 +42,9 @@ program
 .option('--ver <project version>', 'Set project version')
 .option('--description <project description>', 'Set project description')
 .action((name, options) => {
-  let { install } = require('./libs/installer');
-  let startTime   = Date.now();
-  let folder      = path.join(OptionMerger.ROOT_PATH, name);
+  let { initialize } = require('./libs/initialization');
+  let startTime      = Date.now();
+  let folder         = path.join(OptionMerger.ROOT_PATH, name);
 
   if (fs.exists(folder)) {
     throw new Error(`${folder} is exists`);
@@ -52,7 +52,7 @@ program
 
   fs.mkdirSync(folder);
 
-  install(name, {
+  initialize(name, {
     dist        : folder,
     version     : options.ver || '0.0.1',
     description : options.description || name,

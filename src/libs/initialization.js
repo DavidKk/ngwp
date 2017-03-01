@@ -4,7 +4,16 @@ import path              from 'path';
 import { copyAndRender } from './utils';
 import OptionMerger      from './option_merger';
 
-export function install (name, options, callback) {
+/**
+ * initialize project
+ * @param {String}   name                 project name
+ * @param {Object}   options              initialization setting
+ * @param {String}   options.version      project version (default 1.0.0)
+ * @param {String}   options.description  project description (default project name)
+ * @param {String}   dist                 output folder (default pwd)
+ * @param {Function} callback             callback after exec
+ */
+export function initialize (name, options, callback) {
   if (!_.isString(name)) {
     throw new Error('Name is not provided');
   }
