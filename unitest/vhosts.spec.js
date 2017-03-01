@@ -21,9 +21,9 @@ describe('Vhosts Generator', function () {
   let srcPath = path.join(__dirname, './vhosts');
   let tmpPath = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'test_vhosts_' + Date.now());
 
-  // after(function () {
-  //   fs.removeSync(tmpPath);
-  // });
+  after(function () {
+    fs.removeSync(tmpPath);
+  });
 
   describe('Test Generating', function () {
     it('should configure and generate nginx config file', function (done) {
