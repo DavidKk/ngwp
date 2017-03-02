@@ -3,19 +3,20 @@
 
 import './vhosts/vhosts.helper';
 
-import _           from 'lodash';
-import fs          from 'fs-extra';
-import path        from 'path';
-import async       from 'async';
-import colors      from 'colors';
-import { exec }    from 'child_process';
-import handlebars  from 'handlebars';
-import { expect }  from 'chai';
-import { mkVhost } from '../src/libs/vhosts';
+import _                        from 'lodash';
+import fs                       from 'fs-extra';
+import path                     from 'path';
+import async                    from 'async';
+import colors                   from 'colors';
+import { exec }                 from 'child_process';
+import handlebars               from 'handlebars';
+import { expect }               from 'chai';
+import { mkVhost }              from '../src/libs/vhosts';
+import { sync as cmdExistsSync} from 'command-exists';
 import {
   EXEC_PATH,
   TEMPORARY_FOLDER_NAME,
-}                  from '../src/conf/config';
+}                               from '../src/conf/config';
 
 describe('Vhosts Generator', function () {
   let srcPath = path.join(__dirname, './vhosts');
@@ -84,79 +85,81 @@ describe('Vhosts Generator', function () {
     });
   });
 
-  describe('Test Running', function () {
-    it('can be used by nginx', function (done) {
-      let outFile   = path.join(tmpPath, './vhosts.conf');
-      let logFolder = path.join(tmpPath, './logs');
-      let appFolder = path.join(tmpPath, './apps');
+  if (cmdExistsSync('nginx')) {
+    describe('Test Running', function () {
+      it('can be used by nginx', function (done) {
+        let outFile   = path.join(tmpPath, './vhosts.conf');
+        let logFolder = path.join(tmpPath, './logs');
+        let appFolder = path.join(tmpPath, './apps');
 
-      let modules = [
-        {
-          type      : 'cdn',
-          domain    : ['cdn.example.com']
-        },
-        {
-          type      : 'proxy',
-          proxy     : '127.0.0.1',
-          proxyPort : 8080,
-          entries   : ['home'],
-          domain    : ['www.example.com'],
-        },
-      ];
+        let modules = [
+          {
+            type      : 'cdn',
+            domain    : ['cdn.example.com']
+          },
+          {
+            type      : 'proxy',
+            proxy     : '127.0.0.1',
+            proxyPort : 8080,
+            entries   : ['home'],
+            domain    : ['www.example.com'],
+          },
+        ];
 
-      let config = {
-        trace    : true,
-        distFile : outFile,
-        rootPath : appFolder,
-        logsPath : logFolder,
+        let config = {
+          trace    : true,
+          distFile : outFile,
+          rootPath : appFolder,
+          logsPath : logFolder,
 
-        useHttps : true,
-        certPath : path.join(__dirname, './vhosts/certs'),
-        certFile : 'cert.pem',
-        certKey  : 'cert.key',
-      };
+          useHttps : true,
+          certPath : path.join(__dirname, './vhosts/certs'),
+          certFile : 'cert.pem',
+          certKey  : 'cert.key',
+        };
 
-      async.parallel([
-        function (callback) {
-          mkVhost(modules, config, function (error) {
-            expect(error).to.not.be.an('error');
+        async.parallel([
+          function (callback) {
+            mkVhost(modules, config, function (error) {
+              expect(error).to.not.be.an('error');
 
-            callback(null, outFile);
-          });
-        },
-        function (callback) {
-          let ngxTplFile  = path.join(__dirname, './vhosts/nginx.conf.hbs');
-          let ngxOutFile  = path.join(tmpPath, 'nginx.conf');
-          let ngxTemplate = fs.readFileSync(ngxTplFile, 'utf-8');
-          let compile     = handlebars.compile(ngxTemplate);
-          let source      = compile({ files: [outFile] });
+              callback(null, outFile);
+            });
+          },
+          function (callback) {
+            let ngxTplFile  = path.join(__dirname, './vhosts/nginx.conf.hbs');
+            let ngxOutFile  = path.join(tmpPath, 'nginx.conf');
+            let ngxTemplate = fs.readFileSync(ngxTplFile, 'utf-8');
+            let compile     = handlebars.compile(ngxTemplate);
+            let source      = compile({ files: [outFile] });
 
-          fs.writeFile(ngxOutFile, source, function (error) {
-            expect(error).to.not.be.an('error');
+            fs.writeFile(ngxOutFile, source, function (error) {
+              expect(error).to.not.be.an('error');
 
-            callback(null, ngxOutFile);
-          });
-        },
-      ],
-      /**
-       * this error must be a null and argument 2 must be a Array,
-       * if not `[outFile, ngxOutFile]` must be throw a error.
-       */
-      function (error, [outFile, ngxOutFile]) {
-        exec(`nginx -t -c ${ngxOutFile}`, function (error) {
-          if (/command not found/.exec(error.message)) {
-            /* eslint no-console:off */
-            console.log(colors.yellow('Nginx is not install, this unitest will pass'));
+              callback(null, ngxOutFile);
+            });
+          },
+        ],
+        /**
+         * this error must be a null and argument 2 must be a Array,
+         * if not `[outFile, ngxOutFile]` must be throw a error.
+         */
+        function (error, [outFile, ngxOutFile]) {
+          exec(`nginx -t -c ${ngxOutFile}`, function (error) {
+            if (/command not found/.exec(error.message)) {
+              /* eslint no-console:off */
+              console.log(colors.yellow('Nginx is not install, this unitest will pass'));
+
+              done();
+              return;
+            }
+
+            expect(new RegExp(`nginx: the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true;
 
             done();
-            return;
-          }
-
-          expect(new RegExp(`nginx: the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true;
-
-          done();
+          });
         });
       });
     });
-  });
+  }
 });
