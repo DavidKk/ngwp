@@ -1,6 +1,0 @@
-.sp {
-  display: inline-block;
-  @include transition(all .35s ease-in-out);
-}
-
-@include sprites($spritesheet-sprites);

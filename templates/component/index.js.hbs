@@ -5,14 +5,14 @@ import Controller from './index.controller';
 import Template   from './index.jade';
 import Components from './components';
 
-export default angular.module('{{ ns/camelcase }}.{{ names/camelcase }}', [
+export default angular.module('{{#if ns/camelcase}}{{ ns/camelcase }}.{{/if}}{{ names/camelcase }}', [
   Components,
 ])
 .config(function ($stateProvider) {
   'ngInject';
 
   $stateProvider
-  .state('{{ ns/camelcase }}.{{ names/camelcase }}', {
+  .state('{{#if ns/camelcase}}{{ ns/camelcase }}.{{/if}}{{ names/camelcase }}', {
     url        : '{{ names/underscore }}/',
     template   : Template,
     controller : Controller,

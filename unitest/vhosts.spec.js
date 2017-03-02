@@ -143,18 +143,14 @@ describe('Vhosts Generator', function () {
         /**
          * this error must be a null and argument 2 must be a Array,
          * if not `[outFile, ngxOutFile]` must be throw a error.
+         *
+         * Because it is not use sudo, so it must throw an error which has
+         * no promise to open some log files. So we just only test this
+         * config file is ok.
          */
         function (error, [outFile, ngxOutFile]) {
           exec(`nginx -t -c ${ngxOutFile}`, function (error) {
-            if (/command not found/.exec(error.message)) {
-              /* eslint no-console:off */
-              console.log(colors.yellow('Nginx is not install, this unitest will pass'));
-
-              done();
-              return;
-            }
-
-            expect(new RegExp(`nginx: the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true;
+            expect(new RegExp(`the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true;
 
             done();
           });

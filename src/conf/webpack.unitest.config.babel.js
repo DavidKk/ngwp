@@ -84,10 +84,6 @@ export default WebpackMerger({
   module        : webpackConfig.module,
   resolve       : webpackConfig.resolve,
   resolveLoader : webpackConfig.resolveLoader,
-  sassLoader    : webpackConfig.sassLoader,
-  stylelint     : webpackConfig.stylelint,
-  eslint        : webpackConfig.eslint,
-  postcss       : webpackConfig.postcss,
   plugins       : plugins,
 },
 /**

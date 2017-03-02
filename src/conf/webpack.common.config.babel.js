@@ -47,150 +47,6 @@ const resolveModules = [
 ];
 
 /**
- * loader and rules definitions
- */
-const rules = [
-  {
-    test : /\.html$/,
-    use  : [
-      {
-        loader: 'html-loader',
-        options: {
-          attrs: ['img:src', 'img:ng-src'],
-        },
-      },
-    ],
-  },
-  {
-    test : /\.jade$/,
-    use  : [
-      {
-        loader: 'pug-loader',
-      },
-    ],
-  },
-  {
-    test    : /\.css$/,
-    enforce : 'pre',
-    exclude : [/node_modules/],
-    loader  : 'stylelint-loader',
-    options : {
-      configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
-    },
-  },
-  /**
-   * As Jade/Pug will use require() to load public style
-   * like bootstrap.css, so that we must provider a loader
-   * to load the file.
-   * At the same time, `ExtractTextPlugin` plugin do not
-   * match .css file, because it will throw an error to
-   * tell you no loader can load this file.
-   *
-   * Error:
-   *   Module build failed:
-   *   Error: "extract-text-webpack-plugin" loader is used
-   *   without the corresponding plugin, refer to
-   *   https://github.com/webpack/extract-text-webpack-plugin
-   *   for the usage example
-   */
-  {
-    test : /\.css$/,
-    use  : {
-      loader  : 'url-loader',
-      options : {
-        limit : 10000,
-        name  : 'styles/[name].[hash].css',
-      }
-    },
-  },
-  /**
-   * docs:
-   * - https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/263
-   */
-  {
-    test : /\.(sass|scss)$/,
-    use  : ExtractTextPlugin.extract({
-      fallback : 'style-loader',
-      use      : [
-        {
-          loader  : 'css-loader',
-          options : {
-            sourceMap: true,
-          },
-        },
-        {
-          loader  : 'sass-loader',
-          options : {
-            includePaths: resolveModules,
-          },
-        },
-        {
-          loader  : 'postcss-loader',
-          options : {
-            plugins: [
-              autoprefixer({
-                browsers: [
-                  'last 10 version',
-                  'ie >= 9',
-                ],
-              }),
-            ],
-          },
-        },
-      ],
-    }),
-  },
-  {
-    test    : /\.js$/,
-    enforce : 'pre',
-    exclude : [/node_modules/],
-    loader  : 'eslint-loader',
-    options : {
-      configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
-    },
-  },
-  {
-    test : /\.js$/,
-    use  : [
-      {
-        loader: 'ng-annotate-loader',
-      },
-      /**
-       * babel@6.0.0 break the .babelrc file
-       * so configure presets below
-       * docs:
-       * - https://github.com/babel/babel-loader/issues/166
-       */
-      {
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            require.resolve('babel-preset-es2015'),
-            require.resolve('babel-preset-stage-0'),
-          ],
-        },
-      },
-    ],
-  },
-  /**
-   * 少于 10K 图片用 base64
-   * url-loader 依赖 file-loader
-   */
-  {
-    test : /\.(jpe?g|png|gif)$/i,
-    use  : [
-      {
-        loader  : 'url-loader',
-        options : {
-          limit : 10000,
-          name  : 'panels/[name].[hash].[ext]',
-        },
-      },
-    ],
-  },
-];
-
-/**
  * Plugins definitions
  */
 const plugins = [
@@ -270,7 +126,7 @@ const CallAfter = widthDone(plugins);
  */
 generateEnteries(plugins, entries);
 generateFavicons(plugins);
-generateSprites(plugins);
+let spriteGenerated = generateSprites(plugins);
 // generateSVGSprites(plugins);
 
 /**
@@ -280,6 +136,151 @@ generateSprites(plugins);
  */
 let faviconFile = path.join(DISTRICT_PATH, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
+
+/**
+ * loader and rules definitions
+ */
+const rules = [
+  {
+    test : /\.html$/,
+    use  : [
+      {
+        loader: 'html-loader',
+        options: {
+          attrs: ['img:src', 'img:ng-src'],
+        },
+      },
+    ],
+  },
+  {
+    test : /\.jade$/,
+    use  : [
+      {
+        loader: 'pug-loader',
+      },
+    ],
+  },
+  {
+    test    : /\.css$/,
+    enforce : 'pre',
+    exclude : [/node_modules/],
+    loader  : 'stylelint-loader',
+    options : {
+      configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
+    },
+  },
+  /**
+   * As Jade/Pug will use require() to load public style
+   * like bootstrap.css, so that we must provider a loader
+   * to load the file.
+   * At the same time, `ExtractTextPlugin` plugin do not
+   * match .css file, because it will throw an error to
+   * tell you no loader can load this file.
+   *
+   * Error:
+   *   Module build failed:
+   *   Error: "extract-text-webpack-plugin" loader is used
+   *   without the corresponding plugin, refer to
+   *   https://github.com/webpack/extract-text-webpack-plugin
+   *   for the usage example
+   */
+  {
+    test : /\.css$/,
+    use  : {
+      loader  : 'url-loader',
+      options : {
+        limit : 10000,
+        name  : 'styles/[name].[hash].css',
+      }
+    },
+  },
+  /**
+   * docs:
+   * - https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/263
+   */
+  {
+    test : /\.(sass|scss)$/,
+    use  : ExtractTextPlugin.extract({
+      fallback : 'style-loader',
+      use      : [
+        {
+          loader  : 'css-loader',
+          options : {
+            sourceMap: true,
+          },
+        },
+        {
+          loader  : 'sass-loader',
+          options : {
+            includePaths : resolveModules,
+            data         : [spriteGenerated ? '@import "sprites";' : ''].join('\n'),
+          },
+        },
+        {
+          loader  : 'postcss-loader',
+          options : {
+            plugins: [
+              autoprefixer({
+                browsers: [
+                  'last 10 version',
+                  'ie >= 9',
+                ],
+              }),
+            ],
+          },
+        },
+      ],
+    }),
+  },
+  {
+    test    : /\.js$/,
+    enforce : 'pre',
+    exclude : [/node_modules/],
+    loader  : 'eslint-loader',
+    options : {
+      configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
+    },
+  },
+  {
+    test : /\.js$/,
+    use  : [
+      {
+        loader: 'ng-annotate-loader',
+      },
+      /**
+       * babel@6.0.0 break the .babelrc file
+       * so configure presets below
+       * docs:
+       * - https://github.com/babel/babel-loader/issues/166
+       */
+      {
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            require.resolve('babel-preset-es2015'),
+            require.resolve('babel-preset-stage-0'),
+          ],
+        },
+      },
+    ],
+  },
+  /**
+   * 少于 10K 图片用 base64
+   * url-loader 依赖 file-loader
+   */
+  {
+    test : /\.(jpe?g|png|gif)$/i,
+    use  : [
+      {
+        loader  : 'url-loader',
+        options : {
+          limit : 10000,
+          name  : 'panels/[name].[hash].[ext]',
+        },
+      },
+    ],
+  },
+];
 
 /**
  * Webpack Setting
@@ -434,12 +435,12 @@ export function generateFavicons (plugins) {
  * if the sprite folder (src/assets/sprites/images/) not exists,
  * this task will not be excuted.
  */
-export function generateSprites (plugins) {
+export function generateSprites (plugins, options = {}) {
   if (!_.isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR           = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/sprites/images');
+  const SPRITE_DIR           = options.resources || path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/sprites/images');
   const SPRITE_TEMPLATE_FILE = path.join(SPRITE_DIR, 'sprite.scss.template.handlebars');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_TEMPLATE_FILE)) {
