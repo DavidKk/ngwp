@@ -1,6 +1,6 @@
 {
   "name": "ngwp",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "license": "MIT",
   "description": "Project scaffold (Webpack, AngularJS, ES6, SCSS, Jade/Pug)",
   "homepage": "https://github.com/DavidKk/ngwp",
@@ -31,7 +31,7 @@
     "angular-ui-router": "^0.2.15",
     "babel-preset-es2015-maybe-webpack": "^1.2.1",
     "command-exists": "^1.2.2",
-    "isparta-loader": "^2.0.0"
+    "istanbul-instrumenter-loader": "^2.0.0"
   },
   "dependencies": {
     "rimraf": "^2.6.0",
