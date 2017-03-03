@@ -65,8 +65,11 @@ let rules = [
   {
     test    : /\.js$/,
     enforce : 'pre',
-    loader  : 'isparta-loader',
     exclude : [/node_modules/],
+    loader  : 'istanbul-instrumenter-loader',
+    options : {
+      esModules: true,
+    },
   },
   {
     test : /\.js$/,
