@@ -68,6 +68,10 @@ let rules = [
     exclude : [/node_modules/],
     loader  : 'istanbul-instrumenter-loader',
     options : {
+      /**
+       * docs
+       * - https://github.com/deepsweet/istanbul-instrumenter-loader/issues/33
+       */
       esModules: true,
     },
   },
