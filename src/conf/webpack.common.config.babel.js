@@ -34,12 +34,12 @@ import {
 /**
  * Entries definitions
  */
-const entries = {};
+let entries = {};
 
 /**
  * reolve path definitions
  */
-const resolveModules = [
+let resolveModules = [
   path.join(EXEC_PATH, 'node_modules'),
   path.join(ROOT_PATH, 'node_modules'),
   path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME),
@@ -49,7 +49,7 @@ const resolveModules = [
 /**
  * Plugins definitions
  */
-const plugins = [
+let plugins = [
   /**
    * set environment variables
    * you can find out global variables in javascript
@@ -118,8 +118,8 @@ const plugins = [
   }),
 ];
 
-// const Injector = injectScript(plugins);
-const CallAfter = widthDone(plugins);
+// let Injector = injectScript(plugins);
+let CallAfter = widthDone(plugins);
 
 /**
  * Generate some compile tasks
@@ -140,7 +140,7 @@ fs.ensureFileSync(faviconFile);
 /**
  * loader and rules definitions
  */
-const rules = [
+let rules = [
   {
     test : /\.html$/,
     use  : [

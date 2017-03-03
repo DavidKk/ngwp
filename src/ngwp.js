@@ -260,6 +260,8 @@ program
  * run webpack develop server and watch the file changed
  */
 function runDevelopTasks () {
+  process.env.DEVELOP = 1;
+
   let { run } = require('./libs/webpack');
   run(path.join(__dirname, './conf/webpack.develop.config.babel.js'), { watch: true });
 }
@@ -269,6 +271,8 @@ function runDevelopTasks () {
  * minify all we can compress
  */
 function runReleaseTasks () {
+  process.env.PRODUCT = 1;
+
   let { run } = require('./libs/webpack');
   run(path.join(__dirname, './conf/webpack.product.config.babel.js'));
 }
@@ -278,6 +282,9 @@ function runReleaseTasks () {
  * import all test/*.spec.js files
  */
 function runUnitestTasks () {
+  process.env.PRODUCT = 1;
+  process.env.UNITEST = 1;
+
   let { run } = require('./libs/karma');
   run(path.join(__dirname, './conf/karma.conf.babel.js'));
 }

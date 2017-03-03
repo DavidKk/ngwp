@@ -12,13 +12,14 @@
     "node": ">= 6.2.2"
   },
   "scripts": {
-    "build": "rimraf ./dist && babel ./src --out-dir ./dist",
     "eslint": "eslint ./src",
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/*.spec.js",
-    "test": "npm run eslint && npm run mocha && rimraf ./.temporary",
     "browser-test": "babel-node ./unitest/browser.js",
-    "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage/cli npm run test",
-    "coveralls": "nyc --reporter=text-lcov npm run test | coveralls",
+    "test": "npm run eslint && npm run mocha",
+    "doctor": "rimraf ./.temporary && npm run test  && npm run browser-test && rimraf ./.temporary",
+    "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage/cli npm run test && npm run browser-test",
+    "coveralls": "npm run coverage && babel-node ./src/coveralls.js",
+    "build": "rimraf ./dist && babel ./src --out-dir ./dist",
     "start": "babel ./src --out-dir ./dist --watch"
   },
   "bin": {
@@ -51,7 +52,6 @@
     "columnify": "^1.5.4",
     "commander": "^2.9.0",
     "copy-webpack-plugin": "^4.0.1",
-    "cross-env": "^3.1.4",
     "css-loader": "^0.26.2",
     "eslint": "^3.0.1",
     "eslint-loader": "^1.6.3",
