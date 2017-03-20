@@ -4,10 +4,8 @@ import path         from 'path';
 import colors       from 'colors';
 import program      from 'commander';
 import OptionMerger from './libs/option_merger';
-import {
-  printStats,
-  trace,
-}                   from './libs/utils';
+import * as utils   from './libs/utils';
+import * as VARS    from './conf/variables';
 
 /**
  * node module colors will be changed by karma
@@ -18,7 +16,6 @@ import {
  * use bold for string attribute, it can not return string
  * it will be return a function.
  */
-
 
 let params = process.argv;
 let cwd    = path.basename(require.main.filename);
@@ -63,16 +60,16 @@ program
       throw error;
     }
 
-    trace('Generator: installer');
-    trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
+    utils.trace('Generator: installer');
+    utils.trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
 
-    printStats(stats);
+    utils.printStats(stats);
   });
 })
 .on('--help', () => {
-  trace('  Examples:');
-  trace(`    $ ${cwd} init myProject`);
-  trace('');
+  utils.trace('  Examples:');
+  utils.trace(`    $ ${cwd} init myProject`);
+  utils.trace('');
 });
 
 /**
@@ -97,16 +94,16 @@ program
       throw error;
     }
 
-    trace('Generator: module');
-    trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+    utils.trace('Generator: module');
+    utils.trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
 
-    printStats(stats);
+    utils.printStats(stats);
   });
 })
 .on('--help', () => {
-  trace('  Examples:');
-  trace(`    $ ${cwd} module myModule`);
-  trace('');
+  utils.trace('  Examples:');
+  utils.trace(`    $ ${cwd} module myModule`);
+  utils.trace('');
 });
 
 /**
@@ -131,15 +128,15 @@ program
       throw error;
     }
 
-    trace('Generator: route');
-    trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
-    printStats(stats);
+    utils.trace('Generator: route');
+    utils.trace(`Time: ${colors.white(Date.now() - startTime).bold}ms\n`);
+    utils.printStats(stats);
   });
 })
 .on('--help', () => {
-  trace('  Examples:');
-  trace(`    $ ${cwd} route myModule route1/route2/route3`);
-  trace('');
+  utils.trace('  Examples:');
+  utils.trace(`    $ ${cwd} route myModule route1/route2/route3`);
+  utils.trace('');
 });
 
 /**
@@ -172,16 +169,35 @@ program
     OptionMerger.updateRC({ port: options.port });
   }
 
+  if (true === options.useHttps) {
+    let certPath = options.certPath
+    || process.env.NGWP_CERT_PATH
+    || process.env.ngwp_cert_path
+    || VARS.ROOT_PATH;
+
+    _.forEach(OptionMerger.NGINX_PROXY, function (setting) {
+      if (true === setting.useHttps) {
+        setting.certFile = setting.certFile
+        ? utils.resolvePath(setting.certFile, certPath)
+        : path.join(certPath, setting.domain + '.pem');
+
+        setting.certKey = setting.certFile
+        ? utils.resolvePath(setting.certFile, certPath)
+        : path.join(certPath, setting.domain + '.key');
+
+        if (!(fs.existsSync(setting.certFile) && fs.existsSync(setting.certKey))) {
+          utils.trace(`[${colors.yellow('warn')}] '${setting.certFile}' or '${setting.certKey}' is not found`);
+          setting.useHttps = false;
+        }
+      }
+    });
+  }
+
   mkVhost(OptionMerger.NGINX_PROXY, {
     basePath : options.base,
     distFile : options.dist,
     rootPath : options.rootPath,
     logsPath : options.logsPath,
-
-    useHttps : options.hasOwnProperty('useHttps') ? true : undefined,
-    certPath : options.certPath,
-    certFile : options.certFile,
-    certKey  : options.certKey,
   },
   function (error, stats) {
     /* istanbul ignore if */
@@ -199,19 +215,19 @@ program
       return _.pick(module, ['domain', 'proxy', 'entries']);
     });
 
-    trace('Generator: vhosts');
-    trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
+    utils.trace('Generator: vhosts');
+    utils.trace(`Time: ${colors.bold(colors.white(Date.now() - startTime))}ms\n`);
 
-    if (printStats(modules)) {
-      trace(`[${colors.bold(colors.green('ok'))}] Nginx config file '${colors.bold(colors.green(file))}' is generated successfully`);
-      trace(`Remember include it and '${colors.bold(colors.green('reolad/restart'))}' your nginx server`);
+    if (utils.printStats(modules)) {
+      utils.trace(`[${colors.bold(colors.green('ok'))}] Nginx config file '${colors.bold(colors.green(file))}' is generated successfully`);
+      utils.trace(`Remember include it and '${colors.bold(colors.green('reolad/restart'))}' your nginx server`);
     }
   });
 })
 .on('--help', () => {
-  trace('  Examples:');
-  trace(`    $ ${cwd} vhosts`);
-  trace('');
+  utils.trace('  Examples:');
+  utils.trace(`    $ ${cwd} vhosts`);
+  utils.trace('');
 });
 
 let runCommander = program
@@ -234,11 +250,11 @@ let runCommander = program
   }
 })
 .on('--help', () => {
-  trace('  Examples:');
-  trace(`    $ ${cwd} run develop`);
-  trace(`    $ ${cwd} run product`);
-  trace(`    $ ${cwd} run unitest`);
-  trace('');
+  utils.trace('  Examples:');
+  utils.trace(`    $ ${cwd} run develop`);
+  utils.trace(`    $ ${cwd} run product`);
+  utils.trace(`    $ ${cwd} run unitest`);
+  utils.trace('');
 });
 
 /**

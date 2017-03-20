@@ -7,28 +7,28 @@ import {
   mkModule,
   mkComponent,
 }                     from '../src/libs/builder';
-import * as CONF      from './browser/config';
+import * as VARS      from './browser/variables';
 
-fs.removeSync(CONF.TEMPORARY_FOLDER);
+fs.removeSync(VARS.TEMPORARY_FOLDER);
 
 async.parallel([
   function (callback) {
-    initialize(CONF.PROJECT_NAME, {
-      dist: CONF.PROJECT_FOLDER,
+    initialize(VARS.PROJECT_NAME, {
+      dist: VARS.PROJECT_FOLDER,
     }, callback);
   },
   function (callback) {
-    mkModule(CONF.PROJECT_NAME, {
+    mkModule(VARS.PROJECT_NAME, {
       ignoreTrace : true,
       basePath    : '',
-      distFolder  : CONF.MODULE_FOLDER,
+      distFolder  : VARS.MODULE_FOLDER,
     }, callback);
   },
   function (callback) {
-    mkComponent(CONF.PROJECT_NAME, [], {
+    mkComponent(VARS.PROJECT_NAME, [], {
       ignoreTrace : true,
       basePath    : '',
-      distFolder  : CONF.COMPONENT_FOLDER,
+      distFolder  : VARS.COMPONENT_FOLDER,
     }, callback);
   },
 ],
@@ -41,7 +41,7 @@ function (error) {
     configFile: path.join(__dirname, './browser/karma.config'),
   },
   function (exitCode) {
-    fs.removeSync(CONF.TEMPORARY_FOLDER);
+    fs.removeSync(VARS.TEMPORARY_FOLDER);
     process.exit(exitCode);
   });
 

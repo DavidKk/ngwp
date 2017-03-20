@@ -8,10 +8,7 @@ import {
   convertName,
   copyAndRender,
 }                   from './utils.js';
-import {
-  RESOURCE_FOLDER_NAME,
-  ENTRY_FOLDER_NAME,
-}                   from '../conf/config';
+import * as VARS    from '../conf/variables';
 import OptionMerger from './option_merger';
 
 /**
@@ -45,7 +42,7 @@ export function mkModule (name, options, callback) {
   options = _.defaults(options, {
     ignoreExists : false,
     basePath     : process.cwd(),
-    distFolder   : path.join(RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME),
+    distFolder   : path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME),
   });
 
   let names     = convertName(name);
@@ -146,7 +143,7 @@ export function mkComponent (name, family, options, callback) {
   options = _.defaults(options, {
     ignoreExists : true,
     basePath     : process.cwd(),
-    distFolder   : path.join(RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME),
+    distFolder   : path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME),
   });
 
   let names = convertName(name);

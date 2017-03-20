@@ -7,20 +7,16 @@ import _                        from 'lodash';
 import fs                       from 'fs-extra';
 import path                     from 'path';
 import async                    from 'async';
-import colors                   from 'colors';
 import { exec }                 from 'child_process';
 import handlebars               from 'handlebars';
 import { expect }               from 'chai';
 import { mkVhost }              from '../src/libs/vhosts';
 import { sync as cmdExistsSync} from 'command-exists';
-import {
-  EXEC_PATH,
-  TEMPORARY_FOLDER_NAME,
-}                               from '../src/conf/config';
+import * as VARS                from '../src/conf/variables';
 
 describe('Vhosts Generator', function () {
   let srcPath = path.join(__dirname, './vhosts');
-  let tmpPath = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'test_vhosts_' + Date.now());
+  let tmpPath = path.join(VARS.EXEC_PATH, VARS.TEMPORARY_FOLDER_NAME, 'test_vhosts_' + Date.now());
 
   after(function () {
     fs.removeSync(tmpPath);
@@ -44,6 +40,9 @@ describe('Vhosts Generator', function () {
           proxyPort : 8080,
           entries   : ['home'],
           domain    : ['www.example.com'],
+          useHttps  : true,
+          certFile  : './cert.pem',
+          certKey   : './cert.key',
         },
       ];
 
@@ -53,11 +52,8 @@ describe('Vhosts Generator', function () {
         template : tplFile,
         rootPath : appFolder,
         logsPath : logFolder,
-
         useHttps : true,
-        certPath : path.join(__dirname, './vhosts/certs'),
-        certFile : 'cert.pem',
-        certKey  : 'cert.key',
+        certPath : path.join(__dirname, './vhosts/certs/'),
       };
 
       mkVhost(modules, config, function (error) {
@@ -72,13 +68,12 @@ describe('Vhosts Generator', function () {
         expect(source.rootPath).to.equal(appFolder);
         expect(fs.existsSync(logFolder)).to.be.true;
 
-        expect(source.certPath).to.equal(config.certPath);
-        expect(source.certFile).to.equal(config.certFile);
-        expect(source.certKey).to.equal(config.certKey);
-
         expect(source.modules).to.be.instanceof(Array);
         expect(source.modules.length).to.be.equal(2);
-        expect(JSON.stringify(source.modules)).to.equal(JSON.stringify(modules));
+
+        let module = source.modules[1];
+        expect(module.certFile).to.equal(path.join(config.certPath, modules[1].certFile));
+        expect(module.certKey).to.equal(path.join(config.certPath, modules[1].certKey));
 
         done();
       });
@@ -148,7 +143,9 @@ describe('Vhosts Generator', function () {
          * no promise to open some log files. So we just only test this
          * config file is ok.
          */
-        function (error, [outFile, ngxOutFile]) {
+        function (error, stats) {
+          let ngxOutFile = stats[1];
+
           exec(`nginx -t -c ${ngxOutFile}`, function (error) {
             expect(new RegExp(`the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true;
 

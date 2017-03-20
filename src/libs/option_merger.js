@@ -1,10 +1,10 @@
 import _                    from 'lodash';
 import fs                   from 'fs-extra';
 import path                 from 'path';
-import * as CONFIG          from '../conf/config';
+import * as VARS            from '../conf/variables';
 import { buildInheritance } from './utils';
 
-const Inheritance = buildInheritance(CONFIG);
+const Inheritance = buildInheritance(VARS);
 
 export class OptionMerger extends Inheritance {
   constructor () {
@@ -31,7 +31,7 @@ export class OptionMerger extends Inheritance {
   }
 
   findRC () {
-    let file = path.join(CONFIG.ROOT_PATH, CONFIG.RC_FILE || '.ngwprc');
+    let file = path.join(VARS.ROOT_PATH, VARS.RC_FILE || '.ngwprc');
     if (fs.existsSync(file)) {
       return file;
     }

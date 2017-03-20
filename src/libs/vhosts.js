@@ -2,10 +2,8 @@ import _            from 'lodash';
 import fs           from 'fs-extra';
 import path         from 'path';
 import handlebars   from 'handlebars';
-import {
-  DISTRICT_FOLDER_NAME,
-  LOGGER_FOLDER_NAME,
-}                   from '../conf/config';
+import * as utils   from '../libs/utils';
+import * as VARS    from '../conf/variables';
 import OptionMerger from './option_merger';
 
 /**
@@ -42,48 +40,20 @@ export function mkVhost (modules, options, callback) {
 
     distFile : path.join(basePath, 'vhosts/nginx.conf'),
     template : path.join(OptionMerger.EXEC_PATH, './templates/vhosts/nginx.conf.hbs'),
-    rootPath : path.join(basePath, DISTRICT_FOLDER_NAME),
-    logsPath : path.join(basePath, LOGGER_FOLDER_NAME),
-
+    rootPath : path.join(basePath, VARS.DISTRICT_FOLDER_NAME),
+    logsPath : path.join(basePath, VARS.LOGGER_FOLDER_NAME),
     useHttps : _.isBoolean(options.useHttps) ? options.useHttps : false,
-    certPath : options.certPath || path.join(basePath, 'certs'),
-    certFile : options.certFile,
-    certKey  : options.certKey,
   });
-
-  if (true === options.useHttps) {
-    if (!options.certFile) {
-      callback(new Error('CertFile is not provided when use https'));
-      return;
-    }
-
-    let certFile = path.join(options.certPath, options.certFile);
-    if (!fs.existsSync(certFile)) {
-      callback(new Error(`CertFile ${certFile} is not found`));
-      return;
-    }
-
-    if (!options.certKey) {
-      callback(new Error('CertKey is not provided when use https'));
-      return;
-    }
-
-    let certKey = path.join(options.certPath, options.certKey);
-    if (!fs.existsSync(certKey)) {
-      callback(new Error(`CertKey ${certKey} is not found`));
-      return;
-    }
-  }
 
   if (!fs.existsSync(options.template)) {
     callback(new Error(`Template '${options.template}' is not exists.`));
     return;
   }
 
-  let template  = fs.readFileSync(options.template, 'utf-8');
-  let compile   = handlebars.compile(template);
+  let template = fs.readFileSync(options.template, 'utf-8');
+  let compile  = handlebars.compile(template);
 
-  modules = _.clone(modules);
+  modules = _.cloneDeep(modules);
 
   for (let module of modules) {
     if (!(_.isString(module.domain) || _.isArray(module.domain)) && _.isEmpty(module.domain)) {
@@ -108,8 +78,38 @@ export function mkVhost (modules, options, callback) {
       }
     }
 
+    if (true === options.useHttps && true === module.useHttps) {
+      if (!module.certFile) {
+        callback(new Error('CertFile is not provided when use https'));
+        return;
+      }
+
+      let certFile = utils.resolvePath(module.certFile, options.certPath);
+      if (!fs.existsSync(certFile)) {
+        callback(new Error(`CertFile ${certFile} is not found`));
+        return;
+      }
+
+      if (!module.certKey) {
+        callback(new Error('CertKey is not provided when use https'));
+        return;
+      }
+
+      let certKey = utils.resolvePath(module.certKey, options.certPath);
+      if (!fs.existsSync(certKey)) {
+        callback(new Error(`CertKey ${certKey} is not found`));
+        return;
+      }
+
+      module.certFile = certFile;
+      module.certKey  = certKey;
+    }
+
     if (_.isArray(module.entries)) {
-      Object.assign(module, { division: module.entries.join('|') });
+      Object.assign(module, {
+        division : module.entries.join('|'),
+        logger   : _.isArray(module.domain) ? module.domain[0] : module.domain,
+      });
     }
   }
 
@@ -118,11 +118,6 @@ export function mkVhost (modules, options, callback) {
   let source = compile({
     rootPath : options.rootPath,
     logsPath : options.logsPath,
-
-    certPath : options.certPath,
-    certFile : options.certFile,
-    certKey  : options.certKey,
-
     modules  : modules,
   });
 

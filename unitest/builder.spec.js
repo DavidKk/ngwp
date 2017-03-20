@@ -11,14 +11,11 @@ import {
   mkModule,
   mkComponent,
 }                        from '../src/libs/builder';
-import {
-  EXEC_PATH,
-  TEMPORARY_FOLDER_NAME,
-}                        from '../src/conf/config';
+import * as VARS         from '../src/conf/variables';
 
 describe('Module builder', function () {
-  let srcPath = path.join(EXEC_PATH, './templates');
-  let tmpPath = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'test_builder_' + Date.now());
+  let srcPath = path.join(VARS.EXEC_PATH, './templates');
+  let tmpPath = path.join(VARS.EXEC_PATH, VARS.TEMPORARY_FOLDER_NAME, 'test_builder_' + Date.now());
 
   after(function () {
     fs.removeSync(tmpPath);

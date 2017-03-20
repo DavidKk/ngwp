@@ -1,12 +1,7 @@
 import fs          from 'fs-extra';
 import path        from 'path';
 import webpackConf from './webpack.unitest.config.babel';
-import {
-  ROOT_PATH,
-  UNITEST_FOLDER_NAME,
-  TEMPORARY_FOLDER_NAME,
-  COVERAGE_FOLDER_NAME,
-}                  from './config';
+import * as VARS   from './variables';
 
 /**
  * Build unified entrance
@@ -18,8 +13,8 @@ let formatImport = function (file) {
   return `import '${file}';\n`;
 };
 
-let testEntryFile = path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME, UNITEST_FOLDER_NAME, 'bootstrap.spec.js');
-let testFolder    = path.join(ROOT_PATH, UNITEST_FOLDER_NAME);
+let testEntryFile = path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME, VARS.UNITEST_FOLDER_NAME, 'bootstrap.spec.js');
+let testFolder    = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME);
 
 fs.ensureDirSync(testFolder);
 
@@ -38,7 +33,7 @@ fs.writeFileSync(testEntryFile, depsSource);
  */
 module.exports = function (config) {
   config.set({
-    basePath   : ROOT_PATH,
+    basePath   : VARS.ROOT_PATH,
     browsers   : ['PhantomJS'],
     frameworks : ['mocha', 'chai', 'sinon'],
     files      : [testEntryFile],
@@ -62,7 +57,7 @@ module.exports = function (config) {
     },
     coverageReporter: {
       type : 'html',
-      dir  : path.join(ROOT_PATH, COVERAGE_FOLDER_NAME),
+      dir  : path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME),
     },
     webpack: webpackConf,
     webpackMiddleware: {

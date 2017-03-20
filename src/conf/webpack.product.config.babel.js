@@ -1,7 +1,7 @@
 import webpack           from 'webpack';
 import WebpackMerger     from 'webpack-merge';
 import webpackConfig     from './webpack.common.config.babel';
-import { ASSETS_DOMAIN } from './config';
+import { ASSETS_DOMAIN } from './variables';
 
 const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 

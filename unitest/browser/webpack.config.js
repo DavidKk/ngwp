@@ -1,23 +1,21 @@
-import fs                from 'fs-extra';
 import path              from 'path';
 import webpack           from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import * as CONF         from './config';
-import * as PATHS        from '../../src/conf/config';
+import * as VARS         from './variables';
 
 let nodeModulesFolder = path.join(__dirname, '../../node_modules');
 let resolveModules    = [
   nodeModulesFolder,
 
-  path.join(CONF.PROJECT_FOLDER, './src'),
-  path.join(CONF.PROJECT_FOLDER, './src/assets'),
-  path.join(CONF.PROJECT_FOLDER, './src/common'),
-  path.join(CONF.PROJECT_FOLDER, './src/libraries'),
+  path.join(VARS.PROJECT_FOLDER, './src'),
+  path.join(VARS.PROJECT_FOLDER, './src/assets'),
+  path.join(VARS.PROJECT_FOLDER, './src/common'),
+  path.join(VARS.PROJECT_FOLDER, './src/libraries'),
 
-  CONF.TEMPORARY_FOLDER,
-  CONF.PROJECT_FOLDER,
-  CONF.MODULE_FOLDER,
-  CONF.COMPONENT_FOLDER,
+  VARS.TEMPORARY_FOLDER,
+  VARS.PROJECT_FOLDER,
+  VARS.MODULE_FOLDER,
+  VARS.COMPONENT_FOLDER,
 ];
 
 let plugins = [
@@ -100,7 +98,7 @@ export default {
     'babel-polyfill': 'babel-polyfill',
   },
   output: {
-    path       : CONF.TEMPORARY_FOLDER,
+    path       : VARS.TEMPORARY_FOLDER,
     publicPath : '/',
     filename   : '[name].js',
   },

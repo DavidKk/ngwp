@@ -75,6 +75,21 @@ export function formatBytes (bytes, decimals) {
 }
 
 /**
+ * check path is absolute or not.
+ * if not, it will join cwd path in front of path.
+ * @param  {String} file path
+ * @param  {String} cwd  addition path
+ * @return {String}
+ */
+export function resolvePath (file = './', cwd = process.cwd()) {
+  if (path.isAbsolute(file)) {
+    return file;
+  }
+
+  return path.join(cwd, file);
+}
+
+/**
  * print stats
  * @param  {Object} options setting
  */

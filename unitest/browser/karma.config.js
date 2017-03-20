@@ -1,13 +1,13 @@
-import path        from 'path';
-import * as CONF   from './config';
-import * as PATHS  from '../../src/conf/config';
-import webpackConf from './webpack.config';
+import path              from 'path';
+import { TARGET_FOLDER } from './variables';
+import * as VARS         from '../../src/conf/variables';
+import webpackConf       from './webpack.config';
 
 module.exports = function (config) {
   let entryFile = path.join(__dirname, 'browser.spec.js');
 
   config.set({
-    basePath   : CONF.TARGET_FOLDER,
+    basePath   : TARGET_FOLDER,
     browsers   : ['PhantomJS'],
     frameworks : ['mocha', 'chai', 'sinon'],
     files      : [entryFile],
@@ -30,7 +30,7 @@ module.exports = function (config) {
     coverageReporter: {
       type   : 'lcov',
       subdir : '.',
-      dir    : path.join(PATHS.ROOT_PATH, PATHS.COVERAGE_FOLDER_NAME, 'browser'),
+      dir    : path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME, 'browser'),
     },
     webpack: webpackConf,
     webpackMiddleware: {

@@ -11,25 +11,7 @@ import HtmlWebpackPlugin     from 'html-webpack-plugin';
 import autoprefixer          from 'autoprefixer';
 import ExtractTextPlugin     from 'extract-text-webpack-plugin';
 import CopyWebpackPlugin     from 'copy-webpack-plugin';
-import {
-  CLIENT_DOMAIN,
-  SERVER_DOMAIN,
-  ASSETS_DOMAIN,
-  UPLOAD_DOMAIN,
-
-  PROJECT_NAME,
-
-  RESOURCE_FOLDER_NAME,
-  TEMPORARY_FOLDER_NAME,
-  DEVELOP_FOLDER_NAME,
-  DISTRICT_FOLDER_NAME,
-  COVERAGE_FOLDER_NAME,
-
-  ROOT_PATH,
-  EXEC_PATH,
-  DISTRICT_PATH,
-  ENTRY_PATH,
-}                            from './config';
+import * as VARS             from './variables';
 
 /**
  * Entries definitions
@@ -40,10 +22,10 @@ let entries = {};
  * reolve path definitions
  */
 let resolveModules = [
-  path.join(EXEC_PATH, 'node_modules'),
-  path.join(ROOT_PATH, 'node_modules'),
-  path.join(ROOT_PATH, TEMPORARY_FOLDER_NAME),
-  path.join(ROOT_PATH, RESOURCE_FOLDER_NAME),
+  path.join(VARS.EXEC_PATH, 'node_modules'),
+  path.join(VARS.ROOT_PATH, 'node_modules'),
+  path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME),
+  path.join(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME),
 ];
 
 /**
@@ -62,10 +44,10 @@ let plugins = [
     __PRODUCT__       : !!process.env.PRODUCT,
     __UNITEST__       : !!process.env.UNITEST,
 
-    __CLIENT_DOMAIN__ : JSON.stringify(CLIENT_DOMAIN),
-    __ASSETS_DOMAIN__ : JSON.stringify(ASSETS_DOMAIN),
-    __UPLOAD_DOMAIN__ : JSON.stringify(UPLOAD_DOMAIN),
-    __SERVER_DOMAIN__ : JSON.stringify(SERVER_DOMAIN),
+    __CLIENT_DOMAIN__ : JSON.stringify(VARS.CLIENT_DOMAIN),
+    __ASSETS_DOMAIN__ : JSON.stringify(VARS.ASSETS_DOMAIN),
+    __UPLOAD_DOMAIN__ : JSON.stringify(VARS.UPLOAD_DOMAIN),
+    __SERVER_DOMAIN__ : JSON.stringify(VARS.SERVER_DOMAIN),
   }),
 
   /**
@@ -76,7 +58,7 @@ let plugins = [
     name    : 'vendor',
     chunks  : [],
     minChunks (module) {
-      let folder = path.resolve(ROOT_PATH, RESOURCE_FOLDER_NAME);
+      let folder = path.resolve(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME);
       return module.resource && -1 === module.resource.indexOf(folder);
     },
   }),
@@ -95,8 +77,8 @@ let plugins = [
    */
   new CopyWebpackPlugin([
     {
-      from    : path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/panels/**'),
-      to      : path.join(DISTRICT_PATH, 'assets/panels/'),
+      from    : path.join(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME, 'assets/panels/**'),
+      to      : path.join(VARS.DISTRICT_PATH, 'assets/panels/'),
       flatten : true,
     }
   ]),
@@ -106,13 +88,13 @@ let plugins = [
    * run it first to reset the project.
    */
   new CleanWebpackPlugin([
-    TEMPORARY_FOLDER_NAME,
-    DEVELOP_FOLDER_NAME,
-    DISTRICT_FOLDER_NAME,
-    COVERAGE_FOLDER_NAME,
+    VARS.TEMPORARY_FOLDER_NAME,
+    VARS.DEVELOP_FOLDER_NAME,
+    VARS.DISTRICT_FOLDER_NAME,
+    VARS.COVERAGE_FOLDER_NAME,
   ],
   {
-    root      : ROOT_PATH,
+    root      : VARS.ROOT_PATH,
     verbose   : true,
     dry       : false,
   }),
@@ -134,7 +116,7 @@ let spriteGenerated = generateSprites(plugins);
  * wechat browser in ios reset title will also request '/favicon.ico'
  * (use iframe to request favicon.ico file)
  */
-let faviconFile = path.join(DISTRICT_PATH, 'favicon.ico');
+let faviconFile = path.join(VARS.DISTRICT_PATH, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
 
 /**
@@ -166,7 +148,7 @@ let rules = [
     exclude : [/node_modules/],
     loader  : 'stylelint-loader',
     options : {
-      configFile: backup(path.join(ROOT_PATH, '.stylelintrc'), path.join(EXEC_PATH, '.stylelintrc')),
+      configFile: backup(path.join(VARS.ROOT_PATH, '.stylelintrc'), path.join(VARS.EXEC_PATH, '.stylelintrc')),
     },
   },
   /**
@@ -238,7 +220,7 @@ let rules = [
     exclude : [/node_modules/],
     loader  : 'eslint-loader',
     options : {
-      configFile: backup(path.join(ROOT_PATH, '.eslintrc'), path.join(EXEC_PATH, '.eslintrc')),
+      configFile: backup(path.join(VARS.ROOT_PATH, '.eslintrc'), path.join(VARS.EXEC_PATH, '.eslintrc')),
     },
   },
   {
@@ -288,7 +270,7 @@ let rules = [
 export default {
   entry   : entries,
   output  : {
-    path        : DISTRICT_PATH,
+    path        : VARS.DISTRICT_PATH,
     publicPath  : '/',
     filename    : '[name].js',
   },
@@ -318,15 +300,15 @@ export function generateEnteries (plugins, entries) {
     throw new Error('Parameter entries must be a object.');
   }
 
-  if (fs.existsSync(ENTRY_PATH) && fs.lstatSync(ENTRY_PATH).isDirectory()) {
-    let modules = fs.readdirSync(ENTRY_PATH);
+  if (fs.existsSync(VARS.ENTRY_PATH) && fs.lstatSync(VARS.ENTRY_PATH).isDirectory()) {
+    let modules = fs.readdirSync(VARS.ENTRY_PATH);
 
     if (0 === modules.length) {
       return false;
     }
 
     modules.forEach((name) => {
-      let dir = path.join(ENTRY_PATH, name);
+      let dir = path.join(VARS.ENTRY_PATH, name);
 
       if (fs.statSync(dir).isDirectory()) {
         let bootstrapFile = path.join(dir, 'index.js');
@@ -338,13 +320,13 @@ export function generateEnteries (plugins, entries) {
            * reanme entry html
            */
           let options = {
-            filename: path.join(DISTRICT_PATH, `${name}.html`),
+            filename: path.join(VARS.DISTRICT_PATH, `${name}.html`),
           };
 
           /**
            * use template when then template file exists
            */
-          let tmplFile = path.join(ENTRY_PATH, `${name}/index.jade`);
+          let tmplFile = path.join(VARS.ENTRY_PATH, `${name}/index.jade`);
           if (fs.existsSync(tmplFile)) {
             Object.assign(options, {
               template: tmplFile,
@@ -379,7 +361,7 @@ export function generateFavicons (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const LOGO_FILE = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/panels/logo.png');
+  const LOGO_FILE = path.join(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME, 'assets/panels/logo.png');
 
   if (fs.existsSync(LOGO_FILE)) {
     let statsFile = 'favicon/iconstats.json';
@@ -413,13 +395,13 @@ export function generateFavicons (plugins) {
      * and copy it to the root path.
      */
     CallAfter.add(() => {
-      let sourceFile = path.join(DISTRICT_PATH, statsFile);
+      let sourceFile = path.join(VARS.DISTRICT_PATH, statsFile);
       if (!fs.existsSync(sourceFile)) {
         return;
       }
 
       let stats   = fs.readJsonSync(sourceFile);
-      let favFile = path.join(DISTRICT_PATH, stats.outputFilePrefix, 'favicon.ico');
+      let favFile = path.join(VARS.DISTRICT_PATH, stats.outputFilePrefix, 'favicon.ico');
 
       fs.copySync(favFile, faviconFile);
     });
@@ -440,7 +422,7 @@ export function generateSprites (plugins, options = {}) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR           = options.resources || path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, 'assets/sprites/images');
+  const SPRITE_DIR           = options.resources || path.join(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME, 'assets/sprites/images');
   const SPRITE_TEMPLATE_FILE = path.join(SPRITE_DIR, 'sprite.scss.template.handlebars');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_TEMPLATE_FILE)) {
@@ -453,10 +435,10 @@ export function generateSprites (plugins, options = {}) {
         glob : '**/*.{png,gif,jpg}',
       },
       target: {
-        image : path.join(TEMPORARY_FOLDER_NAME, 'sprites.png'),
+        image : path.join(VARS.TEMPORARY_FOLDER_NAME, 'sprites.png'),
         css   : [
           [
-            path.join(TEMPORARY_FOLDER_NAME, 'sprites.scss'),
+            path.join(VARS.TEMPORARY_FOLDER_NAME, 'sprites.scss'),
             {
               format: 'spriteScssTemplate',
             },
@@ -490,12 +472,12 @@ export function generateSVGSprites (plugins) {
     throw new Error('Parameter plugins must be a array.');
   }
 
-  const SPRITE_DIR         = path.join(RESOURCE_FOLDER_NAME, 'assets/sprites/svg');
+  const SPRITE_DIR         = path.join(VARS.RESOURCE_FOLDER_NAME, 'assets/sprites/svg');
   const SPRITE_CONFIG_FILE = path.join(SPRITE_DIR, 'svgstore.config.js');
 
   if (fs.existsSync(SPRITE_DIR) && fs.lstatSync(SPRITE_DIR).isDirectory() && fs.existsSync(SPRITE_CONFIG_FILE)) {
     Object.assign(entries, {
-      svgstore: path.join(ROOT_PATH, SPRITE_CONFIG_FILE),
+      svgstore: path.join(VARS.ROOT_PATH, SPRITE_CONFIG_FILE),
     });
 
     let plugin = new SvgStore({
@@ -632,7 +614,7 @@ export function injectScript (plugins) {
       }
 
       let script = `!(function () {
-        var id = 'webpack-${PROJECT_NAME}-v${hash}';
+        var id = 'webpack-${VARS.PROJECT_NAME}-v${hash}';
         if ('undefined' === typeof window || document.getElementById(id)) {
           return;
         }

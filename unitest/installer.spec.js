@@ -7,14 +7,11 @@ import async             from 'async';
 import { expect }        from 'chai';
 import { initialize }    from '../src/libs/initialization.js';
 import { compareFolder } from './share/utils';
-import {
-  EXEC_PATH,
-  TEMPORARY_FOLDER_NAME,
-}                        from '../src/conf/config';
+import * as VARS         from '../src/conf/variables';
 
 describe('Initialization', function () {
-  let srcPath = path.join(EXEC_PATH, './templates');
-  let tmpPath = path.join(EXEC_PATH, TEMPORARY_FOLDER_NAME, 'test_initialization_' + Date.now());
+  let srcPath = path.join(VARS.EXEC_PATH, './templates');
+  let tmpPath = path.join(VARS.EXEC_PATH, VARS.TEMPORARY_FOLDER_NAME, 'test_initialization_' + Date.now());
 
   after(function () {
     fs.removeSync(tmpPath);

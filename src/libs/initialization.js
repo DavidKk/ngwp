@@ -27,7 +27,16 @@ export function initialize (name, options, callback) {
 
   fs.ensureDirSync(tarFolder);
 
-  let gitIgnore        = _.pick(OptionMerger, ['LOGGER_FOLDER_NAME', 'TEMPORARY_FOLDER_NAME', 'DEVELOP_FOLDER_NAME', 'DISTRICT_FOLDER_NAME', 'COVERAGE_FOLDER_NAME', 'VHOSTS_FOLDER_NAME']);
+  let keys = [
+    'LOGGER_FOLDER_NAME',
+    'TEMPORARY_FOLDER_NAME',
+    'DEVELOP_FOLDER_NAME',
+    'DISTRICT_FOLDER_NAME',
+    'COVERAGE_FOLDER_NAME',
+    'VHOSTS_FOLDER_NAME',
+  ];
+
+  let gitIgnore        = _.pick(OptionMerger, keys);
   let gitIngoreFolders = _.values(gitIgnore);
 
   /**

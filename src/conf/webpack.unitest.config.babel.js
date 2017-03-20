@@ -2,19 +2,7 @@ import webpack            from 'webpack';
 import WebpackMerger      from 'webpack-merge';
 import CleanWebpackPlugin from 'clean-webpack-plugin';
 import ExtractTextPlugin  from 'extract-text-webpack-plugin';
-import {
-  CLIENT_DOMAIN,
-  SERVER_DOMAIN,
-  ASSETS_DOMAIN,
-  UPLOAD_DOMAIN,
-
-  ROOT_PATH,
-
-  TEMPORARY_FOLDER_NAME,
-  DEVELOP_FOLDER_NAME,
-  DISTRICT_FOLDER_NAME,
-  COVERAGE_FOLDER_NAME,
-}                         from './config';
+import * as VARS          from './variables';
 import webpackConfig,
 { generateSprites }       from './webpack.common.config.babel';
 
@@ -41,10 +29,10 @@ const plugins = [
     __PRODUCT__       : !!process.env.PRODUCT,
     __UNITEST__       : !!process.env.UNITEST,
 
-    __CLIENT_DOMAIN__ : JSON.stringify(CLIENT_DOMAIN),
-    __ASSETS_DOMAIN__ : JSON.stringify(ASSETS_DOMAIN),
-    __UPLOAD_DOMAIN__ : JSON.stringify(UPLOAD_DOMAIN),
-    __SERVER_DOMAIN__ : JSON.stringify(SERVER_DOMAIN),
+    __CLIENT_DOMAIN__ : JSON.stringify(VARS.CLIENT_DOMAIN),
+    __ASSETS_DOMAIN__ : JSON.stringify(VARS.ASSETS_DOMAIN),
+    __UPLOAD_DOMAIN__ : JSON.stringify(VARS.UPLOAD_DOMAIN),
+    __SERVER_DOMAIN__ : JSON.stringify(VARS.SERVER_DOMAIN),
   }),
 
   /**
@@ -61,12 +49,12 @@ const plugins = [
    * run it first to reset the project.
    */
   new CleanWebpackPlugin([
-    DEVELOP_FOLDER_NAME,
-    DISTRICT_FOLDER_NAME,
-    COVERAGE_FOLDER_NAME,
+    VARS.DEVELOP_FOLDER_NAME,
+    VARS.DISTRICT_FOLDER_NAME,
+    VARS.COVERAGE_FOLDER_NAME,
   ],
   {
-    root      : ROOT_PATH,
+    root      : VARS.ROOT_PATH,
     verbose   : true,
     dry       : false,
   }),
@@ -119,7 +107,7 @@ export default WebpackMerger({
         enforce : 'pre',
         loader  : 'istanbul-instrumenter-loader',
         include : webpackConfig.resolve.modules,
-        exclude : [/node_modules/, new RegExp(TEMPORARY_FOLDER_NAME)],
+        exclude : [/node_modules/, new RegExp(VARS.TEMPORARY_FOLDER_NAME)],
       }
     ],
   },
