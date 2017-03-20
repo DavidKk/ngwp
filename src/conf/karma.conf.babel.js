@@ -13,7 +13,8 @@ let formatImport = function (file) {
   return `import '${file}';\n`;
 };
 
-let testEntryFile = path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME, VARS.UNITEST_FOLDER_NAME, 'bootstrap.spec.js');
+let entryFolder   = path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME, VARS.UNITEST_FOLDER_NAME);
+let testEntryFile = path.join(entryFolder, 'bootstrap.spec.js');
 let testFolder    = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME);
 
 fs.ensureDirSync(testFolder);
@@ -49,6 +50,10 @@ module.exports = function (config) {
     preprocessors: {
       [testEntryFile]: [
         'webpack',
+      ],
+      [`${entryFolder}/**/*.spec.js`]: [
+        'webpack',
+        'sourcemap',
       ],
       [`${testFolder}/**/*.spec.js`]: [
         'webpack',

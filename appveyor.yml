@@ -1,8 +1,7 @@
 environment:
   matrix:
-    - nodejs_version: "6.2.2"
-    - nodejs_version: "6.3.0"
-    - nodejs_version: "6.4.0"
+    - nodejs_version: "6"
+    - nodejs_version: "7"
 
 skip_tags: true
 install:
