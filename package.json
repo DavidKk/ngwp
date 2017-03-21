@@ -1,6 +1,6 @@
 {
   "name": "ngwp",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "license": "MIT",
   "description": "Project scaffold (Webpack, AngularJS, ES6, SCSS, Jade/Pug)",
   "homepage": "https://github.com/DavidKk/ngwp",
