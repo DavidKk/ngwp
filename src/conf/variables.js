@@ -20,7 +20,6 @@ export let RC_FILE               = '.ngwprc';
 
 export let ROOT_PATH             = process.cwd();
 export let EXEC_PATH             = path.join(__dirname, '../../');
-export let DISTRICT_PATH         = path.join(ROOT_PATH, process.env.DEVELOP ? DEVELOP_FOLDER_NAME : DISTRICT_FOLDER_NAME);
 export let ENTRY_PATH            = path.join(ROOT_PATH, RESOURCE_FOLDER_NAME, ENTRY_FOLDER_NAME);
 
 export let DEVELOP_SERVER_PORT   = 50000;

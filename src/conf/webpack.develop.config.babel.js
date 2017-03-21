@@ -1,8 +1,11 @@
+import path              from 'path';
 import webpack           from 'webpack';
 import WebpackMerger     from 'webpack-merge';
 import BrowserSyncPlugin from 'browser-sync-webpack-plugin';
 import webpackConfig     from './webpack.common.config.babel';
 import * as VARS         from './variables';
+
+let districtPath = path.join(VARS.ROOT_PATH, process.env.DEVELOP ? VARS.DEVELOP_FOLDER_NAME : VARS.DISTRICT_FOLDER_NAME);
 
 export default WebpackMerger(webpackConfig, {
   devtool : 'source-map',
@@ -21,7 +24,7 @@ export default WebpackMerger(webpackConfig, {
       open      : false,
       logLevel  : 'debug',
       server    : {
-        baseDir : [VARS.DISTRICT_PATH],
+        baseDir : [districtPath],
       },
       ui: {
         port: VARS.DEVELOP_SERVER_PORT + 1,

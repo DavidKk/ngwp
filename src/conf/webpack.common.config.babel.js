@@ -13,6 +13,8 @@ import ExtractTextPlugin     from 'extract-text-webpack-plugin';
 import CopyWebpackPlugin     from 'copy-webpack-plugin';
 import * as VARS             from './variables';
 
+let districtPath = path.join(VARS.ROOT_PATH, process.env.DEVELOP ? VARS.DEVELOP_FOLDER_NAME : VARS.DISTRICT_FOLDER_NAME);
+
 /**
  * Entries definitions
  */
@@ -68,8 +70,8 @@ let plugins = [
    * Inline styles can be externally optimized for loading
    */
   new ExtractTextPlugin({
-    filename: 'styles/[name].[contenthash].css',
-    allChunks: true,
+    filename  : 'styles/[name].[contenthash].css',
+    allChunks : true,
   }),
 
   /**
@@ -78,7 +80,7 @@ let plugins = [
   new CopyWebpackPlugin([
     {
       from    : path.join(VARS.ROOT_PATH, VARS.RESOURCE_FOLDER_NAME, 'assets/panels/**'),
-      to      : path.join(VARS.DISTRICT_PATH, 'assets/panels/'),
+      to      : path.join(districtPath, 'assets/panels/'),
       flatten : true,
     }
   ]),
@@ -116,7 +118,7 @@ let spriteGenerated = generateSprites(plugins);
  * wechat browser in ios reset title will also request '/favicon.ico'
  * (use iframe to request favicon.ico file)
  */
-let faviconFile = path.join(VARS.DISTRICT_PATH, 'favicon.ico');
+let faviconFile = path.join(districtPath, 'favicon.ico');
 fs.ensureFileSync(faviconFile);
 
 /**
@@ -270,7 +272,7 @@ let rules = [
 export default {
   entry   : entries,
   output  : {
-    path        : VARS.DISTRICT_PATH,
+    path        : districtPath,
     publicPath  : '/',
     filename    : '[name].js',
   },
@@ -320,7 +322,7 @@ export function generateEnteries (plugins, entries) {
            * reanme entry html
            */
           let options = {
-            filename: path.join(VARS.DISTRICT_PATH, `${name}.html`),
+            filename: path.join(districtPath, `${name}.html`),
           };
 
           /**
@@ -395,13 +397,13 @@ export function generateFavicons (plugins) {
      * and copy it to the root path.
      */
     CallAfter.add(() => {
-      let sourceFile = path.join(VARS.DISTRICT_PATH, statsFile);
+      let sourceFile = path.join(districtPath, statsFile);
       if (!fs.existsSync(sourceFile)) {
         return;
       }
 
       let stats   = fs.readJsonSync(sourceFile);
-      let favFile = path.join(VARS.DISTRICT_PATH, stats.outputFilePrefix, 'favicon.ico');
+      let favFile = path.join(districtPath, stats.outputFilePrefix, 'favicon.ico');
 
       fs.copySync(favFile, faviconFile);
     });
