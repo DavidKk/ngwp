@@ -4,7 +4,6 @@
 
 import angular from 'angular';
 import 'angular-mocks';
-
 import pname from 'app/home/index.js';
 
 describe('Running In Browser', function () {

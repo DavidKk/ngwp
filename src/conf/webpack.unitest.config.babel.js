@@ -100,15 +100,15 @@ export default WebpackMerger({
  * unitest setting
  */
 {
-  module: {
-    rules: [
-      {
-        test    : /\.js$/,
-        enforce : 'pre',
-        loader  : 'istanbul-instrumenter-loader',
-        include : webpackConfig.resolve.modules,
-        exclude : [/node_modules/, new RegExp(VARS.TEMPORARY_FOLDER_NAME)],
-      }
-    ],
-  },
+  // module: {
+  //   rules: [
+  //     {
+  //       test    : /\.js$/,
+  //       enforce : 'pre',
+  //       loader  : 'istanbul-instrumenter-loader',
+  //       include : webpackConfig.resolve.modules,
+  //       exclude : [/node_modules/, new RegExp(VARS.TEMPORARY_FOLDER_NAME)],
+  //     }
+  //   ],
+  // },
 });
