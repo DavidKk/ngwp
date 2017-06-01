@@ -44,16 +44,15 @@ module.exports = function (config) {
         includeStack: true,
       },
     },
-    reporters: [
-      'mocha',
-      'coverage',
-    ],
     preprocessors: {
       [`${testFolder}/**/*.spec.js`]: [
         'webpack',
         'sourcemap',
       ],
     },
+    reporters: [
+      'mocha',
+    ],
     coverageReporter: {
       type : 'html',
       dir  : path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME),
@@ -72,6 +71,7 @@ module.exports = function (config) {
     failOnEmptyTestSuite : false,
     autoWatch            : false,
     singleRun            : true,
+    colors               : true,
     plugins              : [
       'karma-phantomjs-launcher',
       'karma-webpack',
@@ -79,8 +79,8 @@ module.exports = function (config) {
       'karma-sinon',
       'karma-mocha',
       'karma-mocha-reporter',
-      'karma-sourcemap-loader',
-      'karma-coverage',
+      'karma-coverage-istanbul-reporter',
+      'karma-sourcemap-loader'
     ],
   });
 };
