@@ -1,8 +1,6 @@
-import fs            from 'fs-extra';
-import path          from 'path';
-import WebpackMerger from 'webpack-merge';
-import webpackConf   from './webpack.unitest.config.babel';
-import * as VARS     from './variables';
+import path from 'path'
+import webpackConf from './webpack.unitest.config.babel'
+import * as VARS from './variables'
 
 // /**
 //  * Build unified entrance
@@ -16,7 +14,7 @@ import * as VARS     from './variables';
 
 // let entryFolder   = path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME, VARS.UNITEST_FOLDER_NAME);
 // let testEntryFile = path.join(entryFolder, './bootstrap.spec.js');
-let testFolder = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME);
+let testFolder = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME)
 
 // fs.ensureDirSync(testFolder);
 
@@ -35,32 +33,32 @@ let testFolder = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME);
  */
 module.exports = function (config) {
   config.set({
-    basePath   : VARS.ROOT_PATH,
-    browsers   : ['PhantomJS'],
-    frameworks : ['mocha', 'chai', 'sinon'],
-    files      : [`${testFolder}/**/*.spec.js`],
+    basePath: VARS.ROOT_PATH,
+    browsers: ['PhantomJS'],
+    frameworks: ['mocha', 'chai', 'sinon'],
+    files: [`${testFolder}/**/*.spec.js`],
     client: {
       chai: {
-        includeStack: true,
-      },
+        includeStack: true
+      }
     },
     preprocessors: {
       [`${testFolder}/**/*.spec.js`]: [
         'webpack',
-        'sourcemap',
-      ],
+        'sourcemap'
+      ]
     },
     reporters: [
-      'mocha',
+      'mocha'
     ],
     coverageReporter: {
-      type : 'html',
-      dir  : path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME),
+      type: 'html',
+      dir: path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME)
     },
-    webpack           : webpackConf,
-    webpackMiddleware : {
-      noInfo : false,
-      stats  : true,
+    webpack: webpackConf,
+    webpackMiddleware: {
+      noInfo: false,
+      stats: true
     },
     /**
      * in empty test folder, it will return
@@ -68,11 +66,11 @@ module.exports = function (config) {
      * set 'failOnEmptyTestSuite' to false
      * will resolve this problem.
      */
-    failOnEmptyTestSuite : false,
-    autoWatch            : false,
-    singleRun            : true,
-    colors               : true,
-    plugins              : [
+    failOnEmptyTestSuite: false,
+    autoWatch: false,
+    singleRun: true,
+    colors: true,
+    plugins: [
       'karma-phantomjs-launcher',
       'karma-webpack',
       'karma-chai',
@@ -81,9 +79,9 @@ module.exports = function (config) {
       'karma-mocha-reporter',
       'karma-coverage-istanbul-reporter',
       'karma-sourcemap-loader'
-    ],
-  });
-};
+    ]
+  })
+}
 
 // /**
 //  * find out scripts files

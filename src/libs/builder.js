@@ -1,15 +1,15 @@
-import _            from 'lodash';
-import fs           from 'fs-extra';
-import path         from 'path';
-import async        from 'async';
-import colors       from 'colors';
+import _ from 'lodash'
+import fs from 'fs-extra'
+import path from 'path'
+import async from 'async'
+import colors from 'colors'
 import {
   trace,
   convertName,
-  copyAndRender,
-}                   from './utils.js';
-import * as VARS    from '../conf/variables';
-import OptionMerger from './option_merger';
+  copyAndRender
+} from './utils.js'
+import * as VARS from '../config/variables'
+import OptionMerger from './option_merger'
 
 /**
  * 生成模块
@@ -20,43 +20,43 @@ import OptionMerger from './option_merger';
  */
 export function mkModule (name, options, callback) {
   /* istanbul ignore if */
-  if (3 > arguments.length) {
-    return mkModule(name, {}, options);
+  if (arguments.length < 3) {
+    return mkModule(name, {}, options)
   }
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('Callback is not provided.');
+    throw new Error('Callback is not provided.')
   }
 
   /**
    * 检查模板是否存在, 不存在则报错并退出
    * check moudle template exists and exist process when template not exists.
    */
-  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/module');
+  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/module')
   if (!fs.existsSync(templateDir)) {
-    callback(new Error(`Module template is not found, see ${templateDir}`));
-    return;
+    callback(new Error(`Module template is not found, see ${templateDir}`))
+    return
   }
 
   options = _.defaults(options, {
-    ignoreExists : false,
-    basePath     : process.cwd(),
-    distFolder   : path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME),
-  });
+    ignoreExists: false,
+    basePath: process.cwd(),
+    distFolder: path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME)
+  })
 
-  let names     = convertName(name);
-  let filename  = names.underscore;
-  let moduleDir = path.join(options.basePath, options.distFolder, filename);
+  let names = convertName(name)
+  let filename = names.underscore
+  let moduleDir = path.join(options.basePath, options.distFolder, filename)
 
   /**
    * 检查是否已经存在, 如果模块已经存在则直接退出
    * check module exists and exit process when file is exists.
    */
   if (fs.existsSync(moduleDir)) {
-    true !== options.ignoreExists && trace(`Module ${colors.bold(name)} is already exists.`.yellow);
-    callback(null);
-    return;
+    options.ignoreExists !== true && trace(`Module ${colors.bold(name)} is already exists.`.yellow)
+    callback(null)
+    return
   }
 
   /**
@@ -65,12 +65,12 @@ export function mkModule (name, options, callback) {
    */
   fs.ensureDir(moduleDir, function (error) {
     if (error) {
-      callback(error);
-      return;
+      callback(error)
+      return
     }
 
-    copyAndRender(templateDir, moduleDir, { names }, callback);
-  });
+    copyAndRender(templateDir, moduleDir, { names }, callback)
+  })
 }
 
 /**
@@ -79,37 +79,37 @@ export function mkModule (name, options, callback) {
  */
 export function mkRoute (route, moduleName, options, callback) {
   if (!_.isFunction(callback)) {
-    throw new Error('Callback is not provided.');
+    throw new Error('Callback is not provided.')
   }
 
-  let routes = _.isArray(route) ? route : route.split('\/');
-  let family = [moduleName];
-  let tasks  = _.map(routes, function (name) {
+  let routes = _.isArray(route) ? route : route.split('/')
+  let family = [moduleName]
+  let tasks = _.map(routes, function (name) {
     return function (callback) {
       mkComponent(name, family, options, function (error, stats) {
         if (error) {
-          callback(error);
-          return;
+          callback(error)
+          return
         }
 
-        family.push(name);
+        family.push(name)
 
-        callback(null, stats);
-      });
-    };
-  });
+        callback(null, stats)
+      })
+    }
+  })
 
   async.series(tasks, function (error, stats) {
     if (error) {
-      callback(error);
-      return;
+      callback(error)
+      return
     }
 
-    stats = _.flattenDeep(stats);
-    stats = _.filter(stats);
+    stats = _.flattenDeep(stats)
+    stats = _.filter(stats)
 
-    callback(null, stats);
-  });
+    callback(null, stats)
+  })
 }
 
 /**
@@ -121,41 +121,41 @@ export function mkRoute (route, moduleName, options, callback) {
  */
 export function mkComponent (name, family, options, callback) {
   /* istanbul ignore if */
-  if (4 > arguments.length) {
-    return mkComponent(name, family, {}, options);
+  if (arguments.length < 4) {
+    return mkComponent(name, family, {}, options)
   }
 
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('Callback is not provided.');
+    throw new Error('Callback is not provided.')
   }
 
   /**
    * 检查模板是否存在, 不存在则报错并退出
    * check component template exists and exist process when template not exists.
    */
-  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/component');
+  let templateDir = path.join(OptionMerger.EXEC_PATH, './templates/component')
   if (!fs.existsSync(templateDir)) {
-    callback(new Error(`Component template is not found, see ${templateDir}.`));
-    return;
+    callback(new Error(`Component template is not found, see ${templateDir}.`))
+    return
   }
 
   options = _.defaults(options, {
-    ignoreExists : true,
-    basePath     : process.cwd(),
-    distFolder   : path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME),
-  });
+    ignoreExists: true,
+    basePath: process.cwd(),
+    distFolder: path.join(VARS.RESOURCE_FOLDER_NAME, VARS.ENTRY_FOLDER_NAME)
+  })
 
-  let names = convertName(name);
-  let pwd   = _.map(family, function (name) {
-    return `${name}/components/`;
-  });
+  let names = convertName(name)
+  let pwd = _.map(family, function (name) {
+    return `${name}/components/`
+  })
 
-  let dist = path.join(options.basePath, options.distFolder, pwd.join('\/'), name);
+  let dist = path.join(options.basePath, options.distFolder, pwd.join('/'), name)
   if (fs.existsSync(dist)) {
-    true !== options.ignoreExists && trace(`Component ${colors.bold(name)} is already exists.`.yellow);
-    callback(null);
-    return;
+    options.ignoreExists !== true && trace(`Component ${colors.bold(name)} is already exists.`.yellow)
+    callback(null)
+    return
   }
 
   /**
@@ -163,18 +163,16 @@ export function mkComponent (name, family, options, callback) {
    * copy and render file with data.
    */
   fs.ensureDir(dist, function () {
-    let nsNames = _.map(family, convertName);
-    let ns      = {
-      camelcase  : _.map(nsNames, 'camelcase').join('.'),
-      underscore : _.map(nsNames, 'underscore').join('/'),
-      hyphen     : _.map(nsNames, 'hyphen').join(' '),
-      cssFamily  : _.map(nsNames, function ({ hyphen }) {
-        return `${hyphen}-viewport`;
-      }),
-    };
+    let nsNames = _.map(family, convertName)
+    let ns = {
+      camelcase: _.map(nsNames, 'camelcase').join('.'),
+      underscore: _.map(nsNames, 'underscore').join('/'),
+      hyphen: _.map(nsNames, 'hyphen').join(' '),
+      cssFamily: _.map(nsNames, function ({ hyphen }) {
+        return `${hyphen}-viewport`
+      })
+    }
 
-    copyAndRender(templateDir, dist, { names, ns }, callback);
-  });
-
-  return;
+    copyAndRender(templateDir, dist, { names, ns }, callback)
+  })
 }

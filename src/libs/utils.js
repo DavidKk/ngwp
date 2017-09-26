@@ -1,13 +1,13 @@
-import _            from 'lodash';
-import fs           from 'fs-extra';
-import path         from 'path';
-import async        from 'async';
-import colors       from 'colors';
-import handlebars   from 'handlebars';
-import columnify    from 'columnify';
-import OptionMerger from './option_merger';
+import _ from 'lodash'
+import fs from 'fs-extra'
+import path from 'path'
+import async from 'async'
+import colors from 'colors'
+import handlebars from 'handlebars'
+import columnify from 'columnify'
+import OptionMerger from './option_merger'
 
-const ingoreTrace = -1 === _.indexOf(process.argv, '--quiet');
+const ingoreTrace = _.indexOf(process.argv, '--quiet') === -1
 
 /**
  * convert name
@@ -21,38 +21,38 @@ const ingoreTrace = -1 === _.indexOf(process.argv, '--quiet');
  */
 export function convertName (name) {
   let camelcase = name.replace(/[- _]([\w])/g, ($all, $1) => {
-    return $1.toUpperCase();
+    return $1.toUpperCase()
   })
   .replace(/^[A-Z]/, ($all) => {
-    return $all.toLowerCase();
-  });
+    return $all.toLowerCase()
+  })
 
   let underscore = camelcase.replace(/[A-Z]/g, ($all) => {
-    return `_${$all.toLowerCase()}`;
-  });
+    return `_${$all.toLowerCase()}`
+  })
 
   let hyphen = camelcase.replace(/[A-Z]/g, ($all) => {
-    return `-${$all.toLowerCase()}`;
-  });
+    return `-${$all.toLowerCase()}`
+  })
 
   let blank = camelcase.replace(/[A-Z]/g, ($all) => {
-    return ` ${$all.toLowerCase()}`;
+    return ` ${$all.toLowerCase()}`
   })
   .replace(/^[a-z]/, ($all) => {
-    return $all.toUpperCase();
-  });
+    return $all.toUpperCase()
+  })
 
   let upCamelcase = camelcase.replace(/^[a-z]/, ($all) => {
-    return $all.toUpperCase();
-  });
+    return $all.toUpperCase()
+  })
 
   return {
     camelcase,
     upCamelcase,
     underscore,
     hyphen,
-    blank,
-  };
+    blank
+  }
 }
 
 /**
@@ -62,16 +62,16 @@ export function convertName (name) {
  * @return {String}
  */
 export function formatBytes (bytes, decimals) {
-  if (0 === bytes) {
-    return '0 Bytes';
+  if (bytes === 0) {
+    return '0 Bytes'
   }
 
-  let k     = 1000;
-  let dm    = decimals + 1 || 3;
-  let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  let i     = Math.floor(Math.log(bytes) / Math.log(k));
+  let k = 1000
+  let dm = decimals + 1 || 3
+  let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  let i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 /**
@@ -83,10 +83,10 @@ export function formatBytes (bytes, decimals) {
  */
 export function resolvePath (file = './', cwd = process.cwd()) {
   if (path.isAbsolute(file)) {
-    return file;
+    return file
   }
 
-  return path.join(cwd, file);
+  return path.join(cwd, file)
 }
 
 /**
@@ -94,7 +94,7 @@ export function resolvePath (file = './', cwd = process.cwd()) {
  * @param  {Object} options setting
  */
 export function trace (message) {
-  ingoreTrace && console.log(message);
+  ingoreTrace && console.log(message)
 }
 
 /**
@@ -103,9 +103,9 @@ export function trace (message) {
  * @return {Class}
  */
 export function buildInheritance (proto) {
-  let InhertClass = function () {};
-  Object.assign(InhertClass.prototype, proto);
-  return InhertClass;
+  let InhertClass = function () {}
+  Object.assign(InhertClass.prototype, proto)
+  return InhertClass
 }
 
 /**
@@ -118,19 +118,19 @@ export function buildInheritance (proto) {
 export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
   /* istanbul ignore if */
   if (!_.isFunction(callback)) {
-    throw new Error('Callback is not provided.');
+    throw new Error('Callback is not provided.')
   }
 
-  let files = fs.readdirSync(fromDir);
+  let files = fs.readdirSync(fromDir)
 
   if (_.isEmpty(files)) {
-    callback(null, []);
-    return;
+    callback(null, [])
+    return
   }
 
   let tasks = _.map(files, function (filename) {
     return function (callback) {
-      let file = path.join(fromDir, filename);
+      let file = path.join(fromDir, filename)
 
       /**
        * 判断文件目录是否为文件夹, 如果为文件夹则创建文件夹并将
@@ -138,82 +138,82 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
        * 这里使用地推方法, 当所有文件都复制完毕会退出递归
        */
       if (fs.statSync(file).isDirectory()) {
-        let targetDir = path.join(toDir, filename);
+        let targetDir = path.join(toDir, filename)
 
         fs.ensureDir(targetDir, function (error) {
           if (error) {
-            callback(error);
-            return;
+            callback(error)
+            return
           }
 
-          copyAndRender(file, targetDir, datas, callback);
-        });
+          copyAndRender(file, targetDir, datas, callback)
+        })
 
-        return;
+        return
       }
 
-      let targetFile = path.join(toDir, filename);
+      let targetFile = path.join(toDir, filename)
 
       /**
        * 模板文件不是 handlebars 文件则退出,
        * 目前暂只支持 handlebars 的模板引擎.
        */
-      if ('.hbs' !== path.extname(file)) {
+      if (path.extname(file) !== '.hbs') {
         /**
          * 如果目标文件已经存在, 则退出不做任何操作,
          * 因此请确定文件是否存在, 若存在则无办法继续执行复制.
          */
         if (fs.existsSync(targetFile)) {
-          callback(null);
-          return;
+          callback(null)
+          return
         }
 
         fs.copy(file, targetFile, function (error) {
           if (error) {
-            callback(error);
-            return;
+            callback(error)
+            return
           }
 
-          callback(null, { assets: targetFile, size: fs.statSync(targetFile).size });
-        });
+          callback(null, { assets: targetFile, size: fs.statSync(targetFile).size })
+        })
 
-        return;
+        return
       }
 
-      let doneFile = targetFile.replace(/\.hbs$/, '');
+      let doneFile = targetFile.replace(/\.hbs$/, '')
 
       /**
        * 如果目标文件已经存在, 则退出不做任何操作,
        * 因此请确定文件是否存在, 若存在则无办法继续执行复制.
        */
       if (fs.existsSync(doneFile)) {
-        callback(null);
-        return;
+        callback(null)
+        return
       }
 
       /**
        * 编译文件并保存到相应的文件目录
        */
-      let template = fs.readFileSync(file, 'utf-8');
-      let compile  = handlebars.compile(template);
-      let source   = compile(datas);
+      let template = fs.readFileSync(file, 'utf-8')
+      let compile = handlebars.compile(template)
+      let source = compile(datas)
 
-      fs.writeFileSync(doneFile, source);
-      callback(null, { assets: doneFile, size: source.length });
-    };
-  });
+      fs.writeFileSync(doneFile, source)
+      callback(null, { assets: doneFile, size: source.length })
+    }
+  })
 
   async.parallel(tasks, function (error, stats) {
     if (error) {
-      callback(error);
-      return;
+      callback(error)
+      return
     }
 
-    stats = _.flattenDeep(stats);
-    stats = _.filter(stats);
+    stats = _.flattenDeep(stats)
+    stats = _.filter(stats)
 
-    callback(null, stats);
-  });
+    callback(null, stats)
+  })
 }
 
 /**
@@ -224,51 +224,51 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
 export function printStats (stats, options) {
   /* istanbul ignore if */
   if (_.isEmpty(stats)) {
-    trace(colors.yellow('Generate completed but nothing to be generated.'));
-    return false;
+    trace(colors.yellow('Generate completed but nothing to be generated.'))
+    return false
   }
 
   options = _.defaultsDeep(options, {
     headingTransform (heading) {
-      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold;
+      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold
     },
     config: {
       assets: {
         align: 'right',
         dataTransform (file) {
-          file = file.replace(OptionMerger.ROOT_PATH + '/', '');
-          return colors.green(file).bold;
-        },
+          file = file.replace(OptionMerger.ROOT_PATH + '/', '')
+          return colors.green(file).bold
+        }
       },
       size: {
         align: 'right',
         dataTransform (size) {
-          return formatBytes(size);
-        },
+          return formatBytes(size)
+        }
       },
       domain: {
         align: 'right',
         dataTransform (domain) {
-          domain = _.isArray(domain) ? domain.join(',') : domain;
-          domain = colors.green(domain);
-          return colors.bold(domain);
-        },
+          domain = _.isArray(domain) ? domain.join(',') : domain
+          domain = colors.green(domain)
+          return colors.bold(domain)
+        }
       },
       proxy: {
-        align: 'right',
+        align: 'right'
       },
       entries: {
         align: 'left',
         dataTransform (entries) {
-          entries = _.isArray(entries) ? entries.join('|') : entries;
-          entries = colors.green(entries);
-          return colors.bold(entries);
-        },
-      },
-    },
-  });
+          entries = _.isArray(entries) ? entries.join('|') : entries
+          entries = colors.green(entries)
+          return colors.bold(entries)
+        }
+      }
+    }
+  })
 
   /* eslint no-console:off */
-  trace(columnify(stats, options) + '\n');
-  return true;
+  trace(columnify(stats, options) + '\n')
+  return true
 }

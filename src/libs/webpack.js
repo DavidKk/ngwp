@@ -1,49 +1,48 @@
-import _       from 'lodash';
-import fs      from 'fs-extra';
-import webpack from 'webpack';
+import _ from 'lodash'
+import fs from 'fs-extra'
+import webpack from 'webpack'
 
 export function run (file, options) {
   if (!fs.existsSync(file)) {
-    throw new Error(`Config file ${file} is not exists.`);
+    throw new Error(`Config file ${file} is not exists.`)
   }
 
-  let config   = require(file).default;
-  let compiler = webpack(config);
+  let config = require(file).default
+  let compiler = webpack(config)
 
   options = _.defaultsDeep(options, {
-    watch: false,
-  });
+    watch: false
+  })
 
-  if (true === options.watch) {
+  if (options.watch === true) {
     compiler.watch({
-      aggregateTimeout : 300,
-      poll             : true,
+      aggregateTimeout: 300,
+      poll: true
     },
     function (error, stats) {
       if (error) {
-        throw error;
+        throw error
       }
 
-      printStats(stats);
-    });
-  }
-  else {
+      printStats(stats)
+    })
+  } else {
     compiler.run(function (error, stats) {
       if (error) {
-        throw error;
+        throw error
       }
 
-      printStats(stats);
-    });
+      printStats(stats)
+    })
   }
 }
 
 function printStats (stats) {
   /* eslint no-console:off */
   let message = stats.toString({
-    chunks : false,
-    colors : true,
-  });
+    chunks: false,
+    colors: true
+  })
 
-  console.log(message);
+  console.log(message)
 }
