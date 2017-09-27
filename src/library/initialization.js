@@ -1,6 +1,10 @@
-import _ from 'lodash'
 import fs from 'fs-extra'
 import path from 'path'
+import map from 'lodash/map'
+import pick from 'lodash/pick'
+import values from 'lodash/values'
+import isString from 'lodash/isString'
+import isFunction from 'lodash/isFunction'
 import { copyAndRender } from './utils'
 import OptionMerger from './option_merger'
 
@@ -14,11 +18,11 @@ import OptionMerger from './option_merger'
  * @param {Function} callback             callback after exec
  */
 export function initialize (name, options, callback) {
-  if (!_.isString(name)) {
+  if (!isString(name)) {
     throw new Error('Name is not provided')
   }
 
-  if (!_.isFunction(callback)) {
+  if (!isFunction(callback)) {
     throw new Error('Callback is not provided')
   }
 
@@ -36,13 +40,13 @@ export function initialize (name, options, callback) {
     'VHOSTS_FOLDER_NAME'
   ]
 
-  let gitIgnore = _.pick(OptionMerger, keys)
-  let gitIngoreFolders = _.values(gitIgnore)
+  let gitIgnore = pick(OptionMerger, keys)
+  let gitIngoreFolders = values(gitIgnore)
 
   /**
    * only set root directory
    */
-  gitIngoreFolders = _.map(gitIngoreFolders, function (folder) {
+  gitIngoreFolders = map(gitIngoreFolders, function (folder) {
     return '/' + folder
   })
 

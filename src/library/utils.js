@@ -1,4 +1,11 @@
-import _ from 'lodash'
+import map from 'lodash/map'
+import filter from 'lodash/filter'
+import isEmpty from 'lodash/isEmpty'
+import indexOf from 'lodash/indexOf'
+import isArray from 'lodash/isArray'
+import isFunction from 'lodash/isFunction'
+import flattenDeep from 'lodash/flattenDeep'
+import defaultsDeep from 'lodash/defaultsDeep'
 import fs from 'fs-extra'
 import path from 'path'
 import async from 'async'
@@ -7,7 +14,7 @@ import handlebars from 'handlebars'
 import columnify from 'columnify'
 import OptionMerger from './option_merger'
 
-const ingoreTrace = _.indexOf(process.argv, '--quiet') === -1
+const ingoreTrace = indexOf(process.argv, '--quiet') === -1
 
 /**
  * convert name
@@ -117,18 +124,18 @@ export function buildInheritance (proto) {
  */
 export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
   /* istanbul ignore if */
-  if (!_.isFunction(callback)) {
+  if (!isFunction(callback)) {
     throw new Error('Callback is not provided.')
   }
 
   let files = fs.readdirSync(fromDir)
 
-  if (_.isEmpty(files)) {
+  if (isEmpty(files)) {
     callback(null, [])
     return
   }
 
-  let tasks = _.map(files, function (filename) {
+  let tasks = map(files, function (filename) {
     return function (callback) {
       let file = path.join(fromDir, filename)
 
@@ -209,8 +216,8 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
       return
     }
 
-    stats = _.flattenDeep(stats)
-    stats = _.filter(stats)
+    stats = flattenDeep(stats)
+    stats = filter(stats)
 
     callback(null, stats)
   })
@@ -223,12 +230,12 @@ export function copyAndRender (fromDir = '', toDir = '', datas = {}, callback) {
  */
 export function printStats (stats, options) {
   /* istanbul ignore if */
-  if (_.isEmpty(stats)) {
+  if (isEmpty(stats)) {
     trace(colors.yellow('Generate completed but nothing to be generated.'))
     return false
   }
 
-  options = _.defaultsDeep(options, {
+  options = defaultsDeep(options, {
     headingTransform (heading) {
       return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold
     },
@@ -249,7 +256,7 @@ export function printStats (stats, options) {
       domain: {
         align: 'right',
         dataTransform (domain) {
-          domain = _.isArray(domain) ? domain.join(',') : domain
+          domain = isArray(domain) ? domain.join(',') : domain
           domain = colors.green(domain)
           return colors.bold(domain)
         }
@@ -260,7 +267,7 @@ export function printStats (stats, options) {
       entries: {
         align: 'left',
         dataTransform (entries) {
-          entries = _.isArray(entries) ? entries.join('|') : entries
+          entries = isArray(entries) ? entries.join('|') : entries
           entries = colors.green(entries)
           return colors.bold(entries)
         }

@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import defaultsDeep from 'lodash/defaultsDeep'
 import fs from 'fs-extra'
 import path from 'path'
 import * as VARS from '../config/variables'
@@ -25,7 +25,7 @@ export class OptionMerger extends Inheritance {
     }
 
     let originSource = fs.readJSONSync(file)
-    source = _.defaultsDeep(source, originSource)
+    source = defaultsDeep(source, originSource)
 
     fs.writeFileSync(file, JSON.stringify(source, null, 2))
   }

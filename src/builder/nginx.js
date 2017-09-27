@@ -1,49 +1,29 @@
-import _ from 'lodash'
 import fs from 'fs-extra'
 import path from 'path'
 import handlebars from 'handlebars'
-import * as utils from '../libs/utils'
-import * as VARS from '../config/variables'
-import OptionMerger from './option_merger'
+import filter from 'lodash/filter'
+import isEmpty from 'lodash/isEmpty'
+import isArray from 'lodash/isArray'
+import isNumber from 'lodash/isNumber'
+import isString from 'lodash/isString'
+import isBoolean from 'lodash/isBoolean'
+import isFunction from 'lodash/isFunction'
+import defaults from 'lodash/defaults'
+import cloneDeep from 'lodash/cloneDeep'
+import { rootDir, execDir, distDir, logDir } from '../share/configuration'
 
-/**
- * Register Handlebars helpers
- * @docs: http://handlebarsjs.com/block_helpers.html
- */
-
-/**
- * Compare number and type-equals with variables
- */
-handlebars.registerHelper('compare', compare)
-
-/**
- * Separate Array to some string.
- * [value1, value2, value3] => 'value1 value2 value3';
- */
-handlebars.registerHelper('separate', separate)
-
-/**
- * build nginx vhosts
- * @param  {Array}    modules  module setting
- * @param  {Object}   options  setting
- * @param  {Function} callback result callback function
- */
-export function mkVhost (modules, options, callback) {
-  if (!_.isFunction(callback)) {
-    throw new Error('Callback is not provided.')
+export default function build (modules, options, callback) {
+  if (!isFunction(callback)) {
+    throw new Error('Callback is not provided')
   }
 
-  let basePath = options.basePath || process.cwd()
-
-  options = _.defaultsDeep(options, {
-    trace: false,
-
-    distFile: path.join(basePath, 'vhosts/nginx.conf'),
-    template: path.join(OptionMerger.EXEC_PATH, './templates/vhosts/nginx.conf.hbs'),
-    rootPath: path.join(basePath, VARS.DISTRICT_FOLDER_NAME),
-    logsPath: path.join(basePath, VARS.LOGGER_FOLDER_NAME),
-    useHttps: _.isBoolean(options.useHttps) ? options.useHttps : false
-  })
+  options = defaults({
+    distFile: path.join(rootDir, 'vhosts/nginx.conf'),
+    template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
+    rootPath: distDir,
+    logsPath: logDir,
+    useHttps: isBoolean(options.useHttps) ? options.useHttps : false
+  }, options)
 
   if (!fs.existsSync(options.template)) {
     callback(new Error(`Template '${options.template}' is not exists.`))
@@ -51,34 +31,42 @@ export function mkVhost (modules, options, callback) {
   }
 
   let template = fs.readFileSync(options.template, 'utf-8')
-  let compile = handlebars.compile(template)
+  let compile  = handlebars.compile(template)
 
-  modules = _.cloneDeep(modules)
-
+  modules = cloneDeep(modules)
   for (let module of modules) {
-    if (!(_.isString(module.domain) || _.isArray(module.domain)) && _.isEmpty(module.domain)) {
-      callback(new Error('Domain is not provided.'))
+    if ((isArray(module.domain) && isEmpty(module.domain)) || (isString(module.domain) && !module.domain)) {
+      callback(new Error('Domain is not provided'))
       return
     }
 
-    if (module.type === 'proxy') {
-      if (!(_.isArray(module.entries) && module.entries.length > 0)) {
-        callback(new Error('Entries is not provided.'))
+    if ('proxy' === module.type) {
+      if (!module.entry) {
+        callback(new Error('Entry is not provided'))
         return
       }
 
-      if (!(_.isString(module.proxy) && /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.exec(module.proxy))) {
+      let entry = path.join(rootDir, module.entry)
+      if (!fs.existsSync(entry)) {
+        callback(new Error(`Entry file ${entry} is not found`))
+        return
+      }
+
+      let folder = path.dirname(entry)
+      module.entry = path.basename(folder) + '.html'
+
+      if (!(isString(module.proxy) && /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.exec(module.proxy))) {
         callback(new Error('Proxy is not provided or invalid. (Proxy is a ip address, eg: 127.0.0.1)'))
         return
       }
 
-      if (!_.isNumber(module.proxyPort)) {
-        callback(new Error('ProxyPort is not provided or invalid. (ProxyPort must be a port number)'))
+      if (!isNumber(module.port)) {
+        callback(new Error('port is not provided or invalid. (port must be a port number)'))
         return
       }
     }
 
-    if (options.useHttps === true && module.useHttps === true) {
+    if (true === options.useHttps && true === module.useHttps) {
       if (!module.certFile) {
         callback(new Error('CertFile is not provided when use https'))
         return
@@ -103,13 +91,6 @@ export function mkVhost (modules, options, callback) {
 
       module.certFile = certFile
       module.certKey = certKey
-    }
-
-    if (_.isArray(module.entries)) {
-      Object.assign(module, {
-        division: module.entries.join('|'),
-        logger: _.isArray(module.domain) ? module.domain[0] : module.domain
-      })
     }
   }
 
@@ -143,13 +124,13 @@ function compare (lvalue, operator, rvalue, options) {
   let operators
   let result
 
-  if (arguments.length < 3) {
+  if (3 > arguments.length) {
     throw new Error('Handlerbars Helper "compare" needs 2 parameters')
   }
 
   if (undefined === options) {
-    options = rvalue
-    rvalue = operator
+    options  = rvalue
+    rvalue   = operator
     operator = '==='
   }
 
@@ -181,7 +162,7 @@ function compare (lvalue, operator, rvalue, options) {
       return l >= r
     },
     'typeof' (l, r) {
-      /* eslint valid-typeof:off */
+      /* eslint eqeqeq:off */
       return typeof l == r
     }
   }
@@ -201,15 +182,31 @@ function compare (lvalue, operator, rvalue, options) {
  * @return {String}
  */
 function separate (value, separator) {
-  if (arguments.length < 3) {
-    separator = ' '
+  if (3 > arguments.length) {
+    separator = ' ';
   }
 
-  if (_.isString(value)) {
-    return value
+  if (isString(value)) {
+    return value;
   }
 
-  if (_.isArray(value)) {
-    return value.join(separator)
+  if (isArray(value)) {
+    return value.join(separator);
   }
 }
+
+/**
+ * Register Handlebars helpers
+ * @docs: http://handlebarsjs.com/block_helpers.html
+ */
+
+/**
+ * Compare number and type-equals with variables
+ */
+handlebars.registerHelper('compare', compare)
+
+/**
+ * Separate Array to some string.
+ * [value1, value2, value3] => 'value1 value2 value3'
+ */
+handlebars.registerHelper('separate', separate)

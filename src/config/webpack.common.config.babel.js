@@ -1,6 +1,12 @@
-import _ from 'lodash'
 import fs from 'fs-extra'
 import path from 'path'
+import without from 'lodash/without'
+import isArray from 'lodash/isArray'
+import indexOf from 'lodash/indexOf'
+import forEach from 'lodash/forEach'
+import isObject from 'lodash/isObject'
+import isString from 'lodash/isString'
+import isFunction from 'lodash/isFunction'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -294,11 +300,11 @@ export default {
  * And entry js file must be named 'index.js'
  */
 export function generateEnteries (plugins, entries) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
-  if (!_.isObject(entries)) {
+  if (!isObject(entries)) {
     throw new Error('Parameter entries must be a object.')
   }
 
@@ -339,7 +345,7 @@ export function generateEnteries (plugins, entries) {
            * clean other static resources
            */
           Object.assign(options, {
-            excludeChunks: _.without(modules, name)
+            excludeChunks: without(modules, name)
           })
 
           let plugin = new HtmlWebpackPlugin(options)
@@ -359,7 +365,7 @@ export function generateEnteries (plugins, entries) {
  * if logo file not exists, this task will not be executed.
  */
 export function generateFavicons (plugins) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
@@ -420,7 +426,7 @@ export function generateFavicons (plugins) {
  * this task will not be excuted.
  */
 export function generateSprites (plugins, options = {}) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
@@ -470,7 +476,7 @@ export function generateSprites (plugins, options = {}) {
  * this task will not be excuted.
  */
 export function generateSVGSprites (plugins) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
@@ -556,7 +562,7 @@ export function generateSVGSprites (plugins) {
 
   function hasAttr (item, name) {
     let [prefix, local] = name.split(':')
-    return _.indexOf(item.attrs, { name, prefix, local }) !== -1
+    return indexOf(item.attrs, { name, prefix, local }) !== -1
   }
 
   function setAttr (item, name, value) {
@@ -569,17 +575,17 @@ export function generateSVGSprites (plugins) {
  * Callback after webpack excutes
  */
 export function widthDone (plugins) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
   let instance = {
     _callbacks: [],
     add (callback) {
-      _.isFunction(callback) && this._callbacks.push(callback)
+      isFunction(callback) && this._callbacks.push(callback)
     },
     done () {
-      _.forEach(this._callbacks, function (callback) {
+      forEach(this._callbacks, function (callback) {
         callback()
       })
     }
@@ -598,7 +604,7 @@ export function widthDone (plugins) {
  * Inject script to entry html file
  */
 export function injectScript (plugins) {
-  if (!_.isArray(plugins)) {
+  if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
@@ -606,12 +612,12 @@ export function injectScript (plugins) {
     _injector: [],
     _callbacks: [],
     inject (source) {
-      if (!_.isString(source)) {
+      if (!isString(source)) {
         return false
       }
 
       let hash = mkhash(source)
-      if (_.indexOf(this._injector, { hash }) !== -1) {
+      if (indexOf(this._injector, { hash }) !== -1) {
         return false
       }
 
@@ -631,7 +637,7 @@ export function injectScript (plugins) {
       this._injector.push({ hash, script })
     },
     after (callback) {
-      _.isFunction(callback) && this._callbacks.push(callback)
+      isFunction(callback) && this._callbacks.push(callback)
     }
   }
 
@@ -639,7 +645,7 @@ export function injectScript (plugins) {
     autoloadScript () {
       let scripts = []
 
-      _.forEach(instance._injector, function (injector) {
+      forEach(instance._injector, function (injector) {
         scripts.push(injector.script)
       })
 
@@ -653,7 +659,7 @@ export function injectScript (plugins) {
       compilation.mainTemplate.plugin('startup', this.scriptTag.bind(this))
     },
     applyDone () {
-      _.forEach(instance._callbacks, function (injector) {
+      forEach(instance._callbacks, function (injector) {
         injector()
       })
 

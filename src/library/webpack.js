@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import defaultsDeep from 'lodash/defaultsDeep'
 import fs from 'fs-extra'
 import webpack from 'webpack'
 
@@ -10,7 +10,7 @@ export function run (file, options) {
   let config = require(file).default
   let compiler = webpack(config)
 
-  options = _.defaultsDeep(options, {
+  options = defaultsDeep(options, {
     watch: false
   })
 

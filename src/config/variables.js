@@ -1,8 +1,11 @@
-import _ from 'lodash'
 import fs from 'fs-extra'
 import path from 'path'
+import map from 'lodash/map'
+import filter from 'lodash/filter'
+import isEmpty from 'lodash/isEmpty'
+import defaultsDeep from 'lodash/defaultsDeep'
 import { name } from '../../package'
-import { convertName } from '../libs/utils'
+import { convertName } from '../library/utils'
 
 export let PROJECT_NAME = name
 
@@ -51,20 +54,20 @@ if (fs.existsSync(rc)) {
  * Generate modules from app folder.
  * folder: /app_resource/{module_name}/
  */
-if (_.isEmpty(MODULES) && fs.existsSync(ENTRY_PATH) && fs.lstatSync(ENTRY_PATH).isDirectory()) {
+if (isEmpty(MODULES) && fs.existsSync(ENTRY_PATH) && fs.lstatSync(ENTRY_PATH).isDirectory()) {
   let modules = fs.readdirSync(ENTRY_PATH)
 
-  modules = _.filter(modules, findModule)
-  modules = _.map(modules, convertName)
-  modules = _.map(modules, 'underscore')
+  modules = filter(modules, findModule)
+  modules = map(modules, convertName)
+  modules = map(modules, 'underscore')
   MODULES = MODULES.concat(modules)
 }
 
 /**
  * generate nginx proxy config
  */
-if (_.isEmpty(NGINX_PROXY)) {
-  if (!_.isEmpty(MODULES)) {
+if (isEmpty(NGINX_PROXY)) {
+  if (!isEmpty(MODULES)) {
     let proxy = {
       type: 'proxy',
       proxy: '127.0.0.1',
@@ -76,8 +79,8 @@ if (_.isEmpty(NGINX_PROXY)) {
     NGINX_PROXY.push(proxy)
   }
 } else {
-  NGINX_PROXY = _.map(NGINX_PROXY, function (proxy) {
-    return _.defaultsDeep(proxy, {
+  NGINX_PROXY = map(NGINX_PROXY, function (proxy) {
+    return defaultsDeep(proxy, {
       type: 'proxy',
       proxy: '127.0.0.1',
       proxyPort: DEVELOP_SERVER_PORT
