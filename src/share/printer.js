@@ -42,8 +42,6 @@ export function trace (message) {
  * @param  {Object} options columnify setting
  */
 export function printStats (stats, options) {
-  console.log(stats)
-
   /* istanbul ignore if */
   if (isEmpty(stats)) {
     trace(colors.yellow('Generate completed but nothing to be generated.'))
