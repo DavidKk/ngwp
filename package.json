@@ -16,7 +16,7 @@
   },
   "scripts": {
     "precommit": "lint-staged",
-    "yamllint": "yamllint .travis.yml",
+    "yamllint": "yamllint .travis.yml && yamllint appveyor.yml",
     "standard": "standard --fix './src/**/*.js' './unitest/**/*.js' --parser babel-eslint",
     "lint": "npm run yamllint && npm run standard",
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/*.spec.js",
@@ -39,7 +39,8 @@
     "istanbul-instrumenter-loader": "^2.0.0",
     "lint-staged": "^4.2.3",
     "nyc": "^11.2.1",
-    "standard": "^10.0.3"
+    "standard": "^10.0.3",
+    "yaml-lint": "^1.0.0"
   },
   "dependencies": {
     "autoprefixer": "^6.3.7",

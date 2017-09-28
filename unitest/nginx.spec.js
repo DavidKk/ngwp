@@ -8,7 +8,7 @@ import async from 'async'
 import { exec } from 'child_process'
 import { expect } from 'chai'
 import handlebars from 'handlebars'
-import { sync as cmdExistsSync} from 'command-exists'
+import { sync as cmdExistsSync } from 'command-exists'
 import Builder from '../src/builder/nginx'
 import { execDir } from '../src/share/configuration'
 import './nginx/nginx.helper'
@@ -55,6 +55,7 @@ describe('Nginx Generator', function () {
       }
 
       Builder(modules, config, function (error) {
+        /* eslint no-unused-expressions: off */
         expect(error).to.not.be.an('error')
 
         expect(fs.existsSync(outFile)).to.be.true
@@ -94,10 +95,10 @@ describe('Nginx Generator', function () {
             proxy: '127.0.0.1',
             proxyPort: 8080,
             domain: 'www.example.com',
-            entry: 'src/modules/index/index.js',
+            entry: 'src/modules/index/index.js'
           }
         ]
-  
+
         let config = {
           trace: true,
           distFile: outFile,
@@ -139,10 +140,15 @@ describe('Nginx Generator', function () {
          * config file is ok.
          */
         function (error, stats) {
+          expect(error).to.not.be.an('error')
+
           let ngxOutFile = stats[1]
 
           exec(`nginx -t -c ${ngxOutFile}`, function (error) {
-            expect(new RegExp(`the configuration file ${ngxOutFile} syntax is ok`).test(error.message)).to.be.true
+            let regexp = new RegExp(`the configuration file ${ngxOutFile} syntax is ok`)
+
+            /* eslint no-unused-expressions: off */
+            expect(regexp.test(error.message)).to.be.true
             done()
           })
         })

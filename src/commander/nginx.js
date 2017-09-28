@@ -11,8 +11,6 @@ import { nginx } from '../share/configuration'
 import Nginx from '../builder/nginx'
 import { trace, printStats } from '../share/printer'
 
-let q = 123
-
 const cwd = path.basename(require.main.filename)
 
 program
