@@ -1,37 +1,27 @@
 import path from 'path'
+import defaults from 'lodash/defaults'
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
-import BrowserSyncPlugin from 'browser-sync-webpack-plugin'
 import webpackConfig from './webpack.common.config.babel'
-import * as VARS from './variables'
+import { variables } from '../share/configuration'
 
-let districtPath = path.join(VARS.ROOT_PATH, process.env.DEVELOP ? VARS.DEVELOP_FOLDER_NAME : VARS.DISTRICT_FOLDER_NAME)
+const LoaderOptionsPlugin = webpack.LoaderOptionsPlugin
+const DefinePlugin = webpack.DefinePlugin
 
 export default WebpackMerger(webpackConfig, {
   devtool: 'source-map',
+  devServer: {
+    hot: true,
+    inline: true
+  },
   plugins: [
-    new webpack.LoaderOptionsPlugin({
+    new LoaderOptionsPlugin({
       debug: true
     }),
-    /**
-     * BrowserSync Plugin
-     * local test but weinre not support https
-     * docs: https://www.browsersync.io
-     */
-    new BrowserSyncPlugin({
-      host: 'localhost',
-      port: VARS.DEVELOP_SERVER_PORT,
-      open: false,
-      logLevel: 'debug',
-      server: {
-        baseDir: [districtPath]
-      },
-      ui: {
-        port: VARS.DEVELOP_SERVER_PORT + 1,
-        weinre: {
-          port: VARS.DEVELOP_SERVER_PORT + 2
-        }
+    new DefinePlugin(defaults({
+      'process.env': {
+        development: JSON.stringify(true)
       }
-    })
+    }, variables))
   ]
 })

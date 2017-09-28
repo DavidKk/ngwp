@@ -10,15 +10,17 @@ import { rootDir, nginx } from '../share/configuration'
 import Nginx from '../builder/nginx'
 import { trace, printStats } from '../share/printer'
 
+const cwd = path.basename(require.main.filename)
+
 program
 .command('nginx')
 .description('Generate nginx vhosts config file with modules')
-.option('-c, --config', 'Set module config (Default path/to/nginx.json)')
-.option('-d, --dist <filename>', 'Set destination file')
-.option('-b, --base <folder>', 'Set destination base path')
-.option('-p, --port <webpack server port>', 'Set webpack develop server port in development')
-.option('--root-path <Root folder>', 'Set variable \'root\' in nginx conf (Default destination folder)')
-.option('--logs-path <Logs folder>', 'Set log folder in nginx conf (Default \'base/logs/\')')
+.option('-c, --config <config>', 'Set module config (Default path/to/nginx.json)')
+.option('-d, --dist <dist>', 'Set destination file')
+.option('-b, --base <base>', 'Set destination base path')
+.option('-p, --port <port>', 'Set webpack develop server port in development')
+.option('--root-path <rootPath>', 'Set variable \'root\' in nginx conf (Default destination folder)')
+.option('--logs-path <logsPath>', 'Set log folder in nginx conf (Default \'base/logs/\')')
 .option('--use-https', 'Use https protocol (Default false)')
 .option('--cert-path', 'Set root cert path (Default base folder)')
 .option('--cert-file', 'Set cert file (Require when --use-https is open)')
