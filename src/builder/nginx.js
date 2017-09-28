@@ -1,23 +1,23 @@
 import fs from 'fs-extra'
 import path from 'path'
 import handlebars from 'handlebars'
-import filter from 'lodash/filter'
 import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
 import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import isBoolean from 'lodash/isBoolean'
 import isFunction from 'lodash/isFunction'
-import defaults from 'lodash/defaults'
+import assign from 'lodash/assign'
 import cloneDeep from 'lodash/cloneDeep'
 import { rootDir, execDir, distDir, logDir } from '../share/configuration'
+import { resolvePath } from '../share/path'
 
 export default function build (modules, options, callback) {
   if (!isFunction(callback)) {
     throw new Error('Callback is not provided')
   }
 
-  options = defaults({
+  options = assign({
     distFile: path.join(rootDir, 'vhosts/nginx.conf'),
     template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
     rootPath: distDir,
@@ -31,7 +31,7 @@ export default function build (modules, options, callback) {
   }
 
   let template = fs.readFileSync(options.template, 'utf-8')
-  let compile  = handlebars.compile(template)
+  let compile = handlebars.compile(template)
 
   modules = cloneDeep(modules)
   for (let module of modules) {
@@ -40,7 +40,7 @@ export default function build (modules, options, callback) {
       return
     }
 
-    if ('proxy' === module.type) {
+    if (module.type === 'proxy') {
       if (!module.entry) {
         callback(new Error('Entry is not provided'))
         return
@@ -66,13 +66,13 @@ export default function build (modules, options, callback) {
       }
     }
 
-    if (true === options.useHttps && true === module.useHttps) {
+    if (options.useHttps === true && module.useHttps === true) {
       if (!module.certFile) {
         callback(new Error('CertFile is not provided when use https'))
         return
       }
 
-      let certFile = utils.resolvePath(module.certFile, options.certPath)
+      let certFile = resolvePath(module.certFile, options.certPath)
       if (!fs.existsSync(certFile)) {
         callback(new Error(`CertFile ${certFile} is not found`))
         return
@@ -83,7 +83,7 @@ export default function build (modules, options, callback) {
         return
       }
 
-      let certKey = utils.resolvePath(module.certKey, options.certPath)
+      let certKey = resolvePath(module.certKey, options.certPath)
       if (!fs.existsSync(certKey)) {
         callback(new Error(`CertKey ${certKey} is not found`))
         return
@@ -124,13 +124,13 @@ function compare (lvalue, operator, rvalue, options) {
   let operators
   let result
 
-  if (3 > arguments.length) {
+  if (arguments.length < 3) {
     throw new Error('Handlerbars Helper "compare" needs 2 parameters')
   }
 
   if (undefined === options) {
-    options  = rvalue
-    rvalue   = operator
+    options = rvalue
+    rvalue = operator
     operator = '==='
   }
 
@@ -163,6 +163,7 @@ function compare (lvalue, operator, rvalue, options) {
     },
     'typeof' (l, r) {
       /* eslint eqeqeq:off */
+      /* eslint valid-typeof: off */
       return typeof l == r
     }
   }
@@ -182,16 +183,16 @@ function compare (lvalue, operator, rvalue, options) {
  * @return {String}
  */
 function separate (value, separator) {
-  if (3 > arguments.length) {
-    separator = ' ';
+  if (arguments.length < 3) {
+    separator = ' '
   }
 
   if (isString(value)) {
-    return value;
+    return value
   }
 
   if (isArray(value)) {
-    return value.join(separator);
+    return value.join(separator)
   }
 }
 

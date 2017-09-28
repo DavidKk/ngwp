@@ -1,4 +1,3 @@
-import path from 'path'
 import defaults from 'lodash/defaults'
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'

@@ -22,10 +22,9 @@ const commander = program
   if (options.hasOwnProperty('config')) {
     configFile = path.resolve(rootDir, options.config)
 
-    if(!fs.existsSync(file)) {
-      trace(colors.red(`Webpack config file ${colors.bold(options.config)} is not exists`))
+    if (!fs.existsSync(configFile)) {
+      trace(colors.red(`Webpack config file ${colors.bold(configFile)} is not exists`))
       process.exit(0)
-      return
     }
   }
 

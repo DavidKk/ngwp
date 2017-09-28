@@ -18,7 +18,6 @@ import autoprefixer from 'autoprefixer'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import { execDir, rootDir, srcDir, distDir, tmpDir } from '../share/configuration'
-import { trace } from '../share/printer'
 
 const CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin
 
@@ -77,7 +76,7 @@ export const Plugins = [
   new CleanWebpackPlugin([ tmpDir, distDir ], { root: '/', verbose: true, dry: false })
 ]
 
-export const Injector = InjectScriptPlugin(Plugins);
+export const Injector = InjectScriptPlugin(Plugins)
 export const CallAfter = WithDonePlugin(Plugins)
 
 /**
@@ -551,7 +550,7 @@ export function InjectScriptPlugin (plugins) {
       }
 
       let script = `!(function () {
-        var id = 'webpack-${VARS.PROJECT_NAME}-v${hash}';
+        var id = 'webpack-${hash}';
         if ('undefined' === typeof window || document.getElementById(id)) {
           return;
         }

@@ -19,7 +19,7 @@ export default function (file, options = {}) {
       chunks: false,
       colors: true
     })
-  
+
     console.log(message)
   }
 

@@ -7,7 +7,7 @@ import colors from 'colors'
 import columnify from 'columnify'
 
 const basePath = path.join(__dirname, '../')
-const ingoreTrace = -1 === indexOf(process.argv, '--quiet')
+const ingoreTrace = indexOf(process.argv, '--quiet') === -1
 
 /**
  * format size by unit
@@ -16,7 +16,7 @@ const ingoreTrace = -1 === indexOf(process.argv, '--quiet')
  * @return {String}
  */
 export function formatBytes (bytes, decimals) {
-  if (0 === bytes) {
+  if (bytes === 0) {
     return '0 Bytes'
   }
 
@@ -75,7 +75,7 @@ export function printStats (stats, options) {
         }
       },
       proxy: {
-        align: 'right',
+        align: 'right'
       },
       entries: {
         align: 'left',

@@ -5,8 +5,11 @@ import mapValues from 'lodash/mapValues'
 export const rootDir = process.cwd()
 export const execDir = path.join(__dirname, '../../')
 
+let settings = {}
 let rcFile = path.join(rootDir, '.ngwprc.json')
-let settings = fs.readJSONSync(rcFile)
+if (fs.existsSync(rcFile)) {
+  settings = fs.readJSONSync(rcFile)
+}
 
 export const srcDir = path.join(rootDir, settings.src || 'src')
 export const distDir = path.join(rootDir, settings.dist || 'dist')

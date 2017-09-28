@@ -1,12 +1,13 @@
 import fs from 'fs-extra'
 import path from 'path'
 import map from 'lodash/map'
+import trim from 'lodash/trim'
 import pick from 'lodash/pick'
 import filter from 'lodash/filter'
 import defaultsDeep from 'lodash/defaultsDeep'
 import colors from 'colors'
 import program from 'commander'
-import { rootDir, nginx } from '../share/configuration'
+import { nginx } from '../share/configuration'
 import Nginx from '../builder/nginx'
 import { trace, printStats } from '../share/printer'
 
@@ -50,7 +51,7 @@ program
     basePath: options.base,
     distFile: options.dist,
     rootPath: options.rootPath,
-    logsPath: options.logsPath,
+    logsPath: options.logsPath
   },
   function (error, stats) {
     /* istanbul ignore if */
