@@ -16,6 +16,12 @@
 $ npm install -g ngwp
 ```
 
+
+## Example
+
+[https://github.com/DavidKk/ngwp-example](https://github.com/DavidKk/ngwp-example)
+
+
 ## Nginx config file generation and import
 
 Config file in project, [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json)
