@@ -27,28 +27,25 @@ $ ngwp nginx
 
 # Features
 
-## Mutiple Modules (Mutiple Entrance)
+## Multiple Modules
 
-Define a module, you can make folder in entry folder (`src/modules/`). The folder name is module name.
-and every module must has one entrnace script file (must be named 'index.js'). And you can open `www.domain.com/{module_name}/` to visit that module.
-
-At last, every time for build new module, you must generate nginx config, because the base-router is defined by nginx configuration.
+You can define multiple entry/modules in folder [src/modules/](https://github.com/DavidKk/ngwp-example/tree/master/src/modules). Different modules must define different nginx configurations, see [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json).
 
 
 ## Image Sprites Auto-Generate
 
-Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will combine them into one sprite-image (`dist/path/panels/sprite.{hashcode}.png`).
+Put all image-sprites to folder [src/assets/sprites/images/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/images), it will combine them to only one image (`dist/path/assets/panels/sprite.{hashcode}.png`).
 
-And it also generate the scss file to temporary folder (`.temporary/`), and you can importd use `@import "sprites"`. the base unit is percentage (`%`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
+The base unit is percentage (`%`) not `px` or `rem`. You can change it by file [src/assets/sprites/images/sprite.scss.template.handlebars](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/images/sprite.scss.template.handlebars)
 
 
 ## SVG Sprites Auto-Generate
 
-Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will combine them into one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
+Put all svg-sprites to folder [src/assets/sprites/svg/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/svg), it will combine them to only one svg (`dist/path/assets/panels/svgsprite.{hashcode}.svg`).
 
-And the SVGO config file is in `src/assets/sprites/svg/svgstore.config.js`
+And the SVGO config file is in [src/assets/sprites/svg/svgstore.config.js](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/svg/svgstore.config.js)
 
-Compatibility must be known:
+### Compatibility must be known:
 
 ```
 svg in webkit old browser, it not support use (reference)
