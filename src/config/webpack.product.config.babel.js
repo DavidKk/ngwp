@@ -7,6 +7,13 @@ import { publicPath, variables } from '../share/configuration'
 const DefinePlugin = webpack.DefinePlugin
 const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin
 
+const GlobalVariables = defaults({
+  publicPath: JSON.stringify(publicPath),
+  'process.env': {
+    production: JSON.stringify(true)
+  }
+}, variables)
+
 export default WebpackMerger(webpackConfig, {
   devtool: false,
   output: {
@@ -14,11 +21,7 @@ export default WebpackMerger(webpackConfig, {
     publicPath
   },
   plugins: [
-    new DefinePlugin(defaults({
-      'process.env': {
-        production: JSON.stringify(true)
-      }
-    }, variables)),
+    new DefinePlugin(GlobalVariables),
     new UglifyJsPlugin({
       sourceMap: false,
       mangle: false,

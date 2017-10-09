@@ -1,8 +1,9 @@
-import defaultsDeep from 'lodash/defaultsDeep'
 import fs from 'fs-extra'
-import webpack from 'webpack'
+import defaultsDeep from 'lodash/defaultsDeep'
+import Webpack from 'webpack'
+import WebpackDevServer from 'webpack-dev-server'
 
-export default function (file, options = {}) {
+export default function (file, options = {}, callback) {
   if (!fs.existsSync(file)) {
     throw new Error(`Config file ${file} is not exists.`)
   }
@@ -10,10 +11,24 @@ export default function (file, options = {}) {
   let config = require(file)
   config = config.__esModule ? config.default : config
 
-  let compiler = webpack(config)
+  let compiler = Webpack(config)
   options = defaultsDeep(options, { watch: false })
 
-  let printStats = function (stats) {
+  if (options.watch === true) {
+    let server = new WebpackDevServer(compiler, { stats: { colors: true } })
+
+    server.listen(8080, '127.0.0.1', () => {
+      console.log('Starting server on http://localhost:8080')
+    })
+
+    return
+  }
+
+  compiler.run(function (error, stats) {
+    if (error) {
+      throw error
+    }
+
     /* eslint no-console:off */
     let message = stats.toString({
       chunks: false,
@@ -21,27 +36,5 @@ export default function (file, options = {}) {
     })
 
     console.log(message)
-  }
-
-  if (options.watch === true) {
-    compiler.watch({
-      aggregateTimeout: 300,
-      poll: true
-    },
-    function (error, stats) {
-      if (error) {
-        throw error
-      }
-
-      printStats(stats)
-    })
-  } else {
-    compiler.run(function (error, stats) {
-      if (error) {
-        throw error
-      }
-
-      printStats(stats)
-    })
-  }
+  })
 }

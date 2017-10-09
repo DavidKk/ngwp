@@ -36,15 +36,15 @@ program
 
   options.port = options.hasOwnProperty('port') ? options.port * 1 : nginxConfig.port
 
-  let modules = map(nginxConfig.proxy, (nginx) => {
-    let optoins = {
-      type: nginx.type || 'proxy',
+  let modules = map(nginxConfig.module, (nginx) => {
+    let _options = {
+      type: nginx.type || 'module',
       proxy: '127.0.0.1',
       port: options.port,
       reserved: map(nginx.reserved, (path) => (trim(path, '/')))
     }
 
-    return defaultsDeep(optoins, nginx)
+    return defaultsDeep(_options, nginx)
   })
 
   Nginx(modules, {

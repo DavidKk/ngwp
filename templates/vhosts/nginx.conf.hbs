@@ -21,8 +21,8 @@
       add_header Strict-Transport-Security "max-age=1";
     {{/if}}
 
-    access_log {{ ../logsPath }}/{{ ../package.name }}.access.log combined buffer=16k flush=5s;
-    error_log {{ ../logsPath }}/{{ ../package.name }}.error.log error;
+    access_log {{ ../logsPath }}/access.log combined buffer=16k flush=5s;
+    error_log {{ ../logsPath }}/error.log error;
 
     error_page 404 500 502 503 504 @fallback;
 
@@ -47,7 +47,7 @@
       {{/each}}
     {{/if}}
 
-    {{#compare 'proxy' '===' type}}
+    {{#compare 'module' '===' type}}
       location / {
         add_header Cache-Control "no-store, no-cache, private";
         try_files $uri /index.html @proxy_nodejs;
@@ -67,7 +67,7 @@
       }
     {{/compare}}
 
-    {{#compare 'cdn' '===' type}}
+    {{#compare 'static' '===' type}}
       location ~* /(.*)$ {
         access_log off;
         expires max;

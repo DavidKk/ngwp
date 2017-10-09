@@ -1,49 +1,22 @@
 import path from 'path'
-import webpackConf from './webpack.unitest.config.babel'
-import * as VARS from './variables'
+import WebpackMerger from 'webpack-merge'
+import { ResolveModules } from './webpack.common.config.babel'
+import WebpackConf from './webpack.unitest.config.babel'
+import { rootDir, srcDir } from '../share/configuration'
 
-// /**
-//  * Build unified entrance
-//  * Find out all files end in '.spec.js'
-//  * import these files to bootstrap (the unified entrance).
-//  * And karma will split different modules and sessions.
-//  */
-// let formatImport = function (file) {
-//   return `import '${file}';\n`;
-// };
-
-// let entryFolder   = path.join(VARS.ROOT_PATH, VARS.TEMPORARY_FOLDER_NAME, VARS.UNITEST_FOLDER_NAME);
-// let testEntryFile = path.join(entryFolder, './bootstrap.spec.js');
-let testFolder = path.join(VARS.ROOT_PATH, VARS.UNITEST_FOLDER_NAME)
-
-// fs.ensureDirSync(testFolder);
-
-// if (!fs.existsSync(testFolder)) {
-//   throw new Error(`Client test folder '${testFolder}' is not exists or no permission to create folder.`);
-// }
-
-// let specFiles  = findFiles(testFolder, /^[^\.]+\.spec\.js$/);
-// let depsSource = specFiles.map(formatImport).join('');
-
-// fs.ensureDirSync(path.dirname(testEntryFile));
-// fs.writeFileSync(testEntryFile, depsSource);
-
-/**
- * Karma Configuration
- */
-module.exports = function (config) {
-  config.set({
-    basePath: VARS.ROOT_PATH,
+export default function (config) {
+  let karmaConf = {
+    basePath: rootDir,
     browsers: ['PhantomJS'],
     frameworks: ['mocha', 'chai', 'sinon'],
-    files: [`${testFolder}/**/*.spec.js`],
+    files: ['test/e2e/**.spec.js'],
     client: {
       chai: {
         includeStack: true
       }
     },
     preprocessors: {
-      [`${testFolder}/**/*.spec.js`]: [
+      'test/e2e/**.spec.js': [
         'webpack',
         'sourcemap'
       ]
@@ -51,13 +24,9 @@ module.exports = function (config) {
     reporters: [
       'mocha'
     ],
-    coverageReporter: {
-      type: 'html',
-      dir: path.join(VARS.ROOT_PATH, VARS.COVERAGE_FOLDER_NAME)
-    },
-    webpack: webpackConf,
+    webpack: WebpackConf,
     webpackMiddleware: {
-      noInfo: false,
+      noInfo: true,
       stats: true
     },
     /**
@@ -80,32 +49,44 @@ module.exports = function (config) {
       'karma-coverage-istanbul-reporter',
       'karma-sourcemap-loader'
     ]
-  })
+  }
+
+  if (process.env.COVERAGE) {
+    karmaConf.reporters = [
+      'mocha',
+      'coverage-istanbul'
+    ]
+
+    karmaConf.coverageIstanbulReporter = {
+      reports: ['lcov', 'text-summary'],
+      fixWebpackSourcePaths: true
+    }
+
+    karmaConf.webpack = WebpackMerger(WebpackConf, {
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            enforce: 'post',
+            include: ResolveModules,
+            exclude: [
+              /node_modules/,
+              /\.spec\.js$/,
+              path.join(srcDir, './assets/sprites/svg')
+            ],
+            use: [
+              {
+                loader: 'istanbul-instrumenter-loader',
+                query: {
+                  esModules: true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    })
+  }
+
+  config.set(karmaConf)
 }
-
-// /**
-//  * find out scripts files
-//  * @param  {String} dir    test folder
-//  * @param  {Regexp} regexp match regexp
-//  * @param  {Array}  files  output files variables
-//  * @return {Array}
-//  */
-// function findFiles (dir, regexp, files = []) {
-//   fs
-//   .readdirSync(dir)
-//   .forEach((name) => {
-//     let file = path.join(dir, name);
-
-//     if (fs.statSync(file).isDirectory()) {
-//       findFiles(file, regexp, files);
-//     }
-//     else if (regexp instanceof RegExp) {
-//       regexp.test(name) && files.push(file);
-//     }
-//     else {
-//       files.push(file);
-//     }
-//   });
-
-//   return files;
-// }

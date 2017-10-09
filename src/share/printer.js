@@ -1,12 +1,9 @@
-import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import indexOf from 'lodash/indexOf'
 import defaultsDeep from 'lodash/defaultsDeep'
-import path from 'path'
 import colors from 'colors'
 import columnify from 'columnify'
 
-const basePath = path.join(__dirname, '../')
 const ingoreTrace = indexOf(process.argv, '--quiet') === -1
 
 /**
@@ -49,41 +46,21 @@ export function printStats (stats, options) {
   }
 
   options = defaultsDeep(options, {
-    headingTransform (heading) {
-      return (heading.charAt(0).toUpperCase() + heading.slice(1)).white.bold
-    },
+    headingTransform: (heading) => colors.white.bold(heading.charAt(0).toUpperCase() + heading.slice(1)),
     config: {
-      assets: {
-        align: 'right',
-        dataTransform (file) {
-          file = file.replace(basePath + '/', '')
-          return colors.green(file).bold
-        }
-      },
-      size: {
-        align: 'right',
-        dataTransform (size) {
-          return formatBytes(size)
-        }
-      },
       domain: {
         align: 'right',
-        dataTransform (domain) {
-          domain = isArray(domain) ? domain.join(',') : domain
-          domain = colors.green(domain)
-          return colors.bold(domain)
-        }
+        dataTransform: (domain) => colors.green.bold(domain)
       },
       proxy: {
         align: 'right'
       },
-      entries: {
+      entry: {
         align: 'left',
-        dataTransform (entries) {
-          entries = isArray(entries) ? entries.join('|') : entries
-          entries = colors.green(entries)
-          return colors.bold(entries)
-        }
+        dataTransform: (entry) => colors.green.bold(entry)
+      },
+      port: {
+        align: 'right'
       }
     }
   })

@@ -7,9 +7,9 @@ import { rootDir } from '../share/configuration'
 import { trace } from '../share/printer'
 import compiler from '../share/compiler'
 import unitest from '../share/unitest'
-import devTask from '../task/development'
-import proTask from '../task/production'
-import e2eTask from '../task/e2e'
+import devTask from '../tasks/development'
+import proTask from '../tasks/production'
+import e2eTask from '../tasks/e2e'
 
 const cwd = path.basename(require.main.filename)
 

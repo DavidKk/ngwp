@@ -7,7 +7,7 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import isBoolean from 'lodash/isBoolean'
 import isFunction from 'lodash/isFunction'
-import assign from 'lodash/assign'
+import defaults from 'lodash/defaults'
 import cloneDeep from 'lodash/cloneDeep'
 import { rootDir, execDir, distDir, logDir } from '../share/configuration'
 import { resolvePath } from '../share/path'
@@ -17,7 +17,7 @@ export default function build (modules, options, callback) {
     throw new Error('Callback is not provided')
   }
 
-  options = assign({
+  options = defaults({
     distFile: path.join(rootDir, 'vhosts/nginx.conf'),
     template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
     rootPath: distDir,

@@ -7,6 +7,7 @@ import forEach from 'lodash/forEach'
 import isObject from 'lodash/isObject'
 import isString from 'lodash/isString'
 import isFunction from 'lodash/isFunction'
+import filter from 'lodash/filter'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -84,7 +85,7 @@ export const CallAfter = WithDonePlugin(Plugins)
  */
 generateEnteries(Plugins, Entries)
 generateFavicons(Plugins)
-generateSVGSprites(Plugins)
+generateSVGSprites(Plugins, Entries)
 let spriteGenerated = generateSprites(Plugins)
 
 /**
@@ -103,7 +104,7 @@ export const Rules = [
     ]
   },
   {
-    test: /\.jade$/,
+    test: /\.pug$/,
     use: [
       {
         loader: 'pug-loader'
@@ -359,12 +360,19 @@ export function generateFavicons (plugins) {
  * if the sprite folder (src/assets/sprites/images/) not exists,
  * this task will not be excuted.
  */
-export function generateSprites (plugins, options = {}) {
+export function generateSprites (plugins) {
   if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
-  let spriteDir = path.join(srcDir, './assets/panels/sprites/images')
+  let spriteDir = path.join(srcDir, './assets/sprites/images')
+  let files = fs.readdirSync(spriteDir)
+  let images = filter(files, (file) => /(\.png|\.gif|\.jpg)$/.test(file))
+
+  if (images.length === 0) {
+    return false
+  }
+
   let spriteTemplate = path.join(spriteDir, 'sprite.scss.template.handlebars')
   if (fs.existsSync(spriteDir) && fs.lstatSync(spriteDir).isDirectory() && fs.existsSync(spriteTemplate)) {
     let source = fs.readFileSync(spriteTemplate, 'utf8')
@@ -408,14 +416,22 @@ export function generateSprites (plugins, options = {}) {
  * if the sprite folder (src/assets/sprites/svg/) not exists,
  * this task will not be excuted.
  */
-export function generateSVGSprites (plugins) {
+export function generateSVGSprites (plugins, entries) {
   if (!isArray(plugins)) {
     throw new Error('Parameter plugins must be a array.')
   }
 
   let spriteDir = path.join(srcDir, './assets/sprites/svg')
   let spriteTemplate = path.join(spriteDir, 'svgstore.config.js')
+
   if (fs.existsSync(spriteDir) && fs.lstatSync(spriteDir).isDirectory() && fs.existsSync(spriteTemplate)) {
+    let files = fs.readdirSync(spriteDir)
+    let images = filter(files, (file) => /\.svg$/.test(file))
+
+    if (images.length === 0) {
+      return false
+    }
+
     Object.assign(Entries, { svgstore: spriteTemplate })
 
     let plugin = new SvgStore({

@@ -31,14 +31,8 @@
     "ngwp": "./bin/ngwp"
   },
   "devDependencies": {
-    "angular": "1.6.3",
-    "angular-mocks": "1.6.3",
-    "angular-ui-router": "^0.4.2",
     "command-exists": "^1.2.2",
-    "husky": "^0.14.3",
-    "istanbul-instrumenter-loader": "^2.0.0",
     "lint-staged": "^4.2.3",
-    "nyc": "^11.2.1",
     "standard": "^10.0.3",
     "yaml-lint": "^1.0.0"
   },
@@ -90,10 +84,9 @@
     "style-loader": "^0.14.1",
     "url-loader": "^0.5.7",
     "webpack": "^2.2.1",
-    "webpack-dev-middleware": "^1.6.1",
     "webpack-dev-server": "^2.4.1",
     "webpack-merge": "^4.1.0",
     "webpack-spritesmith": "^0.3.1",
-    "webpack-svgstore-plugin": "^4.0.0"
+    "webpack-svgstore-plugin": "^4.0.1"
   }
 }

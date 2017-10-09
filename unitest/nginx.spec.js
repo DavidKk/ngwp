@@ -1,4 +1,5 @@
 /* eslint max-nested-callbacks: off */
+/* eslint no-unused-expressions: off */
 /* eslint-env mocha */
 
 import _ from 'lodash'
@@ -55,7 +56,6 @@ describe('Nginx Generator', function () {
       }
 
       Builder(modules, config, function (error) {
-        /* eslint no-unused-expressions: off */
         expect(error).to.not.be.an('error')
 
         expect(fs.existsSync(outFile)).to.be.true
