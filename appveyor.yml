@@ -10,6 +10,6 @@ install:
 
 build: off
 test_script:
-  - npm run unitest
+  - npm run test
 
 version: "{build}"

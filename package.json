@@ -22,7 +22,7 @@
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/*.spec.js",
     "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage/cli npm run mocha",
     "coveralls": "npm run coverage && babel-node ./src/coveralls.js",
-    "unitest": "npm run lint && npm run mocha",
+    "test": "npm run lint && npm run mocha",
     "product": "rimraf ./dist && babel ./src --out-dir ./dist",
     "develop": "babel ./src --out-dir ./dist --watch",
     "start": "npm run develop"
