@@ -17,13 +17,13 @@ export default function build (modules, options, callback) {
     throw new Error('Callback is not provided')
   }
 
-  options = defaults({
+  options = defaults(cloneDeep(options), {
     distFile: path.join(rootDir, 'vhosts/nginx.conf'),
     template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
     rootPath: distDir,
     logsPath: logDir,
     useHttps: isBoolean(options.useHttps) ? options.useHttps : false
-  }, options)
+  })
 
   if (!fs.existsSync(options.template)) {
     callback(new Error(`Template '${options.template}' is not exists.`))

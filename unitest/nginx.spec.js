@@ -24,8 +24,8 @@ describe('Nginx Generator', function () {
 
   describe('Test Generating', function () {
     it('should configure and generate nginx config file', function (done) {
-      let tplFile = path.join(srcPath, 'vhost.conf.hbs')
-      let outFile = path.join(tmpPath, './vhosts.conf')
+      let tplFile = path.join(srcPath, 'nginx.base.conf.hbs')
+      let outFile = path.join(tmpPath, './nginx.base.conf')
       let logFolder = path.join(tmpPath, './logs')
       let appFolder = path.join(tmpPath, './apps')
 
@@ -35,10 +35,8 @@ describe('Nginx Generator', function () {
           domain: 'static.example.com'
         },
         {
-          proxy: '127.0.0.1',
-          proxyPort: 8080,
           domain: 'www.example.com',
-          entry: 'src/modules/index/index.js',
+          entry: 'index',
           useHttps: true,
           certFile: './cert.pem',
           certKey: './cert.key'
@@ -82,7 +80,7 @@ describe('Nginx Generator', function () {
   if (cmdExistsSync('nginx')) {
     describe('Test Running', function () {
       it('can be used by nginx', function (done) {
-        let outFile = path.join(tmpPath, './vhosts.conf')
+        let outFile = path.join(tmpPath, './nginx.completed.conf')
         let logFolder = path.join(tmpPath, './logs')
         let appFolder = path.join(tmpPath, './apps')
 
@@ -92,10 +90,8 @@ describe('Nginx Generator', function () {
             domain: 'static.example.com'
           },
           {
-            proxy: '127.0.0.1',
-            proxyPort: 8080,
             domain: 'www.example.com',
-            entry: 'src/modules/index/index.js'
+            entry: 'index'
           }
         ]
 
@@ -119,7 +115,7 @@ describe('Nginx Generator', function () {
             })
           },
           function (callback) {
-            let ngxTplFile = path.join(srcPath, './nginx.conf.hbs')
+            let ngxTplFile = path.join(srcPath, './nginx.completed.conf.hbs')
             let ngxOutFile = path.join(tmpPath, 'nginx.conf')
             let ngxTemplate = fs.readFileSync(ngxTplFile, 'utf-8')
             let compile = handlebars.compile(ngxTemplate)

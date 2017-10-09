@@ -1,5 +1,3 @@
 import handlebars from 'handlebars'
 
-handlebars.registerHelper('stringify', function (value) {
-  return JSON.stringify(value)
-})
+handlebars.registerHelper('stringify', (value) => JSON.stringify(value))
