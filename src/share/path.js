@@ -7,7 +7,7 @@ import path from 'path'
  * @param  {String} cwd  addition path
  * @return {String}
  */
-export function resolvePath (file = './', cwd = process.cwd()) {
+export function absolute (file = './', cwd = process.cwd()) {
   if (path.isAbsolute(file)) {
     return file
   }

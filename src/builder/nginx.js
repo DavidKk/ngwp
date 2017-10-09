@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
 import handlebars from 'handlebars'
-import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
 import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
@@ -9,22 +8,24 @@ import isBoolean from 'lodash/isBoolean'
 import isFunction from 'lodash/isFunction'
 import defaults from 'lodash/defaults'
 import cloneDeep from 'lodash/cloneDeep'
-import { rootDir, execDir, distDir, logDir } from '../share/configuration'
-import { resolvePath } from '../share/path'
+import { rootDir, execDir, logDir } from '../share/configuration'
+import { absolute } from '../share/path'
 
 export default function build (modules, options, callback) {
+  /* istanbul ignore next */
   if (!isFunction(callback)) {
     throw new Error('Callback is not provided')
   }
 
   options = defaults(cloneDeep(options), {
-    distFile: path.join(rootDir, 'vhosts/nginx.conf'),
-    template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
-    rootPath: distDir,
+    rootDir: rootDir,
     logsPath: logDir,
+    distFile: path.join(options.rootPath || rootDir, 'vhosts/nginx.conf'),
+    template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
     useHttps: isBoolean(options.useHttps) ? options.useHttps : false
   })
 
+  /* istanbul ignore next */
   if (!fs.existsSync(options.template)) {
     callback(new Error(`Template '${options.template}' is not exists.`))
     return
@@ -34,19 +35,24 @@ export default function build (modules, options, callback) {
   let compile = handlebars.compile(template)
 
   modules = cloneDeep(modules)
+
   for (let module of modules) {
-    if ((isArray(module.domain) && isEmpty(module.domain)) || (isString(module.domain) && !module.domain)) {
+    /* istanbul ignore next */
+    if (!module.domain) {
       callback(new Error('Domain is not provided'))
       return
     }
 
-    if (module.type === 'proxy') {
+    if (module.type === 'module') {
+      /* istanbul ignore next */
       if (!module.entry) {
         callback(new Error('Entry is not provided'))
         return
       }
 
-      let entry = path.join(rootDir, module.entry)
+      let entry = absolute(module.entry, options.rootPath)
+
+      /* istanbul ignore next */
       if (!fs.existsSync(entry)) {
         callback(new Error(`Entry file ${entry} is not found`))
         return
@@ -55,42 +61,45 @@ export default function build (modules, options, callback) {
       let folder = path.dirname(entry)
       module.entry = path.basename(folder) + '.html'
 
+      /* istanbul ignore next */
       if (!(isString(module.proxy) && /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.exec(module.proxy))) {
         callback(new Error('Proxy is not provided or invalid. (Proxy is a ip address, eg: 127.0.0.1)'))
         return
       }
 
+      /* istanbul ignore next */
       if (!isNumber(module.port)) {
         callback(new Error('port is not provided or invalid. (port must be a port number)'))
         return
       }
     }
 
-    if (options.useHttps === true && module.useHttps === true) {
-      if (!module.certFile) {
+    if (module.useHttps === true) {
+      let certFile = absolute(module.certFile, options.rootDir)
+      /* istanbul ignore next */
+      if (!certFile) {
         callback(new Error('CertFile is not provided when use https'))
         return
       }
 
-      let certFile = resolvePath(module.certFile, options.certPath)
+      /* istanbul ignore next */
       if (!fs.existsSync(certFile)) {
         callback(new Error(`CertFile ${certFile} is not found`))
         return
       }
 
-      if (!module.certKey) {
+      let certKey = absolute(module.certKey, options.rootDir)
+      /* istanbul ignore next */
+      if (!certKey) {
         callback(new Error('CertKey is not provided when use https'))
         return
       }
 
-      let certKey = resolvePath(module.certKey, options.certPath)
+      /* istanbul ignore next */
       if (!fs.existsSync(certKey)) {
         callback(new Error(`CertKey ${certKey} is not found`))
         return
       }
-
-      module.certFile = certFile
-      module.certKey = certKey
     }
   }
 
@@ -104,6 +113,7 @@ export default function build (modules, options, callback) {
 
   fs.ensureDir(options.distFile.replace(path.basename(options.distFile), ''))
   fs.writeFile(options.distFile, source, function (error) {
+    /* istanbul ignore next */
     if (error) {
       callback(error)
       return
@@ -124,6 +134,7 @@ function compare (lvalue, operator, rvalue, options) {
   let operators
   let result
 
+  /* istanbul ignore next */
   if (arguments.length < 3) {
     throw new Error('Handlerbars Helper "compare" needs 2 parameters')
   }
@@ -168,6 +179,7 @@ function compare (lvalue, operator, rvalue, options) {
     }
   }
 
+  /* istanbul ignore next */
   if (!operators[operator]) {
     throw new Error(`Handlerbars Helper 'compare' doesn't know the operator ${operator}`)
   }
