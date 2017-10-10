@@ -52,9 +52,8 @@ export const Plugins = [
    * to reduce code duplication
    */
   new CommonsChunkPlugin({
-    name: 'vendor',
-    chunks: [],
-    minChunks: (module) => module.resource && module.resource.indexOf(rootDir) === -1
+    name: 'vendor.js',
+    minChunks: (module) => /node_modules/.test(module.resource)
   }),
 
   /**
