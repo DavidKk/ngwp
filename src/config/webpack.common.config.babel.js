@@ -8,6 +8,7 @@ import isObject from 'lodash/isObject'
 import isString from 'lodash/isString'
 import isFunction from 'lodash/isFunction'
 import filter from 'lodash/filter'
+import defaults from 'lodash/defaults'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -18,9 +19,11 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import autoprefixer from 'autoprefixer'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
-import { execDir, rootDir, srcDir, distDir, tmpDir } from '../share/configuration'
+import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables } from '../share/configuration'
 
+const DefinePlugin = webpack.DefinePlugin
 const CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin
+const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
 
 /**
  * Entries definitions
@@ -40,6 +43,10 @@ export const ResolveModules = [
  * Plugins definitions
  */
 export const Plugins = [
+  /**
+   * Define some global variables
+   */
+  new DefinePlugin(GlobalVariables),
   /**
    * Extract common modules
    * to reduce code duplication
@@ -222,7 +229,7 @@ export default {
   entry: Entries,
   output: {
     path: distDir,
-    publicPath: '/',
+    publicPath: publicPath,
     filename: '[name].js'
   },
   module: {

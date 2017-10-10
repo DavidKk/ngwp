@@ -1,7 +1,9 @@
 import fs from 'fs-extra'
+import isBoolean from 'lodash/isBoolean'
 import defaultsDeep from 'lodash/defaultsDeep'
 import Webpack from 'webpack'
 import WebpackDevServer from 'webpack-dev-server'
+import { port as ServerPort } from './configuration'
 
 export default function (file, options = {}, callback) {
   if (!fs.existsSync(file)) {
@@ -15,10 +17,20 @@ export default function (file, options = {}, callback) {
   options = defaultsDeep(options, { watch: false })
 
   if (options.watch === true) {
-    let server = new WebpackDevServer(compiler, { stats: { colors: true } })
+    let serverPort = options.port || ServerPort
+    let serverHost = options.host || '127.0.0.1'
+    let serverConfig = {
+      stats: {
+        colors: true
+      },
+      port: serverPort,
+      host: serverHost,
+      disableHostCheck: isBoolean(options.disableHostCheck) ? options.disableHostCheck : true
+    }
 
-    server.listen(8080, '127.0.0.1', () => {
-      console.log('Starting server on http://localhost:8080')
+    let server = new WebpackDevServer(compiler, serverConfig)
+    server.listen(serverPort, serverHost, () => {
+      console.log(`Starting server on http://${serverHost}:${serverPort}`)
     })
 
     return

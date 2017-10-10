@@ -1,22 +1,21 @@
-import defaults from 'lodash/defaults'
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
 import WebpackConf from './webpack.common.config.babel'
-import { publicPath, variables } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
-const GlobalVariables = defaults({
-  publicPath: JSON.stringify(publicPath),
-  'process.env': {
-    production: JSON.stringify(true),
-    unitest: JSON.stringify(true)
-  }
-}, variables)
 
 export default WebpackMerger(WebpackConf, {
   devtool: 'source-map',
   plugins: [
-    new DefinePlugin(GlobalVariables)
+    /**
+     * Define some global variables
+     */
+    new DefinePlugin({
+      'process.env': {
+        production: JSON.stringify(true),
+        unitest: JSON.stringify(true)
+      }
+    })
   ],
   /**
    * Sinon setting

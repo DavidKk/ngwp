@@ -7,7 +7,7 @@ import filter from 'lodash/filter'
 import defaultsDeep from 'lodash/defaultsDeep'
 import colors from 'colors'
 import program from 'commander'
-import { nginx } from '../share/configuration'
+import { port as NginxPort, modules as NginxModules } from '../share/configuration'
 import Nginx from '../builder/nginx'
 import { trace, printStats } from '../share/printer'
 
@@ -28,23 +28,26 @@ program
 .option('--cert-key', 'Set cert key file (Require when --use-https is true)')
 .action((options = {}) => {
   let startTime = Date.now()
-  let nginxConfig = nginx
+  let nginxModules = NginxModules
+  let nginxPort = NginxPort
 
   if (options.hasOwnProperty('config')) {
-    nginxConfig = fs.readJSONSync(options.config)
+    let config = fs.readJSONSync(options.config)
+    nginxPort = config.port
+    nginxModules = config.modules
   }
 
-  options.port = options.hasOwnProperty('port') ? options.port * 1 : nginxConfig.port
+  options.port = options.hasOwnProperty('port') ? options.port * 1 : nginxPort
 
-  let modules = map(nginxConfig.module, (nginx) => {
+  let modules = map(nginxModules, (module) => {
     let _options = {
-      type: nginx.type || 'module',
+      type: module.type || 'module',
       proxy: '127.0.0.1',
-      port: options.port,
-      reserved: map(nginx.reserved, (path) => (trim(path, '/')))
+      port: nginxPort,
+      reserved: map(module.reserved, (path) => (trim(path, '/')))
     }
 
-    return defaultsDeep(_options, nginx)
+    return defaultsDeep(_options, module)
   })
 
   Nginx(modules, {

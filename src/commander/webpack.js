@@ -3,7 +3,7 @@ import path from 'path'
 import indexOf from 'lodash/indexOf'
 import colors from 'colors'
 import program from 'commander'
-import { rootDir } from '../share/configuration'
+import { rootDir, port as ServerPort } from '../share/configuration'
 import { trace } from '../share/printer'
 import compiler from '../share/compiler'
 import unitest from '../share/unitest'
@@ -17,8 +17,13 @@ const commander = program
 .command('run <mode>')
 .description('Start webpack')
 .option('-c, --config <config>', 'Set webpack config')
+.option('-p, --port <port>', 'Set dev server port')
+.option('-h, --host <host>', 'Set dev server host')
 .action((mode, options) => {
+  let serverPort = options.port || ServerPort
+  let serverHost = options.host || '127.0.0.1'
   let configFile
+
   if (options.hasOwnProperty('config')) {
     configFile = path.resolve(rootDir, options.config)
 
@@ -30,7 +35,7 @@ const commander = program
 
   if (indexOf(['dev', 'develop', 'development'], mode) !== -1) {
     process.env.DEVELOP = 1
-    configFile ? compiler(configFile) : devTask()
+    configFile ? compiler(configFile, { port: serverPort, host: serverHost }) : devTask()
     return
   }
 
@@ -40,7 +45,7 @@ const commander = program
     return
   }
 
-  if (indexOf(['e2e'], mode) !== -1) {
+  if (indexOf(['e2e', 'test'], mode) !== -1) {
     process.env.PRODUCTION = 1
     configFile ? unitest(configFile) : e2eTask()
     return
