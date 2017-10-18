@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import clone from 'lodash/clone'
 import isBoolean from 'lodash/isBoolean'
 import defaultsDeep from 'lodash/defaultsDeep'
 import Webpack from 'webpack'
@@ -19,17 +20,26 @@ export default function (file, options = {}, callback) {
   if (options.watch === true) {
     let serverPort = options.port || ServerPort
     let serverHost = options.host || '127.0.0.1'
-    let serverConfig = {
+    let serverConfig = defaultsDeep(clone(config.devServer), {
       stats: {
         colors: true
       },
       port: serverPort,
       host: serverHost,
-      disableHostCheck: isBoolean(options.disableHostCheck) ? options.disableHostCheck : true
-    }
+      disableHostCheck: isBoolean(options.disableHostCheck) ? options.disableHostCheck : true,
+      watchOptions: {
+        ignored: /node_modules/,
+        aggregateTimeout: 300,
+        poll: 1000
+      }
+    })
 
     let server = new WebpackDevServer(compiler, serverConfig)
-    server.listen(serverPort, serverHost, () => {
+    server.listen(serverPort, serverHost, (error) => {
+      if (error) {
+        throw error
+      }
+
       console.log(`Starting server on http://${serverHost}:${serverPort}`)
     })
 

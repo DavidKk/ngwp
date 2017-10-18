@@ -1,5 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
+import map from 'lodash/map'
+import assign from 'lodash/assign'
 import without from 'lodash/without'
 import isArray from 'lodash/isArray'
 import indexOf from 'lodash/indexOf'
@@ -19,7 +21,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import autoprefixer from 'autoprefixer'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
-import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables } from '../share/configuration'
+import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
 const CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin
@@ -52,7 +54,7 @@ export const Plugins = [
    * to reduce code duplication
    */
   new CommonsChunkPlugin({
-    name: 'vendor.js',
+    name: 'vendor',
     minChunks: (module) => /node_modules/.test(module.resource)
   }),
 
@@ -80,7 +82,11 @@ export const Plugins = [
    * Clean generate folders
    * run it first to reset the project.
    */
-  new CleanWebpackPlugin([ tmpDir, distDir ], { root: '/', verbose: true, dry: false })
+  new CleanWebpackPlugin([ tmpDir, distDir ], {
+    root: '/',
+    verbose: true,
+    dry: false
+  })
 ]
 
 export const Injector = InjectScriptPlugin(Plugins)
@@ -261,49 +267,58 @@ export function generateEnteries (plugins, entries) {
     throw new Error('Parameter entries must be a object.')
   }
 
-  let entryPath = path.join(rootDir, './src/modules')
-  if (fs.existsSync(entryPath) && fs.lstatSync(entryPath).isDirectory()) {
-    let modules = fs.readdirSync(entryPath)
-    if (modules.length === 0) {
-      return false
+  let modules = []
+  forEach(Modules, (module) => {
+    if (!module.entry) {
+      return
     }
 
-    forEach(modules, (name) => {
-      let dir = path.join(entryPath, name)
-      if (fs.statSync(dir).isDirectory()) {
-        let bootstrapFile = path.join(dir, 'index.js')
+    let file = path.join(rootDir, module.entry)
+    if (!fs.existsSync(file)) {
+      throw new Error(`Entry file ${module.entry} is not found`)
+    }
 
-        if (fs.existsSync(bootstrapFile)) {
-          entries[name] = ['babel-polyfill', bootstrapFile]
+    let dir = path.dirname(file)
+    let name = path.basename(dir)
 
-          /**
-           * reanme entry html
-           */
-          let options = {
-            filename: path.join(distDir, `${name}.html`)
-          }
+    modules.push({ file, dir, name })
+  })
 
-          /**
-           * use template when then template file exists
-           */
-          let tmplFile = path.join(entryPath, `${name}/index.pug`)
-          fs.existsSync(tmplFile) && Object.assign(options, { template: tmplFile })
-
-          /**
-           * clean other static resources
-           */
-          Object.assign(options, { excludeChunks: without(modules, name) })
-
-          let plugin = new HtmlWebpackPlugin(options)
-          plugins.push(plugin)
-        }
-      }
-    })
-
-    return true
+  if (modules.length === 0) {
+    throw new Error('Entry is not found')
   }
 
-  return false
+  let names = map(modules, 'name')
+  forEach(modules, ({ file, dir, name }) => {
+    entries[name] = [
+      'babel-polyfill',
+      file
+    ]
+
+    /**
+     * reanme entry html
+     */
+    let options = {
+      filename: path.join(distDir, `${name}.html`)
+    }
+
+    /**
+     * use template when then template file exists
+     */
+    let templateFile = path.join(dir, 'index.pug')
+    fs.existsSync(templateFile) && assign(options, { template: templateFile })
+
+    /**
+     * clean other static resources
+     */
+    let excludeChunks = without(names, name)
+    assign(options, { excludeChunks })
+
+    let plugin = new HtmlWebpackPlugin(options)
+    plugins.push(plugin)
+
+    return true
+  })
 }
 
 /**
@@ -442,7 +457,7 @@ export function generateSVGSprites (plugins, entries) {
       return false
     }
 
-    Object.assign(Entries, { svgstore: spriteTemplate })
+    assign(Entries, { svgstore: spriteTemplate })
 
     let plugin = new SvgStore({
       prefix: 'sp-svg-',
