@@ -211,7 +211,8 @@ export const Rules = [
           ]
         }
       }
-    ]
+    ],
+    exclude: [/node_modules/]
   },
   /**
    * 少于 10K 图片用 base64
