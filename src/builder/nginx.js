@@ -21,7 +21,7 @@ export default function build (modules, options, callback) {
     rootPath: rootDir,
     logsPath: logDir,
     distFile: path.join(options.rootPath || rootDir, 'vhosts/nginx.conf'),
-    template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
+    template: path.join(execDir, 'libs/templates/vhosts/nginx.conf.hbs'),
     useHttps: isBoolean(options.useHttps) ? options.useHttps : false
   })
 
