@@ -14,6 +14,12 @@
       "git add"
     ]
   },
+  "nyc": {
+    "exclude": [
+      "**/*.spec.js",
+      "**/node_modules/**"
+    ]
+  },
   "scripts": {
     "precommit": "lint-staged",
     "yamllint": "yamllint .travis.yml && yamllint appveyor.yml",
