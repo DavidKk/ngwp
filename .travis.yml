@@ -20,7 +20,7 @@ script:
   - npm run coveralls
 
 before_deploy:
-  - npm run build
+  - npm run product
 
 deploy:
   provider: npm
