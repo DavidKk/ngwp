@@ -1,5 +1,7 @@
 [![GitHub version](https://badge.fury.io/gh/DavidKk%2Fngwp.svg)](https://badge.fury.io/gh/DavidKk%2Fngwp)
 [![npm version](https://badge.fury.io/js/ngwp.svg)](https://badge.fury.io/js/ngwp)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
+
 [![Build Status](https://travis-ci.org/DavidKk/ngwp.svg?branch=master)](https://travis-ci.org/DavidKk/ngwp)
 [![Build status](https://ci.appveyor.com/api/projects/status/p76hetxe0us38axx?svg=true)](https://ci.appveyor.com/project/DavidKk/ngwp)
 [![Coverage Status](https://coveralls.io/repos/github/DavidKk/ngwp/badge.svg?branch=master)](https://coveralls.io/github/DavidKk/ngwp?branch=master)
@@ -11,105 +13,45 @@
 ## Install
 
 ```
-# For global
 $ npm install -g ngwp
-
-# For local
-$ npm install ngwp
 ```
 
-## Initialization
 
-```
-$ ngwp init project_name
-$ cd project_name
-$ npm install
-```
+## Example
+
+[https://github.com/DavidKk/ngwp-example](https://github.com/DavidKk/ngwp-example)
+
 
 ## Nginx config file generation and import
 
-```
-$ ngwp vhosts --port webpack_develop_server_port (default: 50000, suggest)
-```
-
-## Generate modules
+Config file in project, [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json)
 
 ```
-$ ngwp module module_name
+$ vi project/.ngwprc.json
+$ ngwp nginx
 ```
-
-Regenerate nginx config file when generate new module, and reload/reset ngxin server.
-
-## Generate router
-
-```
-$ ngwp reoute module_name route1/route2/routeN...
-```
-
-## Compile and release
-
-```
-# Develop env
-$ npm start
-
-# Running test
-$ npm test
-
-# Release project
-$ npm run product
-```
-
-## Set develop server domain
-
-```
-$ vi project/.ngwprc
-
-{
-  port: 51000,
-  clientDomain: 'www.domain.com',     // default is your project name: www.[project_name].com
-  serverDomain: 'api.domain.com',     // optional it will be inject variables SERVER_DOMAIN
-  assetsDomain: 'static.domain.com',  // optional
-  uploadDomain: 'upload.domain.com',  // optional
-  nginxProxy: [                       // optional
-    {
-      entries   : ['home', 'user'],
-      domain    : ['www.domain.com'],
-    },
-    {
-      entries   : ['payment'],
-      domain    : ['pay.domain.com'],
-    },
-  ],
-}
-```
-
-`clientDomain`, `serverDomain`, `assetsDomain`, `uploadDomain` will inject to javascript, but it is not in global (`webpack.DefinePlugin`)
-
 
 # Features
 
-## Mutiple Modules (Mutiple Entrance)
+## Multiple Modules
 
-Define a module, you can make folder in entry folder (`src/app/`). The folder name is module name.
-and every module must has one entrnace script file (must be named 'index.js'). And you can open `www.domain.com/{module_name}/` to visit that module.
-
-At last, every time for build new module, you must generate nginx config, because the base-router is defined by nginx configuration.
+You can define multiple entry/modules in folder [src/modules/](https://github.com/DavidKk/ngwp-example/tree/master/src/modules). Different modules must define different nginx configurations, see [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json).
 
 
 ## Image Sprites Auto-Generate
 
-Put all image-sprites to folder `src/assets/sprites/images/`, the webpack will combine them into one sprite-image (`dist/path/panels/sprite.{hashcode}.png`).
+Put all image-sprites to folder [src/assets/sprites/images/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/images), it will combine them to only one image (`dist/path/assets/panels/sprite.{hashcode}.png`).
 
-And it also generate the scss file to temporary folder (`.temporary/`), and you can importd use `@import "sprites"`. the base unit is percentage (`%`) not `px` or `rem`. you can change it by file `src/assets/sprites/images/sprite.scss.template.handlebars`
+The base unit is percentage (`%`) not `px` or `rem`. You can change it by file [src/assets/sprites/images/sprite.scss.template.handlebars](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/images/sprite.scss.template.handlebars)
 
 
 ## SVG Sprites Auto-Generate
 
-Put all svg-sprites to folder `src/assets/sprites/svg/`, the webpack will combine them into one sprite-image (`dist/path/panels/svgsprite.{hashcode}.svg`).
+Put all svg-sprites to folder [src/assets/sprites/svg/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/svg), it will combine them to only one svg (`dist/path/assets/panels/svgsprite.{hashcode}.svg`).
 
-And the SVGO config file is in `src/assets/sprites/svg/svgstore.config.js`
+And the SVGO config file is in [src/assets/sprites/svg/svgstore.config.js](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/svg/svgstore.config.js)
 
-Compatibility must be known:
+### Compatibility must be known:
 
 ```
 svg in webkit old browser, it not support use (reference)
@@ -135,9 +77,3 @@ webview/0
 Docs : https://github.com/svg/svgo/blob/master/docs/how-it-works/en.md#3-plugins
 API  : https://github.com/svg/svgo/blob/master/docs/how-it-works/en.md#32-api
 ```
-
-# Specification
-
-## ES6 Overwrites each script and SASS overwrites each styles
-
-You can create `.eslintrc` or `.stylelintrc` to the root path of project. ngwp will base on your  standard rc-file to check all the scripts and styles.

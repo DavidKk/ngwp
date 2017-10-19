@@ -1,0 +1,96 @@
+{{#each modules}}
+  server {
+    listen 80;
+
+    {{#if useHttps}}
+      listen 443;
+    {{/if}}
+
+    server_name {{{separate domain}}};
+    root {{ ../rootPath }}/;
+
+    {{#if useHttps}}
+      ssl on;
+      ssl_certificate {{ certFile }};
+      ssl_certificate_key {{ certKey }};
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_ciphers ECDHE-RSA-AES256-SHA384:AES256-SHA256:RC4:HIGH:!MD5:!aNULL:!eNULL:!NULL:!DH:!EDH:!AESGCM;
+      ssl_prefer_server_ciphers on;
+      ssl_session_cache shared:SSL:10m;
+      ssl_session_timeout 10m;
+      add_header Strict-Transport-Security "max-age=1";
+    {{/if}}
+
+    access_log {{ ../logsPath }}/access.log combined buffer=16k flush=5s;
+    error_log {{ ../logsPath }}/error.log error;
+
+    error_page 404 500 502 503 504 @fallback;
+
+    {{#if reserved}}
+      {{#each reserved}}
+        location ^~ /{{this}}/ {
+          try_files /{{ this }}/index.html @proxy_nodejs_{{this}};
+        }
+
+        location @proxy_nodejs_{{this}} {
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+          proxy_pass http://{{ proxy }}:{{ port }}/{{ this }}/$1?$args;
+          proxy_intercept_errors on;
+          error_page 404 /error.html;
+        }
+      {{/each}}
+    {{/if}}
+
+    {{#compare 'module' '===' type}}
+      location / {
+        add_header Cache-Control "no-store, no-cache, private";
+        try_files $uri /{{ entry }} @proxy_nodejs;
+      }
+
+      location @proxy_nodejs {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://{{ proxy }}:{{ port }}/{{ entry }}?$args;
+        proxy_intercept_errors on;
+        error_page 404 /error.html;
+      }
+    {{/compare}}
+
+    {{#compare 'static' '===' type}}
+      location ~* /(.*)$ {
+        access_log off;
+        expires max;
+        add_header Cache-Control public;
+        try_files $uri /$1 @proxy_nodejs;
+      }
+
+      location @proxy_nodejs {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://{{ proxy }}:{{ port }}/$1?$args;
+        proxy_intercept_errors on;
+        error_page 404 /error.html;
+      }
+    {{/compare}}
+
+    location @fallback {
+      try_files /error.html =500;
+    }
+  }
+{{/each}}
