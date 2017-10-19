@@ -16,6 +16,7 @@ import './nginx/nginx.helper'
 
 describe('Nginx Generator', function () {
   let srcPath = path.join(__dirname, './nginx')
+  let distPath = path.join(__dirname, '../dist')
   let tmpPath = path.join(execDir, '.temporary')
   let logPath = path.join(tmpPath, './logs')
 
@@ -62,7 +63,7 @@ describe('Nginx Generator', function () {
         expect(_.isPlainObject(source)).to.be.true
 
         expect(source.logsPath).to.equal(logPath)
-        expect(source.rootPath).to.equal(srcPath)
+        expect(source.rootPath).to.equal(distPath)
         expect(fs.existsSync(logPath)).to.be.true
 
         expect(source.modules).to.be.instanceof(Array)

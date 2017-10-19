@@ -17,7 +17,7 @@ export const logDir = path.join(rootDir, settings.log || 'log')
 export const tmpDir = path.join(rootDir, settings.tmp || '.temporary')
 export const nginxDir = path.join(rootDir, settings.vhosts || 'vhosts')
 
-export const nginx = settings.nginx || {}
-export const port = nginx.port || 8080
+export const port = settings.port || 8080
 export const publicPath = settings.publicPath
 export const variables = mapValues(settings.variables, JSON.stringify)
+export const modules = settings.modules || []

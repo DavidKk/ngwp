@@ -1,4 +1,4 @@
 {
-  "plugins": ["transform-export-extensions"],
+  "plugins": ["transform-decorators-legacy", "transform-export-extensions"],
   "presets": ["es2015", "stage-0"]
 }

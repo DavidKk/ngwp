@@ -50,7 +50,7 @@
     {{#compare 'module' '===' type}}
       location / {
         add_header Cache-Control "no-store, no-cache, private";
-        try_files $uri /index.html @proxy_nodejs;
+        try_files $uri /{{ entry }} @proxy_nodejs;
       }
 
       location @proxy_nodejs {

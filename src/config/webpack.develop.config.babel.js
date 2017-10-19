@@ -1,17 +1,9 @@
-import defaults from 'lodash/defaults'
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
 import webpackConfig from './webpack.common.config.babel'
-import { port, publicPath, variables } from '../share/configuration'
+import { port } from '../share/configuration'
 
-const LoaderOptionsPlugin = webpack.LoaderOptionsPlugin
 const DefinePlugin = webpack.DefinePlugin
-const GlobalVariables = defaults({
-  publicPath: JSON.stringify(publicPath),
-  'process.env': {
-    development: JSON.stringify(true)
-  }
-}, variables)
 
 export default WebpackMerger(webpackConfig, {
   devtool: 'source-map',
@@ -21,7 +13,13 @@ export default WebpackMerger(webpackConfig, {
     inline: true
   },
   plugins: [
-    new LoaderOptionsPlugin({ debug: true }),
-    new DefinePlugin(GlobalVariables)
+    /**
+     * Define some global variables
+     */
+    new DefinePlugin({
+      'process.env': {
+        development: JSON.stringify(true)
+      }
+    })
   ]
 })

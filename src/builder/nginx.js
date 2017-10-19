@@ -8,7 +8,7 @@ import isBoolean from 'lodash/isBoolean'
 import isFunction from 'lodash/isFunction'
 import defaults from 'lodash/defaults'
 import cloneDeep from 'lodash/cloneDeep'
-import { rootDir, execDir, logDir } from '../share/configuration'
+import { rootDir, execDir, distDir, logDir } from '../share/configuration'
 import { absolute } from '../share/path'
 
 export default function build (modules, options, callback) {
@@ -18,10 +18,10 @@ export default function build (modules, options, callback) {
   }
 
   options = defaults(cloneDeep(options), {
-    rootDir: rootDir,
+    rootPath: rootDir,
     logsPath: logDir,
     distFile: path.join(options.rootPath || rootDir, 'vhosts/nginx.conf'),
-    template: path.join(execDir, 'templates/vhosts/nginx.conf.hbs'),
+    template: path.join(execDir, 'libs/templates/vhosts/nginx.conf.hbs'),
     useHttps: isBoolean(options.useHttps) ? options.useHttps : false
   })
 
@@ -75,7 +75,7 @@ export default function build (modules, options, callback) {
     }
 
     if (module.useHttps === true) {
-      let certFile = absolute(module.certFile, options.rootDir)
+      let certFile = absolute(module.certFile, options.rootPath)
       /* istanbul ignore next */
       if (!certFile) {
         callback(new Error('CertFile is not provided when use https'))
@@ -88,7 +88,7 @@ export default function build (modules, options, callback) {
         return
       }
 
-      let certKey = absolute(module.certKey, options.rootDir)
+      let certKey = absolute(module.certKey, options.rootPath)
       /* istanbul ignore next */
       if (!certKey) {
         callback(new Error('CertKey is not provided when use https'))
@@ -106,7 +106,7 @@ export default function build (modules, options, callback) {
   fs.ensureDirSync(options.logsPath)
 
   let source = compile({
-    rootPath: options.rootPath,
+    rootPath: distDir,
     logsPath: options.logsPath,
     modules: modules
   })
