@@ -40,6 +40,7 @@
     "command-exists": "^1.2.2",
     "concurrently": "^3.5.0",
     "cpx": "^1.5.0",
+    "husky": "^0.14.3",
     "lint-staged": "^4.2.3",
     "standard": "^10.0.3",
     "yaml-lint": "^1.0.0"
