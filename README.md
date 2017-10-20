@@ -19,7 +19,7 @@ $ npm install -g ngwp
 
 ## Example
 
-[https://github.com/DavidKk/ngwp-example](https://github.com/DavidKk/ngwp-example)
+[https://github.com/DavidKk/ngwp-todo](https://github.com/DavidKk/ngwp-todo)
 
 
 ## Nginx config file generation and import
