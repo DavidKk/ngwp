@@ -1,11 +1,11 @@
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
-import webpackConfig from './webpack.common.config.babel'
+import WebpackConfig from './webpack.common.config.babel'
 import { port } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
 
-export default WebpackMerger(webpackConfig, {
+export default WebpackMerger(WebpackConfig, {
   devtool: 'source-map',
   devServer: {
     port: port,

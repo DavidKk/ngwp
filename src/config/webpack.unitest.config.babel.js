@@ -1,10 +1,10 @@
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
-import WebpackConf from './webpack.common.config.babel'
+import WebpackConfig from './webpack.common.config.babel'
 
 const DefinePlugin = webpack.DefinePlugin
 
-export default WebpackMerger(WebpackConf, {
+export default WebpackMerger(WebpackConfig, {
   devtool: 'inline-source-map',
   plugins: [
     /**
