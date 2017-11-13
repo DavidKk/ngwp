@@ -24,7 +24,7 @@
     access_log {{ ../logsPath }}/access.log combined buffer=16k flush=5s;
     error_log {{ ../logsPath }}/error.log error;
 
-    error_page 404 500 502 503 504 @fallback;
+    error_page 404 500 502 503 504;
 
     {{#if reserved}}
       {{#each reserved}}
@@ -40,7 +40,8 @@
           proxy_set_header Host $host;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
-          proxy_pass http://{{ proxy }}:{{ port }}/{{ this }}/$1?$args;
+          proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/{{ this }}/$1?$args;
+
           proxy_intercept_errors on;
           error_page 404 /error.html;
         }
@@ -60,8 +61,8 @@
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-
-        proxy_pass http://{{ proxy }}:{{ port }}/{{ entry }}?$args;
+  
+        proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/{{ entry }}?$args;
         proxy_intercept_errors on;
         error_page 404 /error.html;
       }
@@ -83,14 +84,10 @@
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
-        proxy_pass http://{{ proxy }}:{{ port }}/$1?$args;
+        proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/$1?$args;
         proxy_intercept_errors on;
         error_page 404 /error.html;
       }
     {{/compare}}
-
-    location @fallback {
-      try_files /error.html =500;
-    }
   }
 {{/each}}
