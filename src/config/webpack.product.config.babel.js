@@ -1,11 +1,11 @@
 import webpack from 'webpack'
 import WebpackMerger from 'webpack-merge'
-import webpackConfig from './webpack.common.config.babel'
+import WebpackConfig from './webpack.common.config.babel'
 
 const DefinePlugin = webpack.DefinePlugin
 const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin
 
-export default WebpackMerger(webpackConfig, {
+export default WebpackMerger(WebpackConfig, {
   devtool: false,
   output: {
     filename: '[name].[chunkhash].js'

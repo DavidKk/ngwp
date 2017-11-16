@@ -24,7 +24,7 @@ $ npm install -g ngwp
 
 ## Nginx config file generation and import
 
-Config file in project, [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json)
+Config file in project, [.ngwprc.json](https://github.com/DavidKk/ngwp-todo/blob/master/.ngwprc.json)
 
 ```
 $ vi project/.ngwprc.json
@@ -35,21 +35,21 @@ $ ngwp nginx
 
 ## Multiple Modules
 
-You can define multiple entry/modules in folder [src/modules/](https://github.com/DavidKk/ngwp-example/tree/master/src/modules). Different modules must define different nginx configurations, see [.ngwprc.json](https://github.com/DavidKk/ngwp-example/blob/master/.ngwprc.json).
+You can define multiple entry/modules in folder [src/modules/](https://github.com/DavidKk/ngwp-todo/tree/master/src/modules). Different modules must define different nginx configurations, see [.ngwprc.json](https://github.com/DavidKk/ngwp-todo/blob/master/.ngwprc.json).
 
 
 ## Image Sprites Auto-Generate
 
-Put all image-sprites to folder [src/assets/sprites/images/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/images), it will combine them to only one image (`dist/path/assets/panels/sprite.{hashcode}.png`).
+Put all image-sprites to folder [src/assets/sprites/images/](https://github.com/DavidKk/ngwp-todo/tree/master/src/assets/sprites/images), it will combine them to only one image (`dist/path/assets/panels/sprite.{hashcode}.png`).
 
-The base unit is percentage (`%`) not `px` or `rem`. You can change it by file [src/assets/sprites/images/sprite.scss.template.handlebars](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/images/sprite.scss.template.handlebars)
+The base unit is percentage (`%`) not `px` or `rem`. You can change it by file [src/assets/sprites/images/sprite.scss.template.handlebars](https://github.com/DavidKk/ngwp-todo/blob/master/src/assets/sprites/images/sprite.scss.template.handlebars)
 
 
 ## SVG Sprites Auto-Generate
 
-Put all svg-sprites to folder [src/assets/sprites/svg/](https://github.com/DavidKk/ngwp-example/tree/master/src/assets/sprites/svg), it will combine them to only one svg (`dist/path/assets/panels/svgsprite.{hashcode}.svg`).
+Put all svg-sprites to folder [src/assets/sprites/svg/](https://github.com/DavidKk/ngwp-todo/tree/master/src/assets/sprites/svg), it will combine them to only one svg (`dist/path/assets/panels/svgsprite.{hashcode}.svg`).
 
-And the SVGO config file is in [src/assets/sprites/svg/svgstore.config.js](https://github.com/DavidKk/ngwp-example/blob/master/src/assets/sprites/svg/svgstore.config.js)
+And the SVGO config file is in [src/assets/sprites/svg/svgstore.config.js](https://github.com/DavidKk/ngwp-todo/blob/master/src/assets/sprites/svg/svgstore.config.js)
 
 ### Compatibility must be known:
 
