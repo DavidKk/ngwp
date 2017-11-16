@@ -410,10 +410,10 @@ export function generateSprites (plugins) {
         glob: '**/*.{png,gif,jpg}'
       },
       target: {
-        image: path.join(__dirname, '.build/sprites.png'),
+        image: path.join(tmpDir, 'sprites.png'),
         css: [
           [
-            path.join(__dirname, '.build/sprites.scss'),
+            path.join(tmpDir, 'sprites.scss'),
             {
               format: 'spriteScssTemplate'
             }
