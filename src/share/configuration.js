@@ -13,7 +13,7 @@ if (fs.existsSync(rcFile)) {
 
 export const srcDir = path.join(rootDir, settings.src || 'src')
 export const distDir = path.join(rootDir, settings.dist || 'dist')
-export const logDir = path.join(rootDir, settings.log || 'log')
+export const logDir = path.join(rootDir, settings.log || 'logs')
 export const tmpDir = path.join(rootDir, settings.tmp || '.temporary')
 export const nginxDir = path.join(rootDir, settings.vhosts || 'vhosts')
 

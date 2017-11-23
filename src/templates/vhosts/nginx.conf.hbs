@@ -21,8 +21,8 @@
       add_header Strict-Transport-Security "max-age=1";
     {{/if}}
 
-    access_log {{ ../logsPath }}/access.log combined buffer=16k flush=5s;
-    error_log {{ ../logsPath }}/error.log error;
+    access_log {{ ../logsPath }}/{{ ../projectName }}.access.log combined buffer=16k flush=5s;
+    error_log {{ ../logsPath }}/{{ ../projectName }}.error.log error;
 
     error_page 404 500 502 503 504;
 

@@ -19,9 +19,11 @@ const commander = program
 .option('-c, --config <config>', 'Set webpack config')
 .option('-p, --port <port>', 'Set dev server port')
 .option('-h, --host <host>', 'Set dev server host')
+.option('--https', 'Server run in https protocol')
 .action((mode, options) => {
   let serverPort = options.port || ServerPort
   let serverHost = options.host || '127.0.0.1'
+  let serverHttps = options.https || false
   let configFile
 
   if (options.hasOwnProperty('config')) {
@@ -35,7 +37,7 @@ const commander = program
 
   if (indexOf(['dev', 'develop', 'development'], mode) !== -1) {
     process.env.DEVELOP = 1
-    configFile ? compiler(configFile, { port: serverPort, host: serverHost }) : devTask()
+    configFile ? compiler(configFile, { port: serverPort, host: serverHost, https: serverHttps }) : devTask()
     return
   }
 

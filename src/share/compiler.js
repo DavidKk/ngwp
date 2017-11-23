@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import clone from 'lodash/clone'
+import isObject from 'lodash/isObject'
 import isBoolean from 'lodash/isBoolean'
 import defaultsDeep from 'lodash/defaultsDeep'
 import Webpack from 'webpack'
@@ -20,12 +21,19 @@ export default function (file, options = {}, callback) {
   if (options.watch === true) {
     let serverPort = options.port || ServerPort
     let serverHost = options.host || '127.0.0.1'
+    let serverHttps = isObject(options.https)
+    ? options.https || {}
+    : options.https === true
+      ? {}
+      : false
+
     let serverConfig = defaultsDeep(clone(config.devServer), {
       stats: {
         colors: true
       },
       port: serverPort,
       host: serverHost,
+      https: serverHttps,
       disableHostCheck: isBoolean(options.disableHostCheck) ? options.disableHostCheck : true,
       watchOptions: {
         ignored: /node_modules/,

@@ -100,12 +100,18 @@ export default function build (modules, options, callback) {
         callback(new Error(`CertKey ${certKey} is not found`))
         return
       }
+
+      module.certFile = certFile
+      module.certKey = certKey
     }
   }
 
   fs.ensureDirSync(options.logsPath)
 
+  let Package = fs.readJSONSync(path.join(rootDir, './package.json'))
+
   let source = compile({
+    projectName: Package.name || 'Anonymous',
     rootPath: distDir,
     logsPath: options.logsPath,
     modules: modules
