@@ -1,11 +1,15 @@
 import fs from 'fs-extra'
+import get from 'lodash/get'
 import clone from 'lodash/clone'
 import isObject from 'lodash/isObject'
 import isBoolean from 'lodash/isBoolean'
 import defaultsDeep from 'lodash/defaultsDeep'
+import colors from 'colors'
 import Webpack from 'webpack'
 import WebpackDevServer from 'webpack-dev-server'
-import { port as ServerPort } from './configuration'
+import { port as ServerPort, modules } from './configuration'
+import { trace, printStats } from './printer'
+import Package from '../../package.json'
 
 export default function (file, options = {}, callback) {
   if (!fs.existsSync(file)) {
@@ -28,8 +32,20 @@ export default function (file, options = {}, callback) {
       : false
 
     let serverConfig = defaultsDeep(clone(config.devServer), {
+      // It suppress error shown in console, so it has to be set to false.
+      quiet: false,
+      // It suppress everything except error, so it has to be set to false as well
+      // to see success build.
+      noInfo: false,
       stats: {
-        colors: true
+        // Config for minimal console.log mess.
+        assets: false,
+        colors: true,
+        version: false,
+        hash: false,
+        timings: false,
+        chunks: false,
+        chunkModules: false
       },
       port: serverPort,
       host: serverHost,
@@ -48,7 +64,17 @@ export default function (file, options = {}, callback) {
         throw error
       }
 
-      console.log(`Starting server on http://${serverHost}:${serverPort}`)
+      let server = `http${serverHttps ? 's' : ''}://${serverHost}:${serverPort}`
+
+      trace('')
+      trace(`Ngwp version at ${colors.cyan.bold(Package.version)}`)
+      trace(`Project is running at ${colors.cyan.bold(server)}`)
+      trace(`Webpack output is served from ${colors.cyan.bold(get(config, 'output.publicPath'))}`)
+      trace(`Content not from webpack is served from ${colors.cyan.bold(get(config, 'output.path'))}`)
+      trace('') // 空行
+      printStats(modules)
+      trace(`✨ Please make sure nginx config file is generated! You should also run script ${colors.magenta.bold('ngwp nginx')}`)
+      trace('')
     })
 
     return
@@ -65,6 +91,6 @@ export default function (file, options = {}, callback) {
       colors: true
     })
 
-    console.log(message)
+    trace(message)
   })
 }

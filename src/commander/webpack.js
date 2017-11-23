@@ -37,7 +37,9 @@ const commander = program
 
   if (indexOf(['dev', 'develop', 'development'], mode) !== -1) {
     process.env.DEVELOP = 1
-    configFile ? compiler(configFile, { port: serverPort, host: serverHost, https: serverHttps }) : devTask()
+
+    let options = { port: serverPort, host: serverHost, https: serverHttps }
+    configFile ? compiler(configFile, options) : devTask(options)
     return
   }
 
