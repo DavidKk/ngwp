@@ -123,30 +123,19 @@ export const Rules = [
       }
     ]
   },
-  /**
-   * As Jade/Pug will use require() to load public style
-   * like bootstrap.css, so that we must provider a loader
-   * to load the file.
-   * At the same time, `ExtractTextPlugin` plugin do not
-   * match .css file, because it will throw an error to
-   * tell you no loader can load this file.
-   *
-   * Error:
-   *   Module build failed:
-   *   Error: "extract-text-webpack-plugin" loader is used
-   *   without the corresponding plugin, refer to
-   *   https://github.com/webpack/extract-text-webpack-plugin
-   *   for the usage example
-   */
   {
     test: /\.css$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        name: 'styles/[name].[hash].css'
+    use: [
+      {
+        loader: 'style-loader'
+      },
+      {
+        loader: 'css-loader',
+        options: {
+          minimize: true
+        }
       }
-    }
+    ]
   },
   /**
    * docs:
