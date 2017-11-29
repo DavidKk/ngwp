@@ -125,17 +125,17 @@ export const Rules = [
   },
   {
     test: /\.css$/,
-    use: [
-      {
-        loader: 'style-loader'
-      },
-      {
-        loader: 'css-loader',
-        options: {
-          minimize: true
+    use: ExtractTextPlugin.extract({
+      fallback: 'style-loader',
+      use: [
+        {
+          loader: 'css-loader',
+          options: {
+            minimize: true
+          }
         }
-      }
-    ]
+      ]
+    })
   },
   /**
    * docs:
