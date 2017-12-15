@@ -55,8 +55,7 @@ program
     distFile: options.dist,
     rootPath: options.rootPath,
     logsPath: options.logsPath
-  },
-  function (error, stats) {
+  }, (error, stats) => {
     /* istanbul ignore if */
     if (error) {
       throw error

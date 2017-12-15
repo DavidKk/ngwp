@@ -24,7 +24,7 @@ import CopyWebpackPlugin from 'copy-webpack-plugin'
 import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
-const CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin
+const { CommonsChunkPlugin } = webpack.optimize
 const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
 
 /**
@@ -179,7 +179,10 @@ export const Rules = [
     test: /\.js$/,
     use: [
       {
-        loader: 'ng-annotate-loader'
+        loader: 'ng-annotate-loader',
+        options: {
+          es6: true
+        }
       },
       /**
        * babel@6.0.0 break the .babelrc file
@@ -190,21 +193,14 @@ export const Rules = [
       {
         loader: 'babel-loader',
         options: {
-          plugins: [
-            require.resolve('babel-plugin-transform-decorators-legacy'),
-            require.resolve('babel-plugin-transform-export-extensions')
-          ],
-          presets: [
-            require.resolve('babel-preset-es2015'),
-            require.resolve('babel-preset-stage-0')
-          ]
+          babelrc: path.join(rootDir, './.babelrc')
         }
       }
     ],
     exclude: [/node_modules/]
   },
   /**
-   * 少于 10K 图片用 base64
+   * 少于 1K 图片用 base64
    * url-loader 依赖 file-loader
    */
   {
@@ -213,7 +209,7 @@ export const Rules = [
       {
         loader: 'url-loader',
         options: {
-          limit: 10000,
+          limit: 1 * 1024,
           name: 'panels/[name].[hash].[ext]'
         }
       }

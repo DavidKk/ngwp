@@ -1,8 +1,8 @@
 import fs from 'fs-extra'
 import get from 'lodash/get'
-import clone from 'lodash/clone'
 import isObject from 'lodash/isObject'
 import isBoolean from 'lodash/isBoolean'
+import defaults from 'lodash/defaults'
 import defaultsDeep from 'lodash/defaultsDeep'
 import colors from 'colors'
 import Webpack from 'webpack'
@@ -31,22 +31,13 @@ export default function (file, options = {}, callback) {
       ? {}
       : false
 
-    let serverConfig = defaultsDeep(clone(config.devServer), {
+    let serverConfig = defaults({}, config.devServer, {
       // It suppress error shown in console, so it has to be set to false.
       quiet: false,
       // It suppress everything except error, so it has to be set to false as well
       // to see success build.
       noInfo: false,
-      stats: {
-        // Config for minimal console.log mess.
-        assets: false,
-        colors: true,
-        version: false,
-        hash: false,
-        timings: false,
-        chunks: false,
-        chunkModules: false
-      },
+      stats: 'errors-only',
       port: serverPort,
       host: serverHost,
       https: serverHttps,
@@ -73,7 +64,7 @@ export default function (file, options = {}, callback) {
       trace(`Content not from webpack is served from ${colors.cyan.bold(get(config, 'output.path'))}`)
       trace('') // 空行
       printStats(modules)
-      trace(`✨ Please make sure nginx config file is generated! You should also run script ${colors.magenta.bold('ngwp nginx')}`)
+      trace(`✨ Please make sure nginx config file is generated! You can also run script ${colors.magenta.bold('ngwp nginx')}`)
       trace('')
     })
 
