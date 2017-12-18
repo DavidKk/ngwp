@@ -73,6 +73,8 @@
         access_log off;
         expires max;
         add_header Cache-Control public;
+        # static resources has no custom header and credentials header, set allow origin to '*'
+        add_header Access-Control-Allow-Origin '*';
         try_files $uri /$1 @proxy_nodejs;
       }
 

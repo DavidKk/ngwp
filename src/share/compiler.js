@@ -37,7 +37,27 @@ export default function (file, options = {}, callback) {
       // It suppress everything except error, so it has to be set to false as well
       // to see success build.
       noInfo: false,
-      stats: 'errors-only',
+      stats: {
+        // only warning and error informations
+        // docs: https://webpack.js.org/configuration/stats/
+        colors: true,
+        warnings: true,
+        errors: true,
+        errorDetails: true,
+
+        version: false,
+        assets: false,
+        cached: false,
+        cachedAssets: false,
+        modules: false,
+        moduleTrace: false,
+        chunks: false,
+        chunkModules: false,
+        chunkOrigins: false,
+        children: false,
+        hash: false,
+        timings: false
+      },
       port: serverPort,
       host: serverHost,
       https: serverHttps,
@@ -77,11 +97,11 @@ export default function (file, options = {}, callback) {
     }
 
     /* eslint no-console:off */
-    let message = stats.toString({
-      chunks: false,
-      colors: true
-    })
+    // let message = stats.toString({
+    //   chunks: false,
+    //   colors: true
+    // })
 
-    trace(message)
+    // trace(message)
   })
 }

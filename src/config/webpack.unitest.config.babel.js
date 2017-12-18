@@ -6,6 +6,7 @@ const DefinePlugin = webpack.DefinePlugin
 
 export default WebpackMerger(WebpackConfig, {
   devtool: 'inline-source-map',
+  stats: 'errors-only',
   plugins: [
     /**
      * Define some global variables

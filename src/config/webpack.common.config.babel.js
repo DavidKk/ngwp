@@ -11,6 +11,7 @@ import isString from 'lodash/isString'
 import isFunction from 'lodash/isFunction'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
+import autoprefixer from 'autoprefixer'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -18,7 +19,6 @@ import SpritesmithPlugin from 'webpack-spritesmith'
 import SvgStore from 'webpack-svgstore-plugin'
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
-import autoprefixer from 'autoprefixer'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
@@ -46,9 +46,20 @@ export const ResolveModules = [
  */
 export const Plugins = [
   /**
+   * Clean generate folders
+   * run it first to reset the project.
+   */
+  new CleanWebpackPlugin([ tmpDir, distDir ], {
+    root: '/',
+    verbose: true,
+    dry: false
+  }),
+
+  /**
    * Define some global variables
    */
   new DefinePlugin(GlobalVariables),
+
   /**
    * Extract common modules
    * to reduce code duplication
@@ -76,17 +87,7 @@ export const Plugins = [
       to: path.join(distDir, 'assets/panels/'),
       flatten: true
     }
-  ]),
-
-  /**
-   * Clean generate folders
-   * run it first to reset the project.
-   */
-  new CleanWebpackPlugin([ tmpDir, distDir ], {
-    root: '/',
-    verbose: true,
-    dry: false
-  })
+  ])
 ]
 
 export const Injector = InjectScriptPlugin(Plugins)
@@ -285,7 +286,8 @@ export function generateEnteries (plugins, entries) {
      * reanme entry html
      */
     let options = {
-      filename: path.join(distDir, `${name}.html`)
+      filename: path.join(distDir, `${name}.html`),
+      serviceWorker: '/service-worker.js'
     }
 
     /**
@@ -300,8 +302,8 @@ export function generateEnteries (plugins, entries) {
     let excludeChunks = without(names, name)
     assign(options, { excludeChunks })
 
-    let plugin = new HtmlWebpackPlugin(options)
-    plugins.push(plugin)
+    let htmlPlugin = new HtmlWebpackPlugin(options)
+    plugins.push(htmlPlugin)
 
     return true
   })
