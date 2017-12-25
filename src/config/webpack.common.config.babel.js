@@ -11,20 +11,19 @@ import isString from 'lodash/isString'
 import isFunction from 'lodash/isFunction'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
-import autoprefixer from 'autoprefixer'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
 import SpritesmithPlugin from 'webpack-spritesmith'
 import SvgStore from 'webpack-svgstore-plugin'
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin'
-import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import autoprefixer from 'autoprefixer'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
-import ManifestPlugin from 'webpack-manifest-plugin'
-import { name as projectName, execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
+import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
 
-const DefinePlugin = webpack.DefinePlugin
+const { DefinePlugin } = webpack
 const { CommonsChunkPlugin } = webpack.optimize
 const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
 
@@ -47,20 +46,9 @@ export const ResolveModules = [
  */
 export const Plugins = [
   /**
-   * Clean generate folders
-   * run it first to reset the project.
-   */
-  new CleanWebpackPlugin([ tmpDir, distDir ], {
-    root: '/',
-    verbose: true,
-    dry: false
-  }),
-
-  /**
    * Define some global variables
    */
   new DefinePlugin(GlobalVariables),
-
   /**
    * Extract common modules
    * to reduce code duplication
@@ -91,10 +79,14 @@ export const Plugins = [
   ]),
 
   /**
-   * Generate all static resource
-   * manifest json file
+   * Clean generate folders
+   * run it first to reset the project.
    */
-  new ManifestPlugin()
+  new CleanWebpackPlugin([ tmpDir, distDir ], {
+    root: '/',
+    verbose: true,
+    dry: false
+  })
 ]
 
 export const Injector = InjectScriptPlugin(Plugins)
@@ -187,10 +179,7 @@ export const Rules = [
     test: /\.js$/,
     use: [
       {
-        loader: 'ng-annotate-loader',
-        options: {
-          es6: true
-        }
+        loader: 'ng-annotate-loader'
       },
       /**
        * babel@6.0.0 break the .babelrc file
@@ -201,23 +190,30 @@ export const Rules = [
       {
         loader: 'babel-loader',
         options: {
-          babelrc: path.join(rootDir, './.babelrc')
+          plugins: [
+            require.resolve('babel-plugin-transform-decorators-legacy'),
+            require.resolve('babel-plugin-transform-export-extensions')
+          ],
+          presets: [
+            require.resolve('babel-preset-es2015'),
+            require.resolve('babel-preset-stage-0')
+          ]
         }
       }
     ],
     exclude: [/node_modules/]
   },
   /**
-   * 少于 1K 图片用 base64
+   * 少于 10K 图片用 base64
    * url-loader 依赖 file-loader
    */
   {
-    test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)$/i,
+    test: /\.(jpe?g|png|gif)$/i,
     use: [
       {
         loader: 'url-loader',
         options: {
-          limit: 1 * 1024,
+          limit: 10000,
           name: 'panels/[name].[hash].[ext]'
         }
       }
@@ -293,8 +289,7 @@ export function generateEnteries (plugins, entries) {
      * reanme entry html
      */
     let options = {
-      filename: path.join(distDir, `${name}.html`),
-      serviceWorker: '/service-worker.js'
+      filename: path.join(distDir, `${name}.html`)
     }
 
     /**
@@ -309,8 +304,8 @@ export function generateEnteries (plugins, entries) {
     let excludeChunks = without(names, name)
     assign(options, { excludeChunks })
 
-    let htmlPlugin = new HtmlWebpackPlugin(options)
-    plugins.push(htmlPlugin)
+    let plugin = new HtmlWebpackPlugin(options)
+    plugins.push(plugin)
 
     return true
   })
@@ -329,7 +324,6 @@ export function generateFavicons (plugins) {
   if (fs.existsSync(logoFile)) {
     let statsFile = 'favicon/iconstats.json'
     let plugin = new FaviconsWebpackPlugin({
-      title: projectName,
       logo: logoFile,
       prefix: 'favicon/[hash]/',
       emitStats: true,
