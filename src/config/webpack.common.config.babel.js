@@ -211,7 +211,7 @@ export const Rules = [
         loader: 'url-loader',
         options: {
           limit: 1 * 1024,
-          name: '/panels/[name].[hash].[ext]'
+          name: 'panels/[name].[hash].[ext]'
         }
       }
     ]
