@@ -18,10 +18,11 @@ import SpritesmithTemplate from 'spritesheet-templates'
 import SpritesmithPlugin from 'webpack-spritesmith'
 import SvgStore from 'webpack-svgstore-plugin'
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
-import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
+import ManifestPlugin from 'webpack-manifest-plugin'
+import { name as projectName, execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
 const { CommonsChunkPlugin } = webpack.optimize
@@ -87,7 +88,13 @@ export const Plugins = [
       to: path.join(distDir, 'assets/panels/'),
       flatten: true
     }
-  ])
+  ]),
+
+  /**
+   * Generate all static resource
+   * manifest json file
+   */
+  new ManifestPlugin()
 ]
 
 export const Injector = InjectScriptPlugin(Plugins)
@@ -322,6 +329,7 @@ export function generateFavicons (plugins) {
   if (fs.existsSync(logoFile)) {
     let statsFile = 'favicon/iconstats.json'
     let plugin = new FaviconsWebpackPlugin({
+      title: projectName,
       logo: logoFile,
       prefix: 'favicon/[hash]/',
       emitStats: true,
