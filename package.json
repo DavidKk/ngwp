@@ -31,6 +31,7 @@
     "test": "npm run lint && npm run mocha",
     "product": "rimraf ./libs && babel ./src --out-dir ./libs && cpx \"src/templates/**\" libs/templates",
     "develop": "concurrently 'babel ./src --out-dir ./libs --watch' 'cpx \"src/templates/**\" libs/templates --watch --verbose'",
+    "release": "npm run test && npm run product",
     "start": "npm run develop"
   },
   "bin": {

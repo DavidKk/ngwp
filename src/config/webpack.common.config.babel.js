@@ -205,13 +205,13 @@ export const Rules = [
    * url-loader 依赖 file-loader
    */
   {
-    test: /\.(jpe?g|png|gif)$/i,
+    test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)$/i,
     use: [
       {
         loader: 'url-loader',
         options: {
           limit: 1 * 1024,
-          name: 'panels/[name].[hash].[ext]'
+          name: '/panels/[name].[hash].[ext]'
         }
       }
     ]
