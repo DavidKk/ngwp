@@ -82,8 +82,17 @@ export const Plugins = [
    */
   new CopyWebpackPlugin([
     {
-      from: path.join(rootDir, 'assets/panels/**'),
+      from: path.join(srcDir, 'assets/panels/**'),
       to: path.join(distDir, 'assets/panels/'),
+      flatten: true
+    },
+    /**
+     * 临时解决办法, 更新后删除
+     * docs: https://github.com/jantimon/favicons-webpack-plugin/issues/52
+     */
+    {
+      from: path.join(srcDir, 'assets/favicons/favicon.ico'),
+      to: path.join(distDir, '/favicon.ico'),
       flatten: true
     }
   ]),
