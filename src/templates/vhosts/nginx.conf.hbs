@@ -24,8 +24,6 @@
     access_log {{ ../logsPath }}/{{ ../projectName }}.access.log combined buffer=16k flush=5s;
     error_log {{ ../logsPath }}/{{ ../projectName }}.error.log error;
 
-    error_page 404 500 502 503 504;
-
     {{#if reserved}}
       {{#each reserved}}
         location ^~ /{{this}}/ {
@@ -43,7 +41,6 @@
           proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/{{ this }}/$1?$args;
 
           proxy_intercept_errors on;
-          error_page 404 /error.html;
         }
       {{/each}}
     {{/if}}
@@ -51,10 +48,10 @@
     {{#compare 'module' '===' type}}
       location / {
         add_header Cache-Control "no-store, no-cache, private";
-        try_files $uri /{{ entry }} @proxy_nodejs;
+        try_files $uri /{{ entry }} @proxy_nodejs_module;
       }
 
-      location @proxy_nodejs {
+      location @proxy_nodejs_module {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -64,7 +61,23 @@
   
         proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/{{ entry }}?$args;
         proxy_intercept_errors on;
-        error_page 404 /error.html;
+      }
+
+      location ~* ^/(.+\..+)$ {
+        add_header Cache-Control "no-store, no-cache, private";
+        try_files /favicon.ico @proxy_nodejs_static;
+      }
+
+      location @proxy_nodejs_static {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  
+        proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/$1?$args;
+        proxy_intercept_errors on;
       }
     {{/compare}}
 
@@ -88,7 +101,6 @@
 
         proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/$1?$args;
         proxy_intercept_errors on;
-        error_page 404 /error.html;
       }
     {{/compare}}
   }

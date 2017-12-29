@@ -7,8 +7,6 @@ import isArray from 'lodash/isArray'
 import indexOf from 'lodash/indexOf'
 import forEach from 'lodash/forEach'
 import isObject from 'lodash/isObject'
-import isString from 'lodash/isString'
-import isFunction from 'lodash/isFunction'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
 import autoprefixer from 'autoprefixer'
@@ -96,9 +94,6 @@ export const Plugins = [
    */
   new ManifestPlugin()
 ]
-
-export const Injector = InjectScriptPlugin(Plugins)
-export const CallAfter = WithDonePlugin(Plugins)
 
 /**
  * Generate some compile tasks
@@ -235,6 +230,10 @@ export default {
     publicPath: publicPath,
     filename: '[name].js'
   },
+  node: {
+    __filename: true,
+    __dirname: true
+  },
   module: {
     rules: Rules
   },
@@ -352,23 +351,6 @@ export function generateFavicons (plugins) {
     })
 
     plugins.push(plugin)
-
-    /**
-     * after compile, it will generate 'favicon.ico' file
-     * and copy it to the root path.
-     */
-    CallAfter.add(() => {
-      let sourceFile = path.join(distDir, statsFile)
-      if (!fs.existsSync(sourceFile)) {
-        return
-      }
-
-      let stats = fs.readJsonSync(sourceFile)
-      let favFile = path.join(distDir, stats.outputFilePrefix, 'favicon.ico')
-      let faviconFile = path.join(distDir, 'favicon.ico')
-
-      fs.copySync(favFile, faviconFile)
-    })
 
     return true
   }
@@ -536,127 +518,4 @@ export function generateSVGSprites (plugins, entries) {
     let [prefix, local] = name.split(':')
     item.attrs[name] = { value, name, prefix, local }
   }
-}
-
-/**
- * Callback after webpack excutes
- */
-export function WithDonePlugin (plugins) {
-  if (!isArray(plugins)) {
-    throw new Error('Parameter plugins must be a array.')
-  }
-
-  let instance = {
-    _callbacks: [],
-    add (callback) {
-      isFunction(callback) && this._callbacks.push(callback)
-    },
-    done () {
-      forEach(this._callbacks, (callback) => callback())
-    }
-  }
-
-  plugins.push({
-    apply (compiler) {
-      compiler.plugin('done', instance.done.bind(instance))
-    }
-  })
-
-  return instance
-}
-
-/**
- * Inject script to entry html file
- */
-export function InjectScriptPlugin (plugins) {
-  if (!isArray(plugins)) {
-    throw new Error('Parameter plugins must be a array.')
-  }
-
-  let instance = {
-    _injector: [],
-    _callbacks: [],
-    inject (source) {
-      if (!isString(source)) {
-        return false
-      }
-
-      let hash = mkhash(source)
-      if (indexOf(this._injector, { hash }) !== -1) {
-        return false
-      }
-
-      let script = `!(function () {
-        var id = 'webpack-${hash}';
-        if ('undefined' === typeof window || document.getElementById(id)) {
-          return;
-        }
-
-        var node = document.createElement('script');
-        node.id = id;
-        node.innerHTML = '${source}';
-
-        document.head.appendChild(node);
-      })();`
-
-      this._injector.push({ hash, script })
-    },
-    after (callback) {
-      isFunction(callback) && this._callbacks.push(callback)
-    }
-  }
-
-  plugins.push({
-    autoloadScript () {
-      let scripts = []
-      forEach(instance._injector, (injector) => scripts.push(injector.script))
-      return scripts.join('\n')
-    },
-    scriptTag (source) {
-      let injector = this.autoloadScript()
-      return injector + source
-    },
-    applyCompilation (compilation) {
-      compilation.mainTemplate.plugin('startup', this.scriptTag.bind(this))
-    },
-    applyDone () {
-      forEach(instance._callbacks, (injector) => injector())
-      instance._callbacks.splice(0)
-    },
-    apply (compiler) {
-      /**
-       * sometimes it will trigger twice or more,
-       * the core-code just exec once, see below function autoloadScript.
-       */
-      compiler.plugin('compilation', this.applyCompilation.bind(this))
-      compiler.plugin('done', this.applyDone.bind(this))
-    }
-  })
-
-  return instance
-}
-
-/**
- * make hash code
- * See: http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery?answertab=active#tab-top
- */
-function mkhash (string) {
-  string = JSON.stringify(string)
-
-  let hash = 0
-  if (string.length === 0) {
-    return hash
-  }
-
-  for (let i = 0, l = string.length; i < l; i++) {
-    let chr = string.charCodeAt(i)
-    hash = (hash << 5) - hash + chr
-
-    /**
-     * Convert to 32bit integer
-     */
-    hash |= 0
-  }
-
-  return hash
 }
