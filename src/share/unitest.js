@@ -6,5 +6,7 @@ export default function (configFile) {
     throw new Error(`Config file ${configFile} is not provided.`)
   }
 
-  new Server({ configFile }).start()
+  let server = new Server({ configFile })
+  server.start()
+  return server
 }

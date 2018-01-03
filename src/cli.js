@@ -6,7 +6,7 @@ import './commander/webpack'
 let params = process.argv
 
 program
-.version(version)
-.option('--quiet')
+  .version(version)
+  .option('--quiet')
 
 program.parse(params)

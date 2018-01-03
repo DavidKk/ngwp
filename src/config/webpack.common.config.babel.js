@@ -7,24 +7,23 @@ import isArray from 'lodash/isArray'
 import indexOf from 'lodash/indexOf'
 import forEach from 'lodash/forEach'
 import isObject from 'lodash/isObject'
-import isString from 'lodash/isString'
-import isFunction from 'lodash/isFunction'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
+import autoprefixer from 'autoprefixer'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
 import SpritesmithPlugin from 'webpack-spritesmith'
 import SvgStore from 'webpack-svgstore-plugin'
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import autoprefixer from 'autoprefixer'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
-import { execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
+import ManifestPlugin from 'webpack-manifest-plugin'
+import { name as projectName, execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
-const CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin
+const { CommonsChunkPlugin } = webpack.optimize
 const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
 
 /**
@@ -46,9 +45,20 @@ export const ResolveModules = [
  */
 export const Plugins = [
   /**
+   * Clean generate folders
+   * run it first to reset the project.
+   */
+  new CleanWebpackPlugin([ tmpDir, distDir ], {
+    root: '/',
+    verbose: true,
+    dry: false
+  }),
+
+  /**
    * Define some global variables
    */
   new DefinePlugin(GlobalVariables),
+
   /**
    * Extract common modules
    * to reduce code duplication
@@ -72,25 +82,27 @@ export const Plugins = [
    */
   new CopyWebpackPlugin([
     {
-      from: path.join(rootDir, 'assets/panels/**'),
+      from: path.join(srcDir, 'assets/panels/**'),
       to: path.join(distDir, 'assets/panels/'),
+      flatten: true
+    },
+    /**
+     * 临时解决办法, 更新后删除
+     * docs: https://github.com/jantimon/favicons-webpack-plugin/issues/52
+     */
+    {
+      from: path.join(srcDir, 'assets/favicons/favicon.ico'),
+      to: path.join(distDir, '/favicon.ico'),
       flatten: true
     }
   ]),
 
   /**
-   * Clean generate folders
-   * run it first to reset the project.
+   * Generate all static resource
+   * manifest json file
    */
-  new CleanWebpackPlugin([ tmpDir, distDir ], {
-    root: '/',
-    verbose: true,
-    dry: false
-  })
+  new ManifestPlugin()
 ]
-
-export const Injector = InjectScriptPlugin(Plugins)
-export const CallAfter = WithDonePlugin(Plugins)
 
 /**
  * Generate some compile tasks
@@ -123,30 +135,19 @@ export const Rules = [
       }
     ]
   },
-  /**
-   * As Jade/Pug will use require() to load public style
-   * like bootstrap.css, so that we must provider a loader
-   * to load the file.
-   * At the same time, `ExtractTextPlugin` plugin do not
-   * match .css file, because it will throw an error to
-   * tell you no loader can load this file.
-   *
-   * Error:
-   *   Module build failed:
-   *   Error: "extract-text-webpack-plugin" loader is used
-   *   without the corresponding plugin, refer to
-   *   https://github.com/webpack/extract-text-webpack-plugin
-   *   for the usage example
-   */
   {
     test: /\.css$/,
-    use: {
-      loader: 'url-loader',
-      options: {
-        limit: 10000,
-        name: 'styles/[name].[hash].css'
-      }
-    }
+    use: ExtractTextPlugin.extract({
+      fallback: 'style-loader',
+      use: [
+        {
+          loader: 'css-loader',
+          options: {
+            minimize: true
+          }
+        }
+      ]
+    })
   },
   /**
    * docs:
@@ -190,7 +191,10 @@ export const Rules = [
     test: /\.js$/,
     use: [
       {
-        loader: 'ng-annotate-loader'
+        loader: 'ng-annotate-loader',
+        options: {
+          es6: true
+        }
       },
       /**
        * babel@6.0.0 break the .babelrc file
@@ -201,30 +205,23 @@ export const Rules = [
       {
         loader: 'babel-loader',
         options: {
-          plugins: [
-            require.resolve('babel-plugin-transform-decorators-legacy'),
-            require.resolve('babel-plugin-transform-export-extensions')
-          ],
-          presets: [
-            require.resolve('babel-preset-es2015'),
-            require.resolve('babel-preset-stage-0')
-          ]
+          babelrc: path.join(rootDir, './.babelrc')
         }
       }
     ],
     exclude: [/node_modules/]
   },
   /**
-   * 少于 10K 图片用 base64
+   * 少于 1K 图片用 base64
    * url-loader 依赖 file-loader
    */
   {
-    test: /\.(jpe?g|png|gif)$/i,
+    test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)$/i,
     use: [
       {
         loader: 'url-loader',
         options: {
-          limit: 10000,
+          limit: 1 * 1024,
           name: 'panels/[name].[hash].[ext]'
         }
       }
@@ -241,6 +238,10 @@ export default {
     path: distDir,
     publicPath: publicPath,
     filename: '[name].js'
+  },
+  node: {
+    __filename: true,
+    __dirname: true
   },
   module: {
     rules: Rules
@@ -300,7 +301,8 @@ export function generateEnteries (plugins, entries) {
      * reanme entry html
      */
     let options = {
-      filename: path.join(distDir, `${name}.html`)
+      filename: path.join(distDir, `${name}.html`),
+      serviceWorker: '/service-worker.js'
     }
 
     /**
@@ -315,8 +317,8 @@ export function generateEnteries (plugins, entries) {
     let excludeChunks = without(names, name)
     assign(options, { excludeChunks })
 
-    let plugin = new HtmlWebpackPlugin(options)
-    plugins.push(plugin)
+    let htmlPlugin = new HtmlWebpackPlugin(options)
+    plugins.push(htmlPlugin)
 
     return true
   })
@@ -335,6 +337,7 @@ export function generateFavicons (plugins) {
   if (fs.existsSync(logoFile)) {
     let statsFile = 'favicon/iconstats.json'
     let plugin = new FaviconsWebpackPlugin({
+      title: projectName,
       logo: logoFile,
       prefix: 'favicon/[hash]/',
       emitStats: true,
@@ -357,23 +360,6 @@ export function generateFavicons (plugins) {
     })
 
     plugins.push(plugin)
-
-    /**
-     * after compile, it will generate 'favicon.ico' file
-     * and copy it to the root path.
-     */
-    CallAfter.add(() => {
-      let sourceFile = path.join(distDir, statsFile)
-      if (!fs.existsSync(sourceFile)) {
-        return
-      }
-
-      let stats = fs.readJsonSync(sourceFile)
-      let favFile = path.join(distDir, stats.outputFilePrefix, 'favicon.ico')
-      let faviconFile = path.join(distDir, 'favicon.ico')
-
-      fs.copySync(favFile, faviconFile)
-    })
 
     return true
   }
@@ -541,127 +527,4 @@ export function generateSVGSprites (plugins, entries) {
     let [prefix, local] = name.split(':')
     item.attrs[name] = { value, name, prefix, local }
   }
-}
-
-/**
- * Callback after webpack excutes
- */
-export function WithDonePlugin (plugins) {
-  if (!isArray(plugins)) {
-    throw new Error('Parameter plugins must be a array.')
-  }
-
-  let instance = {
-    _callbacks: [],
-    add (callback) {
-      isFunction(callback) && this._callbacks.push(callback)
-    },
-    done () {
-      forEach(this._callbacks, (callback) => callback())
-    }
-  }
-
-  plugins.push({
-    apply (compiler) {
-      compiler.plugin('done', instance.done.bind(instance))
-    }
-  })
-
-  return instance
-}
-
-/**
- * Inject script to entry html file
- */
-export function InjectScriptPlugin (plugins) {
-  if (!isArray(plugins)) {
-    throw new Error('Parameter plugins must be a array.')
-  }
-
-  let instance = {
-    _injector: [],
-    _callbacks: [],
-    inject (source) {
-      if (!isString(source)) {
-        return false
-      }
-
-      let hash = mkhash(source)
-      if (indexOf(this._injector, { hash }) !== -1) {
-        return false
-      }
-
-      let script = `!(function () {
-        var id = 'webpack-${hash}';
-        if ('undefined' === typeof window || document.getElementById(id)) {
-          return;
-        }
-
-        var node = document.createElement('script');
-        node.id = id;
-        node.innerHTML = '${source}';
-
-        document.head.appendChild(node);
-      })();`
-
-      this._injector.push({ hash, script })
-    },
-    after (callback) {
-      isFunction(callback) && this._callbacks.push(callback)
-    }
-  }
-
-  plugins.push({
-    autoloadScript () {
-      let scripts = []
-      forEach(instance._injector, (injector) => scripts.push(injector.script))
-      return scripts.join('\n')
-    },
-    scriptTag (source) {
-      let injector = this.autoloadScript()
-      return injector + source
-    },
-    applyCompilation (compilation) {
-      compilation.mainTemplate.plugin('startup', this.scriptTag.bind(this))
-    },
-    applyDone () {
-      forEach(instance._callbacks, (injector) => injector())
-      instance._callbacks.splice(0)
-    },
-    apply (compiler) {
-      /**
-       * sometimes it will trigger twice or more,
-       * the core-code just exec once, see below function autoloadScript.
-       */
-      compiler.plugin('compilation', this.applyCompilation.bind(this))
-      compiler.plugin('done', this.applyDone.bind(this))
-    }
-  })
-
-  return instance
-}
-
-/**
- * make hash code
- * See: http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery?answertab=active#tab-top
- */
-function mkhash (string) {
-  string = JSON.stringify(string)
-
-  let hash = 0
-  if (string.length === 0) {
-    return hash
-  }
-
-  for (let i = 0, l = string.length; i < l; i++) {
-    let chr = string.charCodeAt(i)
-    hash = (hash << 5) - hash + chr
-
-    /**
-     * Convert to 32bit integer
-     */
-    hash |= 0
-  }
-
-  return hash
 }
