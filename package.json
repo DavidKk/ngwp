@@ -23,8 +23,8 @@
   "scripts": {
     "precommit": "lint-staged",
     "yamllint": "yamllint .travis.yml && yamllint appveyor.yml",
-    "standard": "standard --fix './src/**/*.js' './unitest/**/*.js' --parser babel-eslint",
-    "lint": "npm run yamllint && npm run standard",
+    "eslint": "eslint --config .eslintrc.js --ext .js --fix './src/**/*.js' './test/**/*.js'",
+    "lint": "npm run yamllint & npm run eslint",
     "mocha": "mocha --require babel-polyfill --compilers js:babel-register ./unitest/*.spec.js",
     "coverage": "rimraf ./coverage && nyc --reporter=text --reporter=lcov --report-dir=./coverage/cli npm run mocha",
     "coveralls": "npm run coverage && babel-node ./src/coveralls.js",
@@ -43,9 +43,13 @@
     "command-exists": "^1.2.2",
     "concurrently": "^3.5.0",
     "cpx": "^1.5.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "husky": "^0.14.3",
     "lint-staged": "^6.0.0",
-    "standard": "^10.0.3",
     "yaml-lint": "^1.0.0"
   },
   "dependencies": {

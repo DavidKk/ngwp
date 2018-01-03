@@ -26,10 +26,10 @@ export default function (file, options = {}, callback) {
     let serverPort = options.port || ServerPort
     let serverHost = options.host || '127.0.0.1'
     let serverHttps = isObject(options.https)
-    ? options.https || {}
-    : options.https === true
-      ? {}
-      : false
+      ? options.https || {}
+      : options.https === true
+        ? {}
+        : false
 
     let serverConfig = defaults({}, config.devServer, {
       // It suppress error shown in console, so it has to be set to false.
