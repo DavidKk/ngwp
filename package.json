@@ -1,6 +1,6 @@
 {
   "name": "ngwp",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0",
   "license": "MIT",
   "description": "Angular 1.x.x scaffold (Webpack, AngularJS 1.6.3, ES6, SCSS, Pug)",
   "homepage": "https://github.com/DavidKk/ngwp",
