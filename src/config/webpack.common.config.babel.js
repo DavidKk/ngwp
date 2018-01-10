@@ -10,8 +10,8 @@ import forEach from 'lodash/forEach'
 import isObject from 'lodash/isObject'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
-import Autoprefixer from 'autoprefixer'
-import PxToRem from 'postcss-pxtorem'
+import PostCSSAutoprefixer from 'autoprefixer'
+import PostCSSPxToRem from 'postcss-pxtorem'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -28,8 +28,8 @@ const DefinePlugin = webpack.DefinePlugin
 const { CommonsChunkPlugin } = webpack.optimize
 const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
 
-let PostCssPlugins = [
-  Autoprefixer({
+let PostCSSPlugins = [
+  PostCSSAutoprefixer({
     browsers: [
       'last 10 version',
       'ie >= 9'
@@ -43,13 +43,14 @@ forEach(PluginsOptions, ({ name, options }) => {
       rootValue: 16,
       unitPrecision: 5,
       propList: ['*'],
+      propWhiteList: ['*'],
       selectorBlackList: ['html'],
-      replace: false,
+      replace: true,
       mediaQuery: false,
       minPixelValue: 0
     })
 
-    PostCssPlugins.push(PxToRem(options))
+    PostCSSPlugins.push(PostCSSPxToRem(options))
   }
 })
 
@@ -178,16 +179,16 @@ export const Rules = [
           }
         },
         {
+          loader: 'postcss-loader',
+          options: {
+            plugins: PostCSSPlugins
+          }
+        },
+        {
           loader: 'sass-loader',
           options: {
             includePaths: ResolveModules,
             data: [spriteGenerated ? '@import "sprites";' : ''].join('\n')
-          }
-        },
-        {
-          loader: 'postcss-loader',
-          options: {
-            plugins: PostCssPlugins
           }
         }
       ]
