@@ -62,23 +62,6 @@
         proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/{{ entry }}?$args;
         proxy_intercept_errors on;
       }
-
-      location ~* ^/(.+\..+)$ {
-        add_header Cache-Control "no-store, no-cache, private";
-        try_files /favicon.ico @proxy_nodejs_static;
-      }
-
-      location @proxy_nodejs_static {
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  
-        proxy_pass {{#if useHttps}}https{{else}}http{{/if}}://{{ proxy }}:{{ port }}/$1?$args;
-        proxy_intercept_errors on;
-      }
     {{/compare}}
 
     {{#compare 'static' '===' type}}
