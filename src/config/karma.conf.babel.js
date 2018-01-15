@@ -46,8 +46,32 @@ export default function (config) {
     ],
     webpack: WebpackConf,
     webpackMiddleware: {
+      // It suppress error shown in console, so it has to be set to false.
+      quiet: false,
+      // It suppress everything except error, so it has to be set to false as well
+      // to see success build.
       noInfo: false,
-      stats: true
+      stats: {
+        // only warning and error informations
+        // docs: https://webpack.js.org/configuration/stats/
+        colors: true,
+        warnings: true,
+        errors: true,
+        errorDetails: true,
+
+        version: false,
+        assets: false,
+        cached: false,
+        cachedAssets: false,
+        modules: false,
+        moduleTrace: false,
+        chunks: false,
+        chunkModules: false,
+        chunkOrigins: false,
+        children: false,
+        hash: false,
+        timings: false
+      }
     },
     /**
      * in empty test folder, it will return

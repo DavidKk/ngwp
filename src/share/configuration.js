@@ -28,3 +28,4 @@ export const port = rcSettings.port || 8080
 export const publicPath = rcSettings.publicPath
 export const variables = mapValues(rcSettings.variables, JSON.stringify)
 export const modules = rcSettings.modules || []
+export const plugins = rcSettings.plugins || []

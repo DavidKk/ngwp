@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 import map from 'lodash/map'
+import clone from 'lodash/clone'
 import assign from 'lodash/assign'
 import without from 'lodash/without'
 import isArray from 'lodash/isArray'
@@ -9,7 +10,8 @@ import forEach from 'lodash/forEach'
 import isObject from 'lodash/isObject'
 import filter from 'lodash/filter'
 import defaults from 'lodash/defaults'
-import autoprefixer from 'autoprefixer'
+import PostCSSAutoprefixer from 'autoprefixer'
+import PostCSSPxToRem from 'postcss-pxtorem'
 import webpack from 'webpack'
 import CleanWebpackPlugin from 'clean-webpack-plugin'
 import SpritesmithTemplate from 'spritesheet-templates'
@@ -20,11 +22,37 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import ManifestPlugin from 'webpack-manifest-plugin'
-import { name as projectName, execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules } from '../share/configuration'
+import { name as projectName, execDir, rootDir, srcDir, distDir, tmpDir, publicPath, variables, modules as Modules, plugins as PluginsOptions } from '../share/configuration'
 
 const DefinePlugin = webpack.DefinePlugin
 const { CommonsChunkPlugin } = webpack.optimize
 const GlobalVariables = defaults({ publicPath: JSON.stringify(publicPath) }, variables)
+
+let PostCSSPlugins = [
+  PostCSSAutoprefixer({
+    browsers: [
+      'last 10 version',
+      'ie >= 9'
+    ]
+  })
+]
+
+forEach(PluginsOptions, ({ name, options }) => {
+  if (name === 'postcss-pxtorem') {
+    options = defaults({}, options, {
+      rootValue: 16,
+      unitPrecision: 5,
+      propList: ['*'],
+      propWhiteList: ['*'],
+      selectorBlackList: ['html'],
+      replace: true,
+      mediaQuery: false,
+      minPixelValue: 0
+    })
+
+    PostCSSPlugins.push(PostCSSPxToRem(options))
+  }
+})
 
 /**
  * Entries definitions
@@ -135,8 +163,12 @@ export const Rules = [
       }
     ]
   },
+  /**
+   * docs:
+   * - https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/263
+   */
   {
-    test: /\.css$/,
+    test: /\.(sass|s?css)$/,
     use: ExtractTextPlugin.extract({
       fallback: 'style-loader',
       use: [
@@ -145,23 +177,11 @@ export const Rules = [
           options: {
             minimize: true
           }
-        }
-      ]
-    })
-  },
-  /**
-   * docs:
-   * - https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/263
-   */
-  {
-    test: /\.(sass|scss)$/,
-    use: ExtractTextPlugin.extract({
-      fallback: 'style-loader',
-      use: [
+        },
         {
-          loader: 'css-loader',
+          loader: 'postcss-loader',
           options: {
-            minimize: true
+            plugins: PostCSSPlugins
           }
         },
         {
@@ -169,19 +189,6 @@ export const Rules = [
           options: {
             includePaths: ResolveModules,
             data: [spriteGenerated ? '@import "sprites";' : ''].join('\n')
-          }
-        },
-        {
-          loader: 'postcss-loader',
-          options: {
-            plugins: [
-              autoprefixer({
-                browsers: [
-                  'last 10 version',
-                  'ie >= 9'
-                ]
-              })
-            ]
           }
         }
       ]
@@ -229,10 +236,7 @@ export const Rules = [
   }
 ]
 
-/**
- * Webpack Setting
- */
-export default {
+let WebpackDefaultSettings = {
   entry: Entries,
   output: {
     path: distDir,
@@ -254,6 +258,18 @@ export default {
   },
   plugins: Plugins
 }
+
+let rootConfigFile = path.join(rootDir, 'webpack.ngwp.config.babel.js')
+if (fs.existsSync(rootConfigFile)) {
+  let options = fs.readJSONSync(path.join(execDir, '.babelrc'))
+  require('babel-register', options)
+  WebpackDefaultSettings = require(rootConfigFile).default(clone(WebpackDefaultSettings))
+}
+
+/**
+ * Webpack Setting
+ */
+export default WebpackDefaultSettings
 
 /**
  * Auto generate entries
