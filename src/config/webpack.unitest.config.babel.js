@@ -13,6 +13,7 @@ export default WebpackMerger(WebpackConfig, {
      */
     new DefinePlugin({
       'process.env': {
+        NODE_ENV: JSON.stringify('production'),
         production: JSON.stringify(true),
         unitest: JSON.stringify(true)
       }
